@@ -1,0 +1,239 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>
+    {% block titulo %}
+      {{dashboard.name|title|truncatechars:17|cut:" "}}
+    {% endblock titulo %}
+    </title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="{% static 'assets/img/favicon.png' %}" rel="icon">
+  <link href="{% static 'assets/img/apple-touch-icon.png' %}" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="{% static 'assets/vendor/aos/aos.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/boxicons/css/boxicons.min.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
+
+  <!-- Template Main CSS File -->
+  <link href="{% static 'assets/css/style.css' %}" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/card_products.css' %}">
+
+<!--   <script src="https://code.jquery.com/jquery-3.7.1.js"
+    integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+    crossorigin="anonymous"></script> -->
+  
+  <script src="{% static 'js/lib/jquery.min.js' %}"></script>
+</head>
+<body>
+
+  <!-- ======= Header ======= -->
+  <header id="header" class="fixed-top d-flex align-items-center">
+    <div class="container d-flex justify-content-between">
+      
+      <div class="logo" style="display: flex;width: 300px;justify-content: space-around;">
+        <h1>
+          {% block company %}
+          <a href="/">
+            {{dashboard.name|title|cut:" "}}
+          </a>
+          {% endblock company %}
+        </h1>
+        <!-- Uncomment below if you prefer to use an image logo -->
+       <!--  <a href="index.html"><img src="{% static 'img/empty.png' %}" alt="" class="img-fluid"></a> -->
+        
+        {% block carrito %}
+        <h1><a href="https://api.whatsapp.com/send?text=Catalogo:{% now 'Y-M-d' %} %0A %0A *{{company.name|upper|default:' '}}* %0A{{request.build_absolute_uri}}" target="_blank" style="font-size: 25px;"><i class="bi bi-share-fill"></i></a></h1>
+        <h1><a href="#" style="font-size: 25px;" onclick="searh_negocio()"><i class="bi bi-search"></i></a></h1>
+        {% endblock carrito %}
+            
+      </div>
+
+      <nav id="navbar" class="navbar">
+        
+        {% block menus %}
+        <ul>
+          <li><a class="nav-link scrollto active" href="#" onclick="form_company('/registro_company/')" 
+            data-bs-toggle="modal" data-bs-target="#exampleModal">Crear Catálogo</a></li>
+          <!-- <li class="dropdown"><a href="#"><span>Categorias</span> <i class="bi bi-chevron-down"></i></a>
+            <ul>
+              <li style="cursor: pointer;" class="nav-link scrollto"><a onclick="mostrar_por_categoria('{{c.id}}')" href="#product">{{c.name|title}}</a></li>
+            </ul>
+          </li> -->
+          <li><a class="nav-link scrollto" href="#team">Categorias</a></li>
+          <li><a class="nav-link scrollto" href="#footer">Nosotros</a></li>
+          {% if user.is_authenticated %}
+          <li class="dropdown"><a href="#"><span>Mi Perfil</span> <i class="bi bi-chevron-down"></i></a>
+            <ul>
+              <li><a class="nav-link scrollto" href="/salir/">Actualizar mi cuenta</a></li>
+              <li><a class="nav-link scrollto" href="/{{request.user.id}}/companys">Mis Catalogos</a></li>
+              <li><a class="nav-link scrollto" href="/salir/">Cerrar Sesion</a></li>
+            </ul>
+          </li>
+            {% else %}
+            <li><a class="nav-link scrollto" href="#login" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="login('/login_user/')">Ingresar</a></li>
+          {% endif %}
+            
+        </ul>
+        {% endblock menus %}
+          
+        <i class="bi bi-list mobile-nav-toggle"></i>
+      </nav><!-- .navbar -->
+    </div>
+  </header>
+  <!-- End Header -->
+   <!-- ======= Hero Section ======= -->
+   
+   {% block hero %}
+   <section id="hero" class="d-flex flex-column justify-content-center align-items-center">
+    <div class="container text-center text-md-left" data-aos="fade-up">
+      <h1>Bienvenidos a {{dashboard.name|title|cut:" "}}</h1>
+      <h2>Crea & encuentra las mejores tiendas online de toda Bolivia</h2>
+      <a href="#team" class="btn-get-started scrollto" > Ver Ultimas Novedades</a>
+    </div>
+  </section>
+   {% endblock hero %}
+    
+    
+   <!-- End Hero -->
+
+  <main id="main">
+    <!-- ======= Services Section ======= -->
+    {% include 'menus.html' %}
+    <!-- End Services Section -->
+    <!-- ======= Team Section ======= -->
+    {% block contenido %}
+    <section id="team" class="team" style="margin-top: 10px;" >
+      <div class="container-fluid productos_por_categorias" data-aos="fade-up">
+          {% include 'card_type_companys.html' with type_company=type_company count_comp=count_comp  %}
+        <hr>
+          {% include 'pag_productos.html' %}
+      </div> 
+    </section>
+    {% endblock contenido %}
+    <!-- <section id="category" class="category">
+      <div class="container">
+        {% include 'catalog/card_category.html' %}
+      </div>
+    </section> -->
+    <!-- End Team Section -->
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content" id="optenerProducto">
+            
+        </div>
+      </div>
+    </div>
+    
+    {% block contact %} {% endblock contact %}
+      
+  </main><!-- End #main -->
+
+  <!-- ======= Footer ======= -->
+      {% include 'footer_catalog.html' %}
+  <!-- End Footer -->
+  <a href="https://api.whatsapp.com/send?text=Hola quiero más información sobre sus productos, gracias.%0A{{request.build_absolute_uri}} &phone={{company.mobile}}" target="_blank" class="back-to-top-w d-flex align-items-center justify-content-center"><i class="bi bi-whatsapp"></i></a>
+  <div class="alert alert-danger container tamanio" role="alert" style="display: none;"></div>
+  <div class="alert alert-success container tamanio" role="alert" style="display: none;"></div>
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+  <!-- Vendor JS Files -->
+  <script src="{% static 'assets/vendor/aos/aos.js' %}"></script>
+  <script src="{% static 'assets/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'assets/vendor/glightbox/js/glightbox.min.js' %}"></script>
+  <script src="{% static 'assets/vendor/isotope-layout/isotope.pkgd.min.js' %}"></script>
+  <script src="{% static 'assets/vendor/swiper/swiper-bundle.min.js' %}"></script>
+  <script src="{% static 'assets/vendor/php-email-form/validate.js' %}"></script>
+
+  <!-- Template Main JS File -->
+  <script src="{% static 'assets/js/main.js' %}"></script>
+  
+  {% block js %}
+    
+  {% endblock js %}
+  
+</body>
+<script>
+  $('.multiple-card-slider .carousel').each(function(){
+    var currentCarouselId = '#' + $(this).attr('id');
+    const multipleItemCarousel = document.querySelector(currentCarouselId);
+
+    if(window.matchMedia("(min-width:576px)").matches){
+        const carousel = new bootstrap.Carousel(multipleItemCarousel, {
+            interval: false,
+            wrap: false
+        })
+        var carouselWidth = $(currentCarouselId + ' .carousel-inner')[0].scrollWidth;
+        var cardWidth = $(currentCarouselId + ' .carousel-item').width();
+        var scrollPosition = 0;    
+        $(currentCarouselId + ' .carousel-control-next').on('click', function(){
+            if(scrollPosition < (carouselWidth - (cardWidth * 4))){
+                console.log('next');
+                scrollPosition = scrollPosition + cardWidth;
+                $(currentCarouselId + ' .carousel-inner').animate({scrollLeft: scrollPosition},600);
+            }
+        });
+        $(currentCarouselId + ' .carousel-control-prev').on('click', function(){
+            if(scrollPosition > 0){
+                console.log('prev');
+                scrollPosition = scrollPosition - cardWidth;
+                $(currentCarouselId + ' .carousel-inner').animate({scrollLeft: scrollPosition},600);
+            }
+        });
+    }else{
+        $(multipleItemCarousel).addClass('slide');
+    }
+});
+$(function(){
+  $('.carousel-item:first-child').addClass('active');
+});
+
+function mostrar_por_categoria(id_categoria){
+      //alert("id: " + id_categoria);
+      /* if(screen.width > 200 && screen.width < 992){
+        $("#navbar .mobile-nav-toggle").click();
+      } */
+      $.ajax({
+          type: 'GET',
+          url: '/'+id_categoria+'/mostrar_por_categoria',
+          data:{'id_categoria':id_categoria},
+          success:function(resp){
+              $(".productos_por_categorias").fadeIn(1000).html(resp);
+              $(".navbar-mobile i").click();
+          }
+      });
+  }
+  function form_company(urls){
+    $.ajax({
+          type: 'GET',
+          url: urls,
+          success:function(resp){
+              $(".modal-content").html(resp);
+          }
+      });
+  }
+  function login(urls){
+    
+    $.ajax({
+          type:'GET',
+          url:urls,
+          success:function(resp){
+              $(".modal-content").html(resp);
+          }
+      });
+  }
+</script>
+</html>

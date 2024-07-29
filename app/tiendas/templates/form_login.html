@@ -1,0 +1,41 @@
+{% load crispy_forms_tags %}
+
+<div class="modal-header  thead-light" style="background-color: #58bba9;">
+    <h5 class="modal-title text-white" id="exampleModalLabel">Iniciar Sesión</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+  <div class="modal-body table-responsive">
+    <form action="/login_user/" method="post" id="login_forms" class="form-horizontal">
+     {% csrf_token %}
+     
+       {{form|crispy}}
+     
+    </form>
+    <p class="invalid text-danger"></p>
+ </div>
+ <div class="modal-footer">
+   <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="bi bi-arrow-left-circle"></i> Cancelar</button>
+   <button type="submit" class="btn btn-success btn-sm" onclick="loguarse()"><i class="bi bi-user"></i> Iniciar Sesion</button>
+ </div>
+  <script>
+    $(function(){
+      $("#login_forms #div_id_username .form-label").html("Correo Elec. ó Usuario");
+    });
+    function loguarse(){
+      $.ajax({
+            type:'POST',
+            url:$("#login_forms").attr('action'),
+            data:$("#login_forms").serialize(),//{user_data: {…}, company_data: {…}, plan_data: {…}}
+
+            success:function(resp){
+              if(resp.error){
+                $(".invalid").text(resp.error);
+              }
+              else{
+                window.location.href='/'+resp.user_id+'/companys';
+              }
+            }
+        });
+    }
+    
+  </script>

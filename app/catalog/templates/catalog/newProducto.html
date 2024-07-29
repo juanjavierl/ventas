@@ -1,0 +1,87 @@
+{% load crispy_forms_tags %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="section-title">
+            <h2>Registra nuevos productos</h2>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <!-- <form action="/new_producto/" method="post" id="conpany_forms_update" enctype="multipart/form-data">
+        {% csrf_token %}
+            {{form|crispy}}
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="bi bi-arrow-left-circle"></i> Cancelar</button>
+            <button type="submit" class="btn btn-success btn-sm">Confirmar</button>
+            </div>
+        </form>
+    <p class="invalid text-danger"></p> -->
+    <div class="row mt-5 justify-content-center" data-aos="fade-up">
+        <div class="col-lg-10">
+          <form action="/new_producto/" method="post" role="form" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <label for="{{ form.name.id_for_label }}">Nombre:</label>
+                {{form.name}}
+              </div>
+              <div class="col-md-6 form-group mt-3 mt-md-0">
+                <label for="{{ form.code.id_for_label }}">Codigo:</label>
+                {{form.code}}
+              </div>
+            </div>
+            <div class="form-group mt-3">
+              <label for="{{ form.description.id_for_label }}">Descripcion:</label>
+                {{form.description}}
+            </div>
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <label for="{{ form.name.id_for_label }}">Categoria:</label>
+                {{form.category}}
+              </div>
+              <div class="col-md-6 form-group mt-3 mt-md-0">
+                <label for="{{ form.image.id_for_label }}">Imagen:</label>
+                {{form.image}}
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <label for="{{ form.price.id_for_label }}">Precio de Venta:</label>
+                {{form.price}}
+              </div>
+              <div class="col-md-6 form-group mt-3 mt-md-0">
+                <label for="{{ form.price_before.id_for_label }}">Precio de Antes:</label>
+                {{form.price_before}}
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <label for="{{ form.stock.id_for_label }}">Stock:</label>
+                {{form.stock}}
+              </div>
+              <div class="col-md-6 form-group mt-3 mt-md-0">
+                <label for="{{ form.code.id_for_label }}">¿Es Nuevo producto?:</label>
+                {{form.is_new}}
+              </div>
+              <div class="col-md-6 form-group">
+                <label for="{{ form.is_service.id_for_label }}">¿Es Servicio?:</label>
+                {{form.is_service}}
+              </div>
+              <div class="col-md-6 form-group mt-3 mt-md-0">
+                <label for="{{ form.is_promotion.id_for_label }}">¿Esta en Promocion?:</label>
+                {{form.is_promotion}}
+              </div>
+            </div>
+            
+            <div class="my-3">
+              <div class="sent-message" style="display: none;">Your message has been sent. Thank you!</div>
+            </div>
+            <div class="col-md-6 form-group mt-3">
+              <button  class="btn btn-success" type="submit">Registrar</button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+</div>

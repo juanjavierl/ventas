@@ -1,0 +1,109 @@
+{% extends 'index.html' %}
+
+{% block company %}
+  <a href="/">
+    <marquee behavior="" direction="">{{dashboard.name|title|cut:" "}}</marquee>
+  </a>
+{% endblock company %}
+
+{% block hero %}    {% endblock hero %}
+
+
+  
+
+{% block contenido %}
+<section id="team_companys" class="team" style="margin-top: 80px;" >
+  <div class="container-fluid" data-aos="fade-up">
+    <div class="row">
+        <div class="col-12">
+            <div class="section-title">
+                
+                {% if user.is_authenticated %}
+                <h4 class="text-success">Hola: {{user.email}}, Estos son tus catálogos</h4>
+                <p class="text-muted">Crea o Actualiza tus Catálogos.</p>
+                {% else %}
+                  <h2>Elige tu catalogo online</h2>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="row col-12 justify-content-center" style="margin-left: 1px;">
+      {% for n in companys %}
+      <div class="card dark card_c single-product">
+        {% if n.image %}
+          <img src="/media/{{n.image}}" class="card-img-top" alt="...">
+        {% else %}
+          <i class="bi bi-shop-window" class="card-img-top" alt="..."></i>
+        {% endif %}
+        <!-- {% if n.is_new %}        
+          <span class="badge rounded-pill bg-primary sale-tag d-flex">
+            Nuevo
+          </span>
+        {% endif %} -->
+        <div class="card-body" style="padding: 10px;">
+            <div class="text-section" onclick="detailSite('/{{n.id}}/catalogo')">
+                <h5 class="card-title text-wrap text-primary fw-bolder">{{n.name|title}}</h5>
+                <p class="card-text text-break text-wrap">{{n.description|default:" - - - "|capfirst|truncatewords:10}}
+                </p>
+                <p class="card-text"> 
+                  {% for c, v in count_productos.items %}
+                    {% if c == n.name %}
+                        {{ v }}
+                    {% endif %}
+                  {% endfor %}
+                  <small class="text-muted text-success">: Productos</small>
+                </p>
+            </div>
+            
+            {% if user.is_authenticated %}
+            <div class="">
+              <div class="dropdown">
+                <button type="button" class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
+                  <span class="bi bi-three-dots-vertical"></span>
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                  <a class="dropdown-item" href="#actualizar" onclick="updateCompany('/{{n.id}}/updateCompany/')" 
+                  data-bs-toggle="modal" data-bs-target="#exampleModal">Actualizar</a>
+                  <a class="dropdown-item" href="#eliminar" onclick="deleteCompany('/{{n.id}}/deleteCompany/')" 
+                  data-bs-toggle="modal" data-bs-target="#exampleModal">Eliminar</a>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+              
+        </div>
+      </div>
+          {% empty %}
+          <div class="alert alert-warning" role="alert" style="text-align: center;">No se encontraron resultados.
+            <a href="/">Ir al Inicio</a>
+          </div>
+        {% endfor %}     
+    </div>
+  </div>
+</section>
+<script>
+  function detailSite(urls){
+    window.location.href = urls;
+  }
+  function updateCompany(urls){
+    $.ajax({
+            type:'get',
+            url:urls,
+            success:function(resp){
+              $(".modal-content").html(resp);
+            }
+    });
+  }
+  function deleteCompany(urls){
+    $.ajax({
+            type:'get',
+            url:urls,
+            success:function(resp){
+              $(".modal-content").html(resp);
+            }
+    });
+  }
+</script>
+  
+{% endblock contenido %}
+  

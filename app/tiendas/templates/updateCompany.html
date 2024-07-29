@@ -1,0 +1,38 @@
+{% load crispy_forms_tags %}
+<div class="modal-header  thead-light" style="background-color: #58bba9;">
+    <h5 class="modal-title text-white" id="exampleModalLabel">Actualizar: {{company.name|title}}</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+  <div class="modal-body table-responsive">
+    <form action="/{{company.id}}/updateCompany/" method="post" id="conpany_forms_update" enctype="multipart/form-data">
+     {% csrf_token %}
+       {{form|crispy}}
+       <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="bi bi-arrow-left-circle"></i> Cancelar</button>
+        <button type="submit" class="btn btn-success btn-sm">Confirmar</button>
+      </div>
+    </form>
+    <p class="invalid text-danger"></p>
+ </div>
+ <script>
+  $("#conpany_forms_update").on('submit',function(e){
+    e.preventDefault();
+    let datos = new FormData(this);
+    $.ajax({
+            type:'POST',
+            url:$(this).attr('action'),
+            data:datos,
+            contentType: false,
+            processData: false,
+            success:function(resp){
+              if(resp.error){
+                $(".invalid").text(resp.error);
+              }
+              else{
+                window.location.href='/'+resp.companys_from_user+'/companys';
+              }
+            }
+        });
+  });
+      
+ </script>

@@ -1,0 +1,190 @@
+{% extends 'index.html' %}
+{% block card_productos %}
+<style>
+    @media (max-width: 500px){/*cuando la pantalla es < a 500*/
+    .container .info .table-responsive{
+        margin-top: 10px;
+    }
+  }
+</style>
+{% load crispy_forms_tags %}
+
+<div class="container" id="confirmacion">
+    <div class="section-title" data-aos="fade-up">
+        <h2>Por favor complete sus datos</h2>
+    </div>
+    <div class="row d-flex no-gutters justify-content-center info" data-aos="fade-up" id="data_dable">
+        <div class="col-lg-5 d-flex align-items-stretch form_msj">
+            <form action="/confirmar_compra/" method="post" class="" id="form_pedido" style="width: 100%;">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <select class="form-select" id="tipo_envio" name="tipo_envio" aria-label="Small select example">
+                  <option value="tienda">Recoger en tienda</option>
+                  <option value="domicilio">Recibir en mi domicilio</option>
+                  <option value="ciudad">Enviarme a otra Ciudad</option>
+                </select>
+                <br>
+                <div id="div_id_fecha">
+                  <label for="">Fecha y Hora a Recoger</label>
+                <input type="datetime-local" id="date_time" name="date_time" value="{% now 'd-m-Y H:i:s' %}" min="{% now 'd-m-Y H:i:s' %}" max="" class="textinput form-control">
+                <span id="passwordHelpBlock" class="form-text">
+                  Ingrese una hora más tarde a su hora actual.
+                </span>
+                </div>
+                <select class="form-select" id="destino" name="destino" aria-label="Small select example">
+                  <option value="">Seleccione su Ciudad</option>
+                  <option value="Cochabamaba">Cochabamaba</option>
+                  <option value="La Paz">La Paz</option>
+                  <option value="Santa Cruz">Santa Cruz</option>
+                  <option value="Potosi">Potosi</option>
+                  <option value="Oruro">Oruro</option>
+                  <option value="Sucre">Sucre</option>
+                  <option value="Tarija">Tarija</option>
+                  <option value="Beni">Beni</option>
+                  <option value="Pando">Pando</option>
+                </select>
+                <br>
+                
+                <div class="modal-footer">
+                  <button type="submit" class="btn btn-success btn-sm btn-block efecto_button">Enviar mi Pedido & Confirmar por Whatsapp</button>   
+                </div>
+            </form>
+        </div>
+        
+        <div class="col-lg-5 d-flex align-items-stretch table-responsive">
+                <table class="table table-striped table-sm" id="data_dable">
+                    <thead>
+                      <tr class="table-info">
+                        <th scope="col">#</th>
+                        <th scope="col">Producto</th>
+                        <th scope="col">Precio</th>
+                        <th scope="col">Cantidad</th>
+                        <th scope="col">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for i in datos %}
+                        <tr id="eliminarProducto{{forloop.counter0}}">
+                            <td>{{forloop.counter}}</td>
+                            <td>{{i.name}}</td>
+                            <td>{{i.precio_uni}}</td>
+                            <td>{{i.cantidad}}</td>
+                            <td>{{i.total}}</td>
+                           <!--  <td><button onclick="eliminarProducto('/eliminarProducto/{{forloop.counter0}}')" data-bs-toggle="tooltip" title="Eliminar" class="btn btn-danger btn-sm"><i class="bi bi-trash3"></i></button></td> -->
+                        </tr>
+                      {% empty %}
+                        <tr><td colspan="5"><div class="alert alert-warning" role="alert">No hay Productos</div></td></tr>
+                      {% endfor %}
+                      {% if datos %}
+                      <tr>
+                        <td colspan="5" style="text-align: right;"><strong id="t_p">Total a Pagar: Bs. {{t_pago}}</strong></td>
+                      </tr>
+                      {% endif %}
+                    </tbody>
+                  </table>
+        </div>
+        
+    </div> 
+</div>
+<div class="alert alert-success confir_pedido" role="alert" style="display: none;"></div> 
+<div class="alert alert-danger error_pedido" role="alert" style="display: none;"></div> 
+<script>
+    $(function(){
+      $("#date_time").value = "{% now 'd-m-Y H:i:s' %}";
+
+      $("#div_id_address").hide();
+      $("#destino").hide();
+
+      $("#tipo_envio").change(function(){
+        if($(this).val() == "tienda"){
+          $("#div_id_fecha").show();
+          $("#div_id_fecha input").focus();
+            $("#div_id_address").hide();
+            $("#destino").hide();
+          }
+        if($(this).val() == "domicilio"){
+            $("#div_id_fecha").hide();
+            $("#destino").hide();
+            $("#div_id_address").show();
+            $("#div_id_address input").focus();
+          }
+          if($(this).val() == "ciudad"){
+            $("#div_id_address").hide();
+            $("#div_id_fecha").hide();
+            $("#destino").show();
+            $("#destino").focus()
+          }
+        });
+
+        if({{total_compra}} == 0){
+            $(".form_msj").hide();
+            $(".col-6 h2").fadeIn(1000).html("No hay productos");
+            setTimeout(function(){
+                window.location.href = "/";
+            },3000);
+        }
+    });
+        
+    $('#form_pedido').submit(function(e){
+         e.preventDefault();
+         $.ajax({
+                type:'POST',
+                url:$(this).attr("action"),
+                data:$(this).serialize(),
+                success: function(resp){
+                  if(resp.error){
+                    $('.error_pedido').fadeIn(1000).html(resp.error).show();
+                  }
+                  else{
+                    $("#confirmacion").hide();
+                    $('.error_pedido').hide();
+                    $('.confir_pedido').fadeIn(1000).html(resp.success).show();
+                    $("#cont_compras").html(resp.products);
+                    var datos = "***** *Mi Pedido* ***** %0A";
+                    datos = datos + "Nombre: "+resp.cliente+ "%0A %0A";
+                    var pedido = "";
+                    for(let productos=0; productos < resp.lista.length; productos ++){
+                      pedido = pedido + resp.lista[productos]['name'] + " " +resp.lista[productos]['cantidad'] +"x"+ resp.lista[productos]['precio_uni'] +"="+ resp.lista[productos]['total']+"%0A";
+                    }
+                    pedido = pedido+"%0A"
+                    var lugar = ""
+                    if(resp.lugar.date == "date"){
+                       //let fecha_hora = resp.lugar.fecha.split('T');
+                       //console.log(typeof(resp.lugar.fecha));
+                       lugar = "Fecha y hora a recoger: %0A"+resp.lugar.fecha+"%0A %0A";
+                    }
+                    if(resp.lugar.dir == "dir"){
+                      lugar = "Dirección de envio: "+resp.lugar.direccion+"%0A";
+                    }
+                    if(resp.lugar.cuidad == "cuidad"){
+                      lugar = "Cuidad de envio: "+resp.lugar.destino+"%0A";
+                    }
+
+                    dir = "Dirección: "+resp.dir +"%0A";
+                    cuidad = "Ciudad:" +resp.cuidad+"%0A";
+                    total = "- *Total a pagar: Bs."+resp.t_pago+"* %0A %0A"
+                    web = "_sitio web: {{ request.get_host }}_"//corregir ir a la orden
+                    //href="https://api.whatsapp.com/send?text=Mas informacion sobre este producto: {{p.description|default:' '}}, gracias. &phone={{company.mobile}}/?u={{request.build_absolute_uri}}"
+                    var ruta = "https://api.whatsapp.com/send?phone=+591"+resp.cel_company+"&text="+datos + pedido + total + lugar + web;
+                    window.open(ruta, "Diseño Web", "width=700, height=500");
+                        //location.reload();
+                  }
+                }
+         });
+     });
+
+    function eliminarProducto(urls){
+        $.ajax({
+            type:'GET',
+            url:urls,
+            success:function(resp){
+                $("#cont_compras").html(resp);
+                //$(".datos_confirmar").fadeIn(1000).html(resp)
+                window.location.href="/confirmar_compra/";
+                //verCarrito('/ver_carrito/');
+            }
+        });
+        return false;
+    }
+  </script> 
+{% endblock card_productos %}

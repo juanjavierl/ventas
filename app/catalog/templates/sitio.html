@@ -1,0 +1,113 @@
+{% extends 'index.html' %}
+{% block titulo %}
+    {{company.name|title|truncatechars:17|cut:" "}}
+{% endblock titulo %}
+
+{% block company %}
+  <a href="/{{company.id}}/catalogo">
+    <marquee behavior="" direction="">{{company.name|title|cut:" "}}</marquee>
+  </a>
+{% endblock company %}
+
+{% block carrito %}
+<h1><a href="#" style="font-size: 25px;" onclick="mostrar_buscador()"><i class="bi bi-search"></i></a></h1>
+<h1><a href="https://api.whatsapp.com/send?text=Catalogo:{% now 'Y-M-d' %} %0A %0A *{{company.name|upper|default:' '}}* %0A{{request.build_absolute_uri}}" target="_blank" style="font-size: 25px;"><i class="bi bi-share-fill"></i></a></h1>
+    <h1>
+        <a href="#" class="nav-link scrollto cantidades-card" onclick="verCarrito('/ver_carrito/')" 
+        data-bs-toggle="modal" data-bs-target="#exampleModal">
+        <button type="button" class="btn btn-primary position-relative">
+            <i class="bi bi-cart-fill"></i>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="cont_compras">
+            {{total_compra}}
+            </span>
+        </button>
+        </a>
+    </h1>
+{% endblock carrito %}
+
+{% block menus %}
+<ul>
+    
+    {% if user.is_authenticated %}
+    <li><a class="nav-link scrollto active" href="#" onclick="newProducto('/new_producto/')">Nuevo Productos</a></li>
+    {% else %}
+    <li><a class="nav-link scrollto active" href="{{request.build_absolute_uri}}">  Inicio </a></li>
+    {% endif %}
+      
+    <li class="dropdown"><a href="#"><span>Categorias</span> <i class="bi bi-chevron-down"></i></a>
+      <ul>
+        {% for c in categorias %}
+          <li style="cursor: pointer;" class="nav-link scrollto"><a onclick="mostrar_por_categoria('{{c.id}}')" href="#product">{{c.name|title}}</a></li>
+        {% empty %}
+          <li class="bi-x"><a href="">No hay Categorias</a></li>
+        {% endfor %}
+      </ul>
+    </li>
+    <li><a class="nav-link scrollto" href="#contact">Contactanos</a></li>
+    
+    {% if user.is_authenticated %}
+    <li class="dropdown"><a href="#"><span>Mi Perfil</span> <i class="bi bi-chevron-down"></i></a>
+      <ul>
+        <li><a class="nav-link scrollto" href="/salir/">Actualizar mi cuenta</a></li>
+        <li><a class="nav-link scrollto" href="/{{request.user.id}}/companys">Mis Catalogos</a></li>
+        <li><a class="nav-link scrollto" href="/salir/">Cerrar Sesion</a></li>
+      </ul>
+    </li>
+      {% else %}
+      <li><a class="nav-link scrollto" href="#login" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="login('/login_user/')">Ingresar</a></li>
+    {% endif %}
+      
+  </ul>
+{% endblock menus %}
+
+{% block hero %}  {% endblock hero %}
+  
+{% block contenido %}
+    <section id="team_productos" class="team" style="margin-top: 80px;" >
+      <div class="container-fluid productos_por_categorias" data-aos="fade-up">
+          {% include 'catalog/card_productos.html' with productos=productos %}
+        <hr>
+          {% include 'pag_productos.html' %}
+      </div> 
+    </section>
+{% endblock contenido %}
+    
+{% block contact %}
+  <!-- ======= Contact Section ======= -->
+<section id="contact" class="contact">
+  <div class="container">
+    {% include 'contact.html' %}
+  </div>
+</section>
+<!-- End Contact Section -->
+{% endblock contact %}
+
+
+{% block js %}
+<script>
+  function verCarrito(urls){
+    $.ajax({
+        type:'GET',
+        url:urls,
+        success:function(resp){
+            $("#optenerProducto").html(resp);
+        }
+    });
+  }
+function mostrar_buscador(){
+  $('.menus').slideToggle(1000);
+  $('.menus form #shear_text').focus();
+}
+
+function newProducto(urls){
+  $.ajax({
+        type:'GET',
+        url:urls,
+        success:function(resp){
+            $("#team_productos .productos_por_categorias").html(resp);
+        }
+    });
+}
+</script>
+{% endblock js %}
+  

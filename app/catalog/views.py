@@ -268,7 +268,23 @@ def crear_orden(id_cliente):
     return orden
 
 def newProducto(request):
+    if request.method == 'POST':
+        producto = Product()
+        producto.name = request.POST['name']
+        producto.code = request.POST['code']
+        producto.description = request.POST['description']
+        producto.category_id = int(request.POST['category'])
+        #producto.company_id = int() a recuperar
+        producto.price = request.POST['price']
+        producto.price_before = request.POST['price_before']
+        producto.stock = request.POST['stock']
+        producto.image = request.FILES['image']
+        producto.is_service = request.POST['is_service']
+        producto.is_new = request.POST['is_new']
+        producto.is_promotion = request.POST['is_promotion']
 
+        producto.save()
+        return JsonResponse({'success':'Producto registrado exitosamente.'})
     form = formProducto()
     
     return render(request, 'catalog/newProducto.html',{'form':form})

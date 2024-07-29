@@ -3,7 +3,7 @@
 <div class="row">
     <div class="col-12">
         <div class="section-title">
-            <h2>Registra nuevos productos</h2>
+            <h2>Registrar nuevos productos</h2>
         </div>
     </div>
 </div>
@@ -19,7 +19,7 @@
     <p class="invalid text-danger"></p> -->
     <div class="row mt-5 justify-content-center" data-aos="fade-up">
         <div class="col-lg-10">
-          <form action="/new_producto/" method="post" role="form" enctype="multipart/form-data">
+          <form action="/new_producto/" method="post" role="form" enctype="multipart/form-data" id="form_producto">
             {% csrf_token %}
             <div class="row">
               <div class="col-md-6 form-group">
@@ -61,27 +61,38 @@
                 {{form.stock}}
               </div>
               <div class="col-md-6 form-group mt-3 mt-md-0">
-                <label for="{{ form.code.id_for_label }}">¿Es Nuevo producto?:</label>
                 {{form.is_new}}
+                <label for="{{ form.is_new.id_for_label }}">¿Es Nuevo producto?:</label>
               </div>
-              <div class="col-md-6 form-group">
-                <label for="{{ form.is_service.id_for_label }}">¿Es Servicio?:</label>
+              <div class="col-md-6 form-group mt-md-0">
                 {{form.is_service}}
+                <label for="{{ form.is_service.id_for_label }}">¿Es Servicio?:</label>
               </div>
               <div class="col-md-6 form-group mt-3 mt-md-0">
-                <label for="{{ form.is_promotion.id_for_label }}">¿Esta en Promocion?:</label>
                 {{form.is_promotion}}
+                <label for="{{ form.is_promotion.id_for_label }}">¿Esta en Promocion?:</label>
               </div>
             </div>
-            
-            <div class="my-3">
-              <div class="sent-message" style="display: none;"></div>
-            </div>
-            <div class="col-md-6 form-group mt-3">
-              <button  class="btn btn-success" type="submit">Registrar</button>
-            </div>
+            <p class="sent-message" style="display: none;"></p>
+            <button  class="btn btn-secondary" type="reset">Cancelar</button>
+            <button  class="btn btn-success" type="submit">Registrar</button>
           </form>
         </div>
-
       </div>
 </div>
+<script>
+  $('#form_producto').on('submit',function(e){
+    e.preventDefault();
+    let datos = new FormData(this);
+    datos.append('id_company', 'variable a recuperar');
+    console.log(datos)
+    $.ajax({
+        type:'post',
+        url:$(this).attr('action'),
+        data: datos,
+        success:function(resp){
+            $(".sent-message").fadeIn(1000).html(resp);
+        }
+    });
+  });
+</script>

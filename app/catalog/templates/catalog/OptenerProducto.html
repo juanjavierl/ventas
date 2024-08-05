@@ -1,6 +1,27 @@
 {% extends "index.html" %}
+{% load static %}
 
-{% block card_productos %}
+{% block titulo %}
+    {{company.name|title|truncatechars:17|cut:" "}}
+{% endblock titulo %}
+
+{% block company %}
+  <a href="/{{id_company}}/catalogo">
+    <marquee behavior="" direction="">{{company.name|title|cut:" "}}</marquee>
+  </a>
+{% endblock company %}
+
+{% block carrito %}
+  {% include 'catalog/carrito.html'  with total_compra=total_compra %}
+{% endblock carrito %}
+
+{% block menus %}
+    {% include 'menu_from_user.html' with categorias=categorias %}
+{% endblock menus %}
+
+{% block hero %}  {% endblock hero %}
+
+{% block contenido %}
 <style>
   .cantidades{
     display: flex;
@@ -59,7 +80,7 @@ input[type=number] { -moz-appearance:textfield; }
 </style>
 
 
-<div class="card col-12 container " style=" box-shadow: 0 7px 7px rgb(0 0 0 / 18%);">
+<div class="card col-12 container " style=" box-shadow: 0 7px 7px rgb(0 0 0 / 18%); margin-top: 80px;">
   <div class="row g-0" data-aos="fade-up">
     <div class="col-md-4">
       <img src="/media/{{p.image}}" class="img-fluid rounded mx-auto d-block" alt="..." style="margin-top: 20px;">
@@ -86,7 +107,7 @@ input[type=number] { -moz-appearance:textfield; }
         <p class="card-text tex text-break">{{p.description|default:" - - -"|capfirst}}</p>
         <p class="card-text">
           Categoria: <small class="text-muted">{{p.category|capfirst}}</small>
-          <small class="text-muted" style="padding-left: 30px;">Cod. {{p.id}}</small>
+          <small class="text-muted" style="padding-left: 30px;">Cod. {{p.code}}</small>
         </p>
         <p class="card-text">
           <strong>Precio Bs. {{p.price|default:" 0 "}}</strong>
@@ -108,7 +129,7 @@ input[type=number] { -moz-appearance:textfield; }
         </p>
         
         <div class="row">
-          <form action="/{{p.id}}/detail_product" id="form_pedido" method="post" class="form-row row">
+          <form action="/{{p.id}}/{{id_company}}/detail_product" id="form_pedido" method="post" class="form-row row">
               {% csrf_token %}
               
                     <div class="col-12 col-md-6 col-lg-4 cantidades form-group">
@@ -124,9 +145,8 @@ input[type=number] { -moz-appearance:textfield; }
                         <!-- &nbsp;
                         <button type="submit" class="btn btn-success btn-sm btn_icon">+<i class="bi bi-cart-fill"></i></button> -->
                      
-                        <a href="{% url 'CatalogView' %}" class="btn btn-secondary btn-sm tb_text" style="padding-top: 5px;"><i class="bi bi-arrow-left-circle"></i> Volver Atrás</a>
-                        <!-- &nbsp;
-                        <a href="{% url 'CatalogView' %}" class="btn btn-secondary btn-sm btn_icon" style="padding-top: 5px;"><i class="bi bi-arrow-left-circle"></i></a> -->
+                        <a href="/{{id_company}}/catalogo" class="btn btn-secondary btn-sm tb_text" style="padding-top: 5px;"><i class="bi bi-arrow-left-circle"></i> Volver Atrás</a>
+                        
                     </div>
             </form>
 
@@ -165,9 +185,7 @@ if (navigator.share) {
   $("#status").hide()
 }
 
-  
-
-  $('#form_pedido').submit(function(e){
+$('#form_pedido').submit(function(e){
     e.preventDefault();
   //if(Number.isInteger($('#cantidad_id').val()) || parseInt($('#cantidad_id').val())){
     $.ajax({
@@ -188,7 +206,10 @@ if (navigator.share) {
           setTimeout(function(){
               $(".tamanio").fadeIn().html(resp.success).hide();
             },4000);
-        }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+             alert("Error:"+ thrownError);
+           }
     });
 });
 $(function(){
@@ -221,5 +242,18 @@ $(function(){
     });
 });
 </script>  
-{% endblock card_productos %}
+{% endblock contenido %}
   
+{% block contact %}
+  <!-- ======= Contact Section ======= -->
+<section id="contact" class="contact">
+  <div class="container">
+    {% include 'contact.html' %}
+  </div>
+</section>
+<!-- End Contact Section -->
+{% endblock contact %}
+
+{% block js %}
+<script src="{% static 'js/funcionesFromUser.js' %}"></script>
+{% endblock js %}

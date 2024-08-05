@@ -1,5 +1,10 @@
 {% load crispy_forms_tags %}
-
+<style>
+  .category .select2-container{
+    height: 33px;
+    width: auto;
+  }
+</style>
 <div class="row">
     <div class="col-12">
         <div class="section-title">
@@ -19,39 +24,51 @@
     <p class="invalid text-danger"></p> -->
     <div class="row mt-5 justify-content-center" data-aos="fade-up">
         <div class="col-lg-10">
-          <form action="/new_producto/" method="post" role="form" enctype="multipart/form-data" id="form_producto">
+          <form action="/{{company.id}}/new_producto/" method="post" role="form" enctype="multipart/form-data" id="form_producto">
             {% csrf_token %}
             <div class="row">
               <div class="col-md-6 form-group">
-                <label for="{{ form.name.id_for_label }}">Nombre:</label>
+                <label for="{{ form.name.id_for_label }}">Nombre:*</label>
                 {{form.name}}
               </div>
               <div class="col-md-6 form-group mt-3 mt-md-0">
-                <label for="{{ form.code.id_for_label }}">Codigo:</label>
+                <label for="{{ form.code.id_for_label }}">Codigo:*</label>
                 {{form.code}}
               </div>
             </div>
             <div class="form-group mt-3">
-              <label for="{{ form.description.id_for_label }}">Descripcion:</label>
+              <label for="{{ form.description.id_for_label }}">Descripcion:  (Opcional)</label>
                 {{form.description}}
             </div>
             <div class="row">
-              <div class="col-md-6 form-group">
-                <label for="{{ form.name.id_for_label }}">Categoria:</label>
-                {{form.category}}
+              <div class="col-md-6 form-group"><br>
+                <label for="{{ form.name.id_for_label }}">Categoria:*</label>
+                <div class="input-group">
+                  <select name="category" class="select form-select" required="" id="id_category" tabindex="-1" aria-hidden="true">
+                    <option value="" selected="">---------</option>
+                  {% for c in categorys %}
+                  <option value="{{c.id}}">{{c.name}}</option>
+                  {% empty %}
+                  <option value="">No hay Registros</option>
+                  {% endfor %}
+                  </select>
+                  
+                  <button class="btn btn-outline-success btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="addCategory('/new_category/')">mas</button>
+                </div>
               </div>
-              <div class="col-md-6 form-group mt-3 mt-md-0">
-                <label for="{{ form.image.id_for_label }}">Imagen:</label><br>
+
+              <div class="col-md-6 form-group mt-3 mt-md-0"><br>
+                <label for="{{ form.image.id_for_label }}">Imagen:  (Opcional)</label><br>
                 {{form.image}}
               </div>
             </div>
             <div class="row">
-              <div class="col-md-6 form-group">
-                <label for="{{ form.price.id_for_label }}">Precio de Venta:</label>
+              <div class="col-md-6 form-group"><br>
+                <label for="{{ form.price.id_for_label }}">Precio de Venta:*</label>
                 {{form.price}}
               </div>
-              <div class="col-md-6 form-group mt-3 mt-md-0">
-                <label for="{{ form.price_before.id_for_label }}">Precio de Antes:</label>
+              <div class="col-md-6 form-group mt-3 mt-md-0"><br>
+                <label for="{{ form.price_before.id_for_label }}">Precio de Antes:(Opcional)</label>
                 {{form.price_before}}
               </div>
             </div>
@@ -60,39 +77,70 @@
                 <label for="{{ form.stock.id_for_label }}">Stock:</label>
                 {{form.stock}}
               </div>
-              <div class="col-md-6 form-group mt-3 mt-md-0">
-                {{form.is_new}}
+              <div class="col-md-6 form-group mt-3 mt-md-0"><br>
+                <input type="checkbox" name="is_new" class="checkboxinput form-check-input" id="id_is_new">
+
                 <label for="{{ form.is_new.id_for_label }}">¿Es Nuevo producto?:</label>
               </div>
               <div class="col-md-6 form-group mt-md-0">
-                {{form.is_service}}
+                <input type="checkbox" name="is_service" class="checkboxinput form-check-input" id="id_is_service">
                 <label for="{{ form.is_service.id_for_label }}">¿Es Servicio?:</label>
+                
               </div>
               <div class="col-md-6 form-group mt-3 mt-md-0">
-                {{form.is_promotion}}
+                <input type="checkbox" name="is_promotion" class="checkboxinput form-check-input" id="id_is_promotion">
                 <label for="{{ form.is_promotion.id_for_label }}">¿Esta en Promocion?:</label>
               </div>
             </div>
-            <p class="sent-message" style="display: none;"></p>
-            <button  class="btn btn-secondary" type="reset">Cancelar</button>
-            <button  class="btn btn-success" type="submit">Registrar</button>
+            <hr>
+            <div class="modal-footer">
+              <a  class="btn btn-secondary btn-sm" type="button" href="/{{company.id}}/catalogo" style="margin-right: 5px;"><i class="bi bi-arrow-left-circle"></i>  Atras</a>
+              
+              <button type="submit" class="btn btn-success btn-sm">Registrar Producto</button>
+            </div>
           </form>
+          <p class="sent-message text-success text-center"></p>
         </div>
       </div>
 </div>
 <script>
+  $(document).ready(function() {
+    $('#form_producto #id_category').select2({
+      placeholder: 'Seleccione una categoria',
+      allowClear: true
+    });
+  });
+
   $('#form_producto').on('submit',function(e){
     e.preventDefault();
     let datos = new FormData(this);
-    datos.append('id_company', 'variable a recuperar');
     console.log(datos)
     $.ajax({
-        type:'post',
+        type:'POST',
         url:$(this).attr('action'),
         data: datos,
+        contentType: false,
+        processData: false,
         success:function(resp){
-            $(".sent-message").fadeIn(1000).html(resp);
-        }
+            $(".sent-message").html(resp.success);
+            $('#form_producto')[0].reset();
+            $(".sent-message").fadeIn(6000).hide();
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+             alert("Error:"+ thrownError);
+           }
     });
   });
+  function addCategory(urls){
+    $.ajax({
+        type:'get',
+        url:urls,
+        success:function(resp){
+            $(".modal-content").html('<strong>'+resp+'</strong>');
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+             alert("Error:"+ thrownError);
+           }
+    });
+  }
 </script>

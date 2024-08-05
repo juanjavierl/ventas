@@ -27,7 +27,7 @@
   <link href="{% static 'assets/vendor/boxicons/css/boxicons.min.css' %}" rel="stylesheet">
   <link href="{% static 'assets/vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet">
   <link href="{% static 'assets/vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
-
+  
   <!-- Template Main CSS File -->
   <link href="{% static 'assets/css/style.css' %}" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/card_products.css' %}">
@@ -37,6 +37,8 @@
     crossorigin="anonymous"></script> -->
   
   <script src="{% static 'js/jquery-2.2.4.min.js' %}"></script>
+  <link href="{% static 'select2/css/select2.css' %}" rel="stylesheet" />
+  <script src="{% static 'select2/js/select2.js' %}"></script>
 </head>
 <body>
 
@@ -56,8 +58,7 @@
        <!--  <a href="index.html"><img src="{% static 'img/empty.png' %}" alt="" class="img-fluid"></a> -->
         
         {% block carrito %}
-        <h1><a href="https://api.whatsapp.com/send?text=Catalogo:{% now 'Y-M-d' %} %0A %0A *{{company.name|upper|default:' '}}* %0A{{request.build_absolute_uri}}" target="_blank" style="font-size: 25px;"><i class="bi bi-share-fill"></i></a></h1>
-        <h1><a href="#" style="font-size: 25px;" onclick="searh_negocio()"><i class="bi bi-search"></i></a></h1>
+          {% include 'sheart_companys.html' %}
         {% endblock carrito %}
             
       </div>
@@ -78,7 +79,7 @@
           {% if user.is_authenticated %}
           <li class="dropdown"><a href="#"><span>Mi Perfil</span> <i class="bi bi-chevron-down"></i></a>
             <ul>
-              <li><a class="nav-link scrollto" href="/salir/">Actualizar mi cuenta</a></li>
+              <li><a class="nav-link scrollto" href="#" onclick="updateUser('/{{request.user.id}}/update_perfil_user/')">Actualizar mi cuenta</a></li>
               <li><a class="nav-link scrollto" href="/{{request.user.id}}/companys">Mis Catalogos</a></li>
               <li><a class="nav-link scrollto" href="/salir/">Cerrar Sesion</a></li>
             </ul>

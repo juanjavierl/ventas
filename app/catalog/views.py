@@ -15,7 +15,7 @@ from app.catalog.forms import *
 def CatalogView(request, id_company):
     template_name = "sitio.html"
     if request.method == 'GET':
-        productos = Product.objects.filter(stock__gt=0, id=int(id_company)).order_by('-id')
+        productos = Product.objects.filter(stock__gt=0, company_id=int(id_company)).order_by('-id')
         page = request.GET.get('page',1)
         try: 
             paginator = Paginator(productos, 10)
@@ -27,9 +27,10 @@ def CatalogView(request, id_company):
             request.session['compra']
         except:
             request.session['compra'] = []
-        #formula  (ahora-antes)/ahora*100
+        categorys = categorys_from_productos(productos)
+        
         dic = {
-            'categorias':Category.objects.all(),
+            'categorias':categorys,
             'productos':productos,
             'paginator':paginator,
             'total_compra':len(request.session['compra']),
@@ -38,6 +39,13 @@ def CatalogView(request, id_company):
         }
         return render(request,template_name, dic)
 
+def categorys_from_productos(productos):
+    ct = []
+    for p in productos:
+        if not {'id':p.category, 'name':p.category.name} in ct:
+            ct.append({'id':p.category, 'name':p.category.name})
+    return ct
+
 def get_company(id_company):
     try:
         company = Company.objects.get(id=int(id_company))
@@ -45,7 +53,8 @@ def get_company(id_company):
         company = {'name':"company"}
     return company
 
-def optenerProducto(request, id_producto):
+def optenerProducto(request, id_producto, id_company):
+    productos = Product.objects.filter(company_id = int(id_company))
     p = get_object_or_404(Product,id = id_producto)
     datos = {}
     dic = {}
@@ -94,8 +103,9 @@ def optenerProducto(request, id_producto):
                     {
                         'p':p,
                         'total_compra':len(request.session['compra']),
-                        'company':get_company(id_company),
-                        'categorias':Category.objects.all()
+                        'company':get_company(id_company=None),
+                        'categorias':categorys_from_productos(productos),
+                        'id_company':id_company
                     }
                 )
 
@@ -159,7 +169,7 @@ def shear_product(request):
         return render(request,'catalog/card_productos.html',{'productos':productos,'company':get_company(id_company)})
 
 def mostrar_por_categoria(request, id_categoria):
-    productos = Product.objects.filter(category = id_categoria)
+    productos = Product.objects.filter(category_id = id_categoria)
     return render(request, 'catalog/card_productos.html', {'productos':productos,'company':get_company(id_company)})
 
 
@@ -267,24 +277,50 @@ def crear_orden(id_cliente):
     orden.save()
     return orden
 
-def newProducto(request):
+def newProducto(request, id_company):
     if request.method == 'POST':
+        #print(request.POST['is_new'])
+        #print(request.POST['is_service'])
+        new = request.POST.get('is_new', False) == 'on'
+        if new == 'on':
+            new = True
+        service = request.POST.get('is_service',False) == 'on'
+        if service == 'on':
+            service = True
+        promotion = request.POST.get('is_promotion',False) == 'on'
+        if promotion == 'on':
+            promotion = True
+
         producto = Product()
         producto.name = request.POST['name']
         producto.code = request.POST['code']
         producto.description = request.POST['description']
         producto.category_id = int(request.POST['category'])
-        #producto.company_id = int() a recuperar
+        producto.company_id = int(id_company)
         producto.price = request.POST['price']
         producto.price_before = request.POST['price_before']
         producto.stock = request.POST['stock']
-        producto.image = request.FILES['image']
-        producto.is_service = request.POST['is_service']
-        producto.is_new = request.POST['is_new']
-        producto.is_promotion = request.POST['is_promotion']
-
+        producto.image = request.FILES.get('image','')
+        producto.is_service = service
+        producto.is_new = new
+        producto.is_promotion = promotion
         producto.save()
+        
         return JsonResponse({'success':'Producto registrado exitosamente.'})
     form = formProducto()
-    
-    return render(request, 'catalog/newProducto.html',{'form':form})
+    company = get_object_or_404(Company,id = int(id_company))
+    categorys = Category.objects.all().order_by('-id')
+    return render(request, 'catalog/newProducto.html',{'form':form,'company':company,'categorys':categorys})
+
+
+def newCategory(request):
+    if request.method == 'POST':
+        form = formCategory(request.POST)
+        if form.is_valid():
+            cat = form.save(commit=False)
+            cat.save()
+            return JsonResponse({'category_name':cat.name, 'category_id':cat.id})
+        else:
+            return JsonResponse({'error':'La Categoria ya Existe o Datos Invalidos.'})
+    form = formCategory()
+    return render(request, 'catalog/newCategory.html',{'form':form})

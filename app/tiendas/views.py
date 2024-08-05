@@ -20,7 +20,7 @@ def getTypes(request, id_type):
         companys = Company.objects.filter(category=int(id_type))
     count_productos = {}
     for c in companys:
-        count_productos[c.name] = Product.objects.filter(category_id = int(c.id)).count()
+        count_productos[c.name] = Product.objects.filter(company_id = int(c.id)).count()
 
     dic = {
         'category':getType(id_type),
@@ -138,8 +138,7 @@ def contar_productos(id_user):
     companys = Company.objects.filter(user_id = int(id_user))
     count_productos = {}
     for c in companys:
-        #company_id
-        count_productos[c.name] = Product.objects.filter(category_id = int(c.id)).count()
+        count_productos[c.name] = Product.objects.filter(company_id = int(c.id)).count()
     return count_productos
 
 def companys_from_user(request, user_id):
@@ -168,3 +167,8 @@ def deleteCompany(request, id_company):
         company.delete()
         return JsonResponse({'companys_from_user':request.user.id})
     return render(request,'deleteCompany.html',{'company':company})
+
+def update_perfil_user(request, user_id):
+    user = get_object_or_404(User, id = int(user_id))
+    form = UpdateUserForm(instance=user)
+    return render(request,'update_perfil_user.html',{'form':form})

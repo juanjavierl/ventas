@@ -1,0 +1,13 @@
+<h1><a href="#" style="font-size: 25px;" onclick="mostrar_buscador()"><i class="bi bi-search"></i></a></h1>
+<h1><a href="https://api.whatsapp.com/send?text=Catalogo:{% now 'Y-M-d' %} %0A %0A *{{company.name|upper|default:' '}}* %0A{{request.build_absolute_uri}}" target="_blank" style="font-size: 25px;"><i class="bi bi-share-fill"></i></a></h1>
+    <h1>
+        <a href="#" class="nav-link scrollto cantidades-card" onclick="verCarrito('/ver_carrito/')" 
+        data-bs-toggle="modal" data-bs-target="#exampleModal">
+        <button type="button" class="btn btn-primary position-relative">
+            <i class="bi bi-cart-fill"></i>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="cont_compras">
+            {{total_compra}}
+            </span>
+        </button>
+        </a>
+    </h1>

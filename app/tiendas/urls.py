@@ -13,4 +13,5 @@ urlpatterns = [
     path('<int:user_id>/companys/', views.companys_from_user, name='companys_from_user'),
     path('<int:id_company>/updateCompany/', views.updateCompany, name='updateCompany'),
     path('<int:id_company>/deleteCompany/', views.deleteCompany, name='deleteCompany'),
+    path('<int:user_id>/update_perfil_user/', views.update_perfil_user, name='update_perfil_user'),
 ]

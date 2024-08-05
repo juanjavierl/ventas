@@ -170,5 +170,12 @@ def deleteCompany(request, id_company):
 
 def update_perfil_user(request, user_id):
     user = get_object_or_404(User, id = int(user_id))
+    if request.method == 'POST':
+        form = UpdateUserForm(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'success':'Datos actualizados correctamente.'})
+        else:
+            return JsonResponse({'error':'Error intente nuevamente.'})
     form = UpdateUserForm(instance=user)
     return render(request,'update_perfil_user.html',{'form':form})

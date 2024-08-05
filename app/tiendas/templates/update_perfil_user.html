@@ -1,19 +1,50 @@
 {% load crispy_forms_tags %}
 
-<div class="modal-header  thead-light" style="background-color: #58bba9;">
-    <h5 class="modal-title text-white" id="exampleModalLabel">Actualizar mi Perfil</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="row">
+  <div class="col-12">
+      <div class="section-title">
+          <h2>Actualizar mis datos</h2>
+      </div>
+  </div>
 </div>
-  <div class="modal-body table-responsive">
-    <form action="/login_user/" method="post" id="login_forms" class="form-horizontal">
-     {% csrf_token %}
-     
-       {{form|crispy}}
-     
-    </form>
-    <p class="invalid text-danger"></p>
- </div>
- <div class="modal-footer">
-   <button type="reset" class="btn btn-secondary btn-sm"><i class="bi bi-arrow-left-circle"></i> Cancelar</button>
-   <button type="submit" class="btn btn-success btn-sm"><i class="bi bi-user"></i> Actualizar mi Perfil</button>
- </div>
+
+<div class="container">
+  <div class="row mt-5 justify-content-center" data-aos="fade-up">
+      <div class="col-lg-10">
+        <form action="/{{request.user.id}}/update_perfil_user/" method="post" id="update_forms_user" class="form-horizontal">
+          {% csrf_token %}
+            {{form|crispy}}
+
+            <div class="modal-footer">
+              <button type="reset" class="btn btn-secondary btn-sm"><i class="bi bi-arrow-left-circle"></i> Cancelar</button>
+              <button type="submit" class="btn btn-success btn-sm"><i class="bi bi-user"></i> Actualizar</button>
+            </div>
+         </form>
+         <p class="succces text-success center"></p>
+      </div>
+  </div>
+</div>
+
+<script>
+$("#update_forms_user").on('submit',function(e){
+    e.preventDefault();
+    $.ajax({
+            type:'POST',
+            url:$(this).attr('action'),
+            data:$(this).serialize(),
+            success:function(resp){
+              if(resp.error){
+                $(".succces").text(resp.error);
+              }
+              else{
+                $(".succces").text(resp.success);
+                window.location.href='/';
+              }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+             alert("Error:"+ thrownError);
+           }
+        });
+  });
+</script>
+    

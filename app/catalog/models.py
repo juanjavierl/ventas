@@ -31,7 +31,7 @@ class Category(models.Model):
 
 class Product(models.Model):
     name = models.CharField(max_length=100, verbose_name='Nombre')
-    code = models.CharField(max_length=20, unique=True, verbose_name='Código')
+    code = models.CharField(max_length=20, blank=True,null=True, verbose_name='Código')
     description = models.CharField(max_length=500, null=True, blank=True, verbose_name='Descripción')
     category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name='Categoría')
     company = models.ForeignKey(Company, on_delete=models.CASCADE, verbose_name='Compania')

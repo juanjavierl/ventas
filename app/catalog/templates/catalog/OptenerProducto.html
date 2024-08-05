@@ -107,7 +107,7 @@ input[type=number] { -moz-appearance:textfield; }
         <p class="card-text tex text-break">{{p.description|default:" - - -"|capfirst}}</p>
         <p class="card-text">
           Categoria: <small class="text-muted">{{p.category|capfirst}}</small>
-          <small class="text-muted" style="padding-left: 30px;">Cod. {{p.code}}</small>
+          <small class="text-muted" style="padding-left: 30px;">Cod. {{p.code|default:" - - -"}}</small>
         </p>
         <p class="card-text">
           <strong>Precio Bs. {{p.price|default:" 0 "}}</strong>

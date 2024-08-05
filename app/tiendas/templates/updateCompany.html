@@ -31,7 +31,10 @@
               else{
                 window.location.href='/'+resp.companys_from_user+'/companys';
               }
-            }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+             alert("Error:"+ thrownError);
+           }
         });
   });
       

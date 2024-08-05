@@ -13,15 +13,6 @@
     </div>
 </div>
 <div class="container">
-    <!-- <form action="/new_producto/" method="post" id="conpany_forms_update" enctype="multipart/form-data">
-        {% csrf_token %}
-            {{form|crispy}}
-            <div class="modal-footer">
-            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="bi bi-arrow-left-circle"></i> Cancelar</button>
-            <button type="submit" class="btn btn-success btn-sm">Confirmar</button>
-            </div>
-        </form>
-    <p class="invalid text-danger"></p> -->
     <div class="row mt-5 justify-content-center" data-aos="fade-up">
         <div class="col-lg-10">
           <form action="/{{company.id}}/new_producto/" method="post" role="form" enctype="multipart/form-data" id="form_producto">
@@ -32,12 +23,12 @@
                 {{form.name}}
               </div>
               <div class="col-md-6 form-group mt-3 mt-md-0">
-                <label for="{{ form.code.id_for_label }}">Codigo:*</label>
+                <label for="{{ form.code.id_for_label }}">Código: (Opcional)</label>
                 {{form.code}}
               </div>
             </div>
             <div class="form-group mt-3">
-              <label for="{{ form.description.id_for_label }}">Descripcion:  (Opcional)</label>
+              <label for="{{ form.description.id_for_label }}">Descripción:  (Opcional)</label>
                 {{form.description}}
             </div>
             <div class="row">
@@ -99,7 +90,7 @@
               <button type="submit" class="btn btn-success btn-sm">Registrar Producto</button>
             </div>
           </form>
-          <p class="sent-message text-success text-center"></p>
+          <p class="sent-message text-success text-center" style="margin-top: 20;"></p>
         </div>
       </div>
 </div>
@@ -114,7 +105,6 @@
   $('#form_producto').on('submit',function(e){
     e.preventDefault();
     let datos = new FormData(this);
-    console.log(datos)
     $.ajax({
         type:'POST',
         url:$(this).attr('action'),
@@ -124,7 +114,7 @@
         success:function(resp){
             $(".sent-message").html(resp.success);
             $('#form_producto')[0].reset();
-            $(".sent-message").fadeIn(6000).hide();
+            $(".sent-message").fadeIn(3000).show();
         },
         error: function (xhr, ajaxOptions, thrownError) {
              alert("Error:"+ thrownError);

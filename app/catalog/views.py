@@ -43,7 +43,7 @@ def categorys_from_productos(productos):
     ct = []
     for p in productos:
         if not {'id':p.category, 'name':p.category.name} in ct:
-            ct.append({'id':p.category, 'name':p.category.name})
+            ct.append({'id':p.category.id, 'name':p.category.name})
     return ct
 
 def get_company(id_company):
@@ -305,7 +305,6 @@ def newProducto(request, id_company):
         producto.is_new = new
         producto.is_promotion = promotion
         producto.save()
-        
         return JsonResponse({'success':'Producto registrado exitosamente.'})
     form = formProducto()
     company = get_object_or_404(Company,id = int(id_company))

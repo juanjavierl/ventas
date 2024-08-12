@@ -323,3 +323,21 @@ def newCategory(request):
             return JsonResponse({'error':'La Categoria ya Existe o Datos Invalidos.'})
     form = formCategory()
     return render(request, 'catalog/newCategory.html',{'form':form})
+
+def updateProduct(request, id_product):
+    product = Product.objects.get(id=id_product)
+    if request.method=='POST':
+        form=formProducto(request.POST, request.FILES,instance=product)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'id_company':product.company.id})
+    else:
+        form=formProducto(instance=product)
+        return render(request, 'catalog/updateProduct.html',{'form':form,'product':product})
+
+def deleteProduct(request, id_product):
+    product = get_object_or_404(Product, id=int(id_product))
+    if request.method == 'POST':
+        product.delete()
+        return JsonResponse({'id_company':product.company.id})
+    return render(request,'catalog/deleteProduct.html',{'product':product})

@@ -11,7 +11,12 @@
           
         {% for p in productos %}
         <div class="card dark card_p single-product">
-          <img src="/media/{{p.image}}" class="card-img-top" alt="..." onclick="detailView('/{{p.id}}/detail_product')">
+          
+          {% if p.image %}
+            <img src="/media/{{p.image}}" class="card-img-top" alt="..." onclick="detailView('/{{p.id}}/{{company.id}}/detail_product')">
+            {% else %}
+            <i class="bi bi-box-seam card-img-top icon" alt="..." onclick="detailView('/{{p.id}}/{{company.id}}/detail_product')"></i>
+          {% endif %}
             {% if p.is_new %}
                   <span class="badge rounded-pill bg-primary sale-tag d-flex">Nuevo</span>
             {% endif %}
@@ -36,13 +41,13 @@
                       <p><span class="badge text-bg-info text-white" style="color: white;">Servicio</span></p>
                     {% endif %} 
                   
-                    <button type="submit" id="id_{{p.id}}" onclick="add_item('/{{p.id}}/detail_product','{{p.id}}')" class="btn btn-primary btn-sm">Agregar</button>
+                    <button type="submit" id="id_{{p.id}}" onclick="add_item('/{{p.id}}/{{company.id}}/detail_product','{{p.id}}')" class="btn btn-primary btn-sm">Agregar</button>
                   </div>
               </div>
           </div>
       </div>
             {% empty %}
-            <div class="alert alert-warning" role="alert" style="text-align: center;">No se encontraron resultados. <a href="/">Ir al Inicio</a></div>
+            <div class="alert alert-warning" role="alert" style="text-align: center;">No se encontraron resultados. <a href="/{{company.id}}/catalogo">Ir al Inicio</a></div>
             {% endfor %}     
       </div>
       

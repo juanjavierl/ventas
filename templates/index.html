@@ -7,7 +7,7 @@
 
   <title>
     {% block titulo %}
-      {{dashboard.name|title|truncatechars:17|cut:" "}}
+      {{dashboard.name|upper|truncatechars:17|cut:" "}}
     {% endblock titulo %}
     </title>
   <meta content="" name="description">
@@ -46,11 +46,11 @@
   <header id="header" class="fixed-top d-flex align-items-center">
     <div class="container d-flex justify-content-between">
       
-      <div class="logo" style="display: flex;width: 300px;justify-content: space-around;">
+      <div class="logo" style="display: flex;width: 400px;justify-content: space-around;">
         <h1>
           {% block company %}
           <a href="/">
-            {{dashboard.name|title|cut:" "}}
+            {{dashboard.name|upper|cut:" "}}
           </a>
           {% endblock company %}
         </h1>
@@ -101,7 +101,7 @@
    {% block hero %}
    <section id="hero" class="d-flex flex-column justify-content-center align-items-center">
     <div class="container text-center text-md-left" data-aos="fade-up">
-      <h1>Bienvenidos a {{dashboard.name|title|cut:" "}}</h1>
+      <h1>Bienvenido al Sistema {{dashboard.name|upper|cut:" "}}</h1>
       <h2>Crea & encuentra las mejores tiendas online de toda Bolivia</h2>
       <a href="#team" class="btn-get-started scrollto" > Ver Ultimas Novedades</a>
     </div>
@@ -113,7 +113,7 @@
 
   <main id="main">
     <!-- ======= Services Section ======= -->
-    {% include 'menus.html' %}
+    {% include 'sheart_product_by_company.html' with dashboard=dashboard  %}
     <!-- End Services Section -->
     <!-- ======= Team Section ======= -->
     {% block contenido %}
@@ -140,6 +140,8 @@
       </div>
     </div>
     
+    {% block productos_mas_vistos %}  {% endblock productos_mas_vistos %}
+      
     {% block contact %} {% endblock contact %}
       
   </main><!-- End #main -->
@@ -147,9 +149,16 @@
   <!-- ======= Footer ======= -->
       {% include 'footer_catalog.html' %}
   <!-- End Footer -->
-  <a href="https://api.whatsapp.com/send?text=Hola quiero más información sobre sus productos, gracias.%0A{{request.build_absolute_uri}} &phone={{company.mobile}}" target="_blank" class="back-to-top-w d-flex align-items-center justify-content-center"><i class="bi bi-whatsapp"></i></a>
-  <div class="alert alert-danger container tamanio" role="alert" style="display: none;"></div>
-  <div class="alert alert-success container tamanio" role="alert" style="display: none;"></div>
+  
+  {% block button_whatsap %}
+    
+  {% endblock button_whatsap %}
+    
+  <div class="container align-items-center justify-content-center">
+    <div class="alert alert-danger tamanio error_pedido" style="display: none;" role="alert"></div>
+  <div class="alert alert-success tamanio confir_pedido" style="display: none;" role="alert"></div>
+  </div>
+   <!-- Button de llava hacia arriba -->
   <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
   <!-- Vendor JS Files -->
   <script src="{% static 'assets/vendor/aos/aos.js' %}"></script>
@@ -161,56 +170,17 @@
 
   <!-- Template Main JS File -->
   <script src="{% static 'assets/js/main.js' %}"></script>
-  
+  <script src="{% static 'js/funcionesFromUser.js' %}"></script>
   {% block js %}
     
   {% endblock js %}
   
 </body>
 <script>
-  $('.multiple-card-slider .carousel').each(function(){
-    var currentCarouselId = '#' + $(this).attr('id');
-    const multipleItemCarousel = document.querySelector(currentCarouselId);
-
-    if(window.matchMedia("(min-width:576px)").matches){
-        const carousel = new bootstrap.Carousel(multipleItemCarousel, {
-            interval: false,
-            wrap: false
-        })
-        var carouselWidth = $(currentCarouselId + ' .carousel-inner')[0].scrollWidth;
-        var cardWidth = $(currentCarouselId + ' .carousel-item').width();
-        var scrollPosition = 0;    
-        $(currentCarouselId + ' .carousel-control-next').on('click', function(){
-            if(scrollPosition < (carouselWidth - (cardWidth * 4))){
-                console.log('next');
-                scrollPosition = scrollPosition + cardWidth;
-                $(currentCarouselId + ' .carousel-inner').animate({scrollLeft: scrollPosition},600);
-            }
-        });
-        $(currentCarouselId + ' .carousel-control-prev').on('click', function(){
-            if(scrollPosition > 0){
-                console.log('prev');
-                scrollPosition = scrollPosition - cardWidth;
-                $(currentCarouselId + ' .carousel-inner').animate({scrollLeft: scrollPosition},600);
-            }
-        });
-    }else{
-        $(multipleItemCarousel).addClass('slide');
-    }
-});
-$(function(){
-  $('.carousel-item:first-child').addClass('active');
-});
-
-function mostrar_por_categoria(id_categoria){
-      //alert("id: " + id_categoria);
-      /* if(screen.width > 200 && screen.width < 992){
-        $("#navbar .mobile-nav-toggle").click();
-      } */
+function mostrar_por_categoria(urls){
       $.ajax({
           type: 'GET',
-          url: '/'+id_categoria+'/mostrar_por_categoria',
-          data:{'id_categoria':id_categoria},
+          url: urls,
           success:function(resp){
               $(".productos_por_categorias").fadeIn(1000).html(resp);
               $(".navbar-mobile i").click();

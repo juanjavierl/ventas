@@ -4,17 +4,17 @@
         <div class="row">
           <div class="col-lg-4 col-md-6 footer-newsletter">
             <h3>Nosotros</h3>
-            <p>{{company.description|default:" - - -"}}</p>
+            <p>{{dashboard.description|default:" - - -"|capfirst}}</p>
 
           </div>
           <div class="col-lg-3 col-md-6">
             <div class="footer-info">
               <h4>Contacto</h4>
               <p>
-                <strong>Dir.</strong> {{company.address|default:" - - -"}}<br>
-                <strong>Celular:</strong> {{company.mobile|default:" - - -"}}<br><br>
-                <strong>Telefono:</strong>{{company.phone|default:" - - -"}}<br>
-                <strong>Email:</strong> {{company.email|default:" - - -"}}
+                <strong>Dir.</strong> {{dashboard.address|default:" - - -"|capfirst}}<br>
+                <strong>Celular:</strong> {{dashboard.mobile|default:" - - -"}}<br><br>
+               
+                <strong>Email:</strong> {{dashboard.email|default:" - - -"}}
               </p>
               <div class="social-links mt-3">
                 <a href="#" class="twitter"><i class="bx bxl-twitter"></i></a>

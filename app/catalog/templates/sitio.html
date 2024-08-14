@@ -1,7 +1,5 @@
 {% extends 'index.html' %}
 
-{% load static %}
-
 {% block titulo %}
     {{company.name|title|truncatechars:17|cut:" "}}
 {% endblock titulo %}
@@ -17,7 +15,7 @@
 {% endblock carrito %}
 
 {% block menus %}
-    {% include 'menu_from_user.html' with categorias=categorias %}
+    {% include 'menu_from_user.html' %}
 {% endblock menus %}
 
 {% block hero %}  {% endblock hero %}
@@ -25,24 +23,26 @@
 {% block contenido %}
     <section id="team_productos" class="team" style="margin-top: 80px;" >
       <div class="container-fluid productos_por_categorias" data-aos="fade-up">
-          {% include 'catalog/card_productos.html' with productos=productos categorys=categorys %}
+          {% include 'catalog/card_productos.html' with productos=productos %}
         <hr>
           {% include 'pag_productos.html' %}
       </div> 
     </section>
 {% endblock contenido %}
-    
+
+
+{% block button_whatsap %}
+  {% include 'button_whatsap.html' %}
+{% endblock button_whatsap %}
 {% block contact %}
   <!-- ======= Contact Section ======= -->
 <section id="contact" class="contact">
   <div class="container">
-    {% include 'contact.html' %}
+    {% include 'contact.html' with company=company %}
   </div>
 </section>
 <!-- End Contact Section -->
 {% endblock contact %}
   
-{% block js %}
-<script src="{% static 'js/funcionesFromUser.js' %}"></script>
-{% endblock js %}
+
   

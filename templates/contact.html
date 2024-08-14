@@ -15,7 +15,7 @@
             <div class="email mt-4">
               <i class="bi bi-envelope"></i>
               <h4>Email:</h4>
-              <p>{{company.email|default:" - - -"}}</p>
+              <p>{{company.user.email|default:" - - -"}}</p>
             </div>
 
             <div class="phone mt-4">
@@ -44,7 +44,7 @@
             <div class="phone mt-4">
               <i class="bi bi-cursor"></i>
               <h4>Ciudad:</h4>
-              <p> Cochabamaba - Bolivia</p>
+              <p> {{company.cuidad|title}} - Bolivia</p>
             </div>
           </div>
         </div>

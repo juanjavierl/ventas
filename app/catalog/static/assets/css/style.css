@@ -106,12 +106,9 @@ h6 {
 .tamanio {
   position: fixed;
   opacity: 100;
-  left: 15px;
   bottom: -10px;
-  z-index: 5;
-    width: 92%;
-    text-align: center;
-    padding: 10px;
+  text-align: center;
+  margin: auto;
 }
 
 /*--------------------------------------------------------------

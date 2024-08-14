@@ -7,12 +7,13 @@ function verCarrito(urls){
         }
     });
   }
-function mostrar_buscador(){
+function mostrar_buscador(id_company){
   $('.menus').slideToggle(1000);
   $('.menus form #shear_text').focus();
 }
 
 function newProducto(urls){
+    
   $.ajax({
         type:'GET',
         url:urls,

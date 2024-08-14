@@ -13,15 +13,12 @@ from app.tiendas.models import *
 
 class Category(models.Model):
     name = models.CharField(max_length=50, unique=True, verbose_name='Nombre')
-    description = models.CharField(max_length=500, null=True, blank=True, verbose_name='Descripción')
-    #image = models.ImageField(upload_to='category_img', default="default.png", blank=True, null=True, verbose_name='Imagen')
     def __str__(self):
         return self.name
 
     def toJSON(self):
         item = model_to_dict(self)
         item['name'] = self.name
-        item['description'] = self.description
         return item
 
     class Meta:

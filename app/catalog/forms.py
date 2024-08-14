@@ -19,8 +19,17 @@ class formProducto(forms.ModelForm):
 
     class Meta:
         model = Product
-        #exclude = ('gender','date_joined','email',)
         fields = '__all__'
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'code': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea({'class': 'form-control', 'rows': 2, 'cols': 3}),
+           
+            'price': forms.NumberInput(attrs={'class': 'form-control'}),
+            'price_before': forms.NumberInput(attrs={'class': 'form-control'}),
+            'image': forms.FileInput(attrs={'class': 'form-control'}),
+            'stock': forms.NumberInput(attrs={'class': 'form-control'})
+        }
 
 class formCategory(forms.ModelForm):
     def __init__(self, *args, **kwargs):

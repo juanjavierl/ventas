@@ -28,7 +28,6 @@ def CatalogView(request, id_company):
         except:
             request.session['compra'] = []
         categorys = categorys_from_productos(productos)
-        
         dic = {
             'categorias':categorys,
             'productos':productos,
@@ -42,7 +41,7 @@ def CatalogView(request, id_company):
 def categorys_from_productos(productos):
     ct = []
     for p in productos:
-        if not {'id':p.category, 'name':p.category.name} in ct:
+        if not {'id':p.category.id, 'name':p.category.name} in ct:
             ct.append({'id':p.category.id, 'name':p.category.name})
     return ct
 
@@ -54,7 +53,7 @@ def get_company(id_company):
     return company
 
 def optenerProducto(request, id_producto, id_company):
-    productos = Product.objects.filter(company_id = int(id_company))
+    productos = Product.objects.filter(stock__gt=0, company_id = int(id_company))
     p = get_object_or_404(Product,id = id_producto)
     datos = {}
     dic = {}
@@ -103,9 +102,8 @@ def optenerProducto(request, id_producto, id_company):
                     {
                         'p':p,
                         'total_compra':len(request.session['compra']),
-                        'company':get_company(id_company=None),
-                        'categorias':categorys_from_productos(productos),
-                        'id_company':id_company
+                        'company':get_company(id_company),
+                        'categorias':categorys_from_productos(productos)
                     }
                 )
 
@@ -117,10 +115,11 @@ def add_iten(request, id_producto):
 
         return JsonResponse({'p':id_producto})
 
-def ver_carrito(request):
+def ver_carrito(request, id_company):
+    company = get_object_or_404(Company, id=id_company)
     datos = request.session['compra']
     t_pago = calcular_pago(request)
-    return render(request, 'catalog/ver_carrito.html',{'datos':datos,'t_pago':t_pago})
+    return render(request, 'catalog/ver_carrito.html',{'datos':datos,'t_pago':t_pago, 'company':company})
 
 def calcular_pago(request):
     total_pago = 0
@@ -148,7 +147,7 @@ def eliminarProducto(request, id_producto):#el id_producto es el indicen
     }
     return JsonResponse(data)
 
-def shear_product(request):
+def shear_product(request, id_company):
     if request.method=="POST":
         texto=request.POST["search"]
         busqueda=(
@@ -156,7 +155,7 @@ def shear_product(request):
             Q(description__icontains=texto) |
             Q(code__icontains=texto)
         )
-        productos=Product.objects.filter(busqueda).distinct()
+        productos=Product.objects.filter(busqueda,stock__gt=0, company_id=int(id_company)).distinct()
         return render(request,'catalog/card_productos.html',{'productos':productos,'company':get_company(id_company)})
     else:
         texto=request.GET["search"]
@@ -165,15 +164,16 @@ def shear_product(request):
             Q(description__icontains=texto) |
             Q(code__icontains=texto)
         )
-        productos=Product.objects.filter(busqueda).distinct()
+        productos=Product.objects.filter(busqueda,stock__gt=0, company_id=int(id_company)).distinct()
         return render(request,'catalog/card_productos.html',{'productos':productos,'company':get_company(id_company)})
 
-def mostrar_por_categoria(request, id_categoria):
-    productos = Product.objects.filter(category_id = id_categoria)
+def mostrar_por_categoria(request, id_company, id_categoria):
+    productos = Product.objects.filter(stock__gt=0, category_id = id_categoria, company_id= id_company).order_by('-id')
     return render(request, 'catalog/card_productos.html', {'productos':productos,'company':get_company(id_company)})
 
 
-def confirmar_compra(request):
+def confirmar_compra(request, id_company):
+    company = get_object_or_404(Company, id = id_company)
     if request.method == 'POST':
         if not request.POST['dni'].isdigit():
             return JsonResponse({'error': "El Nro de Nit/CI debe ser numérico."})
@@ -190,7 +190,7 @@ def confirmar_compra(request):
 
             d = datetime.strptime(request.POST['date_time']+":00", '%Y-%m-%dT%H:%M:%S')
             if d < datetime.now():
-                return JsonResponse({'error':"Por favor, Ingrese una hora más adelantado"})
+                return JsonResponse({'error':"Por favor, Ingrese 1 hora más adelantado"})
             else:
                 fecha = datetime.strftime(d,'%A %d/%m/%y hora: %H:%M %p')
                 print(type(d))
@@ -206,7 +206,7 @@ def confirmar_compra(request):
         try:#si ya existe ese cliente
             print("ya existe ese cliente")
             cliente = Client.objects.get(dni = int(request.POST['dni']))
-            orden = crear_orden(cliente.id)#se crea una orden
+            orden = crear_orden(cliente.id, id_company)#se crea una orden
             for productos in request.session['compra']:#[{'id_producto':12,'cantidad':1},{'id_producto':10,'cantidad':2}]
                 pedido = Pedido()
                 pedido.orden_id = int(orden.id)
@@ -220,10 +220,10 @@ def confirmar_compra(request):
             request.session['compra'] = []#cuando al cliente confirma su pedido se resetea al carrito a 0
             return JsonResponse(
                         {
-                            'company':orden.company.name,
+                            'company':company.name,
                             'cliente':orden.client.names,
                             'lugar':lugar,
-                            'cel_company':orden.company.mobile,
+                            'cel_company':company.mobile,
                             'products':len(request.session['compra']),
                             'success':"Bien, tu pedido a sido registrado. <a href='/'> Ir al Inicio</a>",
                             'lista':lista_product,#envio lasession en la variable lista_product
@@ -235,7 +235,7 @@ def confirmar_compra(request):
             if forms.is_valid():
                 cliente = forms.save(commit=False)
                 cliente.save()
-                orden = crear_orden(cliente.id)
+                orden = crear_orden(cliente.id, id_company)
                 for productos in request.session['compra']:#[{'id_producto':12,'cantidad':1},{'id_producto':10,'cantidad':2}]
                     pedido = Pedido()
                     pedido.orden_id = int(orden.id)
@@ -249,8 +249,8 @@ def confirmar_compra(request):
                 request.session['compra'] = []#cuando al cliente confirma su pedido se resetea al carrito a 0
                 return JsonResponse(
                             {
-                                'company':orden.company.name,
-                                'cel_company':orden.company.mobile,
+                                'company':company.name,
+                                'cel_company':company.mobile,
                                 'cliente':orden.client.names,
                                 'lugar':lugar,
                                 'products':len(request.session['compra']),
@@ -259,20 +259,22 @@ def confirmar_compra(request):
                                 't_pago':t_pago
                             }
                         )
+    productos = Product.objects.filter(stock__gt=0, company_id=id_company)
     dic = {
         'form':ClientFormOrder(),
         'total_compra':len(request.session['compra']),
         'company':get_company(id_company),
-        'categorias':Category.objects.all(),
+        'categorias':categorys_from_productos(productos),
         'datos':request.session['compra'],
-         "t_pago":calcular_pago(request)
+         "t_pago":calcular_pago(request),
+         'productos':productos
     }
     return render(request,'catalog/confirmar_compra.html',dic)
 
-def crear_orden(id_cliente):
+def crear_orden(id_cliente, id_company):
     orden = Orden()
     orden.client_id = int(id_cliente)
-    orden.company_id = int(get_company(id_company).id)
+    orden.company_id = int(id_company)
     orden.total = float(calcular_pago(request))
     orden.save()
     return orden

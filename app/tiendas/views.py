@@ -21,7 +21,8 @@ def getTypes(request, id_type):
     count_productos = {}
     for c in companys:
         count_productos[c.name] = Product.objects.filter(company_id = int(c.id)).count()
-
+    
+    request.session['compra'] = []#inicializa el carrito vacio nuevamente
     dic = {
         'category':getType(id_type),
         'companys':companys,

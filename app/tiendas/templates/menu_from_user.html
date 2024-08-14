@@ -1,20 +1,25 @@
 <ul>
     
     {% if user.is_authenticated %}
-    <li><a class="nav-link scrollto active" href="#" onclick="newProducto('/{{company.id}}/new_producto/')">Nuevo Productos</a></li>
-    {% else %}
-    <li><a class="nav-link scrollto active" href="{{request.build_absolute_uri}}">  Inicio </a></li>
-    {% endif %}
+    
+      {% if company.id %}
+        <!-- otro menu -->
+        <li><a class="nav-link scrollto active" href="{{request.build_absolute_uri}}">Recargar</a></li>
+        <li><a class="nav-link scrollto" href="#" onclick="newProducto('/{{company.id}}/new_producto/')">Nuevo Productos</a></li>
+        <li class="dropdown"><a href="#"><span>Categorias</span> <i class="bi bi-chevron-down"></i></a>
+          <ul>
+            {% for c in categorias %}
+              <li style="cursor: pointer;" class="nav-link scrollto"><a onclick="mostrar_por_categoria('/{{company.id}}/{{c.id}}/mostrar_por_categoria')" href="#product">{{c.name|title}}</a></li>
+            {% empty %}
+              <li class="bi-x"><a href="">No hay Categorias</a></li>
+            {% endfor %}
+          </ul>
+        </li>
+      {% endif %}
       
-    <li class="dropdown"><a href="#"><span>Categorias</span> <i class="bi bi-chevron-down"></i></a>
-      <ul>
-        {% for c in categorias %}
-          <li style="cursor: pointer;" class="nav-link scrollto"><a onclick="mostrar_por_categoria('{{c.id}}')" href="#product">{{c.name|title}}</a></li>
-        {% empty %}
-          <li class="bi-x"><a href="">No hay Categorias</a></li>
-        {% endfor %}
-      </ul>
-    </li>
+    {% else %}
+      <li><a class="nav-link scrollto active" href="{{request.build_absolute_uri}}">  Recargar </a></li>
+    {% endif %}
     <li><a class="nav-link scrollto" href="#contact">Contactanos</a></li>
     
     {% if user.is_authenticated %}
@@ -31,5 +36,4 @@
       {% else %}
       <li><a class="nav-link scrollto" href="#login" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="login('/login_user/')">Ingresar</a></li>
     {% endif %}
-      
   </ul>

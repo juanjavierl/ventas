@@ -24,5 +24,5 @@ def get_Dashboard():
     try:
         dashboard = Dashboard.objects.get(id=1)
     except:
-        dashboard = {'name':"company"}
+        dashboard = {'name':"AMCEB"}
     return dashboard

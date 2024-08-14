@@ -38,7 +38,9 @@ $("#update_forms_user").on('submit',function(e){
               }
               else{
                 $(".succces").text(resp.success);
-                window.location.href='/';
+                setTimeout(function(){
+                  window.location.href = "/{{request.user.id}}/companys";
+              },3000);
               }
             },
             error: function (xhr, ajaxOptions, thrownError) {

@@ -43,7 +43,7 @@
 {% if datos %}
 <div class="modal-footer">
   <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="bi bi-arrow-left-circle"></i> Cerrar</button>
-  <a href="/confirmar_compra" type="button" class="btn btn-success btn-sm"><i class="bi bi-cart-fill"></i> Confirmar mi Compra</a>
+  <a href="/{{company.id}}/confirmar_compra" type="button" class="btn btn-success btn-sm"><i class="bi bi-cart-fill"></i> Confirmar mi Compra</a>
   </div>
 {% endif %}
 <script>
@@ -68,7 +68,7 @@
             var valor = $('#t_pago').attr('data-value');
             $("#data_dable tbody #t_p").html("Total a Pagar: "+resp.t_pago);
             $("#cont_compras").html(resp.cant_compras);
-            verCarrito('/ver_carrito/');
+            verCarrito('/{{company.id}}/ver_carrito/');
           }
       });
       return false;

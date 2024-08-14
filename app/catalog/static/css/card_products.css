@@ -285,6 +285,41 @@
     justify-content: space-between;
   }
 
+  .card_p .icon {
+    max-width: 25%;
+    margin: auto;
+    border-radius: 0.7em;
+    cursor: pointer;
+    
+    font-size: 60px;
+    color: #1bac91;
+    float: left;
+    width: 100px;
+    height: 100px;
+    background: #e1f0ee;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50px;
+    transition: all 0.3s ease-in-out;
+  }
+  .detail .icon {
+    max-width: 25%;
+    margin: auto;
+    border-radius: 0.7em;
+    cursor: pointer;
+    
+    font-size: 60px;
+    color: #1bac91;
+    width: 100px;
+    height: 100px;
+    background: #e1f0ee;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50px;
+    transition: all 0.3s ease-in-out;
+  }
  /*
   card de los categorias a la que pertenese cada productos 
 */

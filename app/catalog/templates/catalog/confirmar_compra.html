@@ -1,21 +1,45 @@
 {% extends 'index.html' %}
-{% block card_productos %}
+
+{% block titulo %}
+    {{company.name|title|truncatechars:17|cut:" "}}
+{% endblock titulo %}
+
+{% block company %}
+  <a href="/{{company.id}}/confirmar_compra/">
+    <marquee behavior="" direction="">{{company.name|title|cut:" "}}</marquee>
+  </a>
+{% endblock company %}
+
+{% block carrito %}
+  {% include 'catalog/carrito.html'  with total_compra=total_compra %}
+{% endblock carrito %}
+
+
+{% block menus %}
+    {% include 'menu_from_user.html' %}
+{% endblock menus %}
+
+{% block hero %}  {% endblock hero %}
+
+{% block contenido %}
 <style>
     @media (max-width: 500px){/*cuando la pantalla es < a 500*/
     .container .info .table-responsive{
         margin-top: 10px;
     }
   }
+  .container .info{
+    margin-bottom: 20px;
+  }
 </style>
 {% load crispy_forms_tags %}
-
-<div class="container" id="confirmacion">
+<section class="container" id="team_productos" style="margin-top: 80px;">
     <div class="section-title" data-aos="fade-up">
         <h2>Por favor complete sus datos</h2>
     </div>
-    <div class="row d-flex no-gutters justify-content-center info" data-aos="fade-up" id="data_dable">
+    <div class="row d-flex no-gutters justify-content-center info productos_por_categorias" data-aos="fade-up" id="data_dable">
         <div class="col-lg-5 d-flex align-items-stretch form_msj">
-            <form action="/confirmar_compra/" method="post" class="" id="form_pedido" style="width: 100%;">
+            <form action="/{{company.id}}/confirmar_compra/" method="post" class="" id="form_pedido" style="width: 100%;">
                 {% csrf_token %}
                 {{ form|crispy }}
                 <select class="form-select" id="tipo_envio" name="tipo_envio" aria-label="Small select example">
@@ -46,7 +70,8 @@
                 <br>
                 
                 <div class="modal-footer">
-                  <button type="submit" class="btn btn-success btn-sm btn-block efecto_button">Enviar mi Pedido & Confirmar por Whatsapp</button>   
+                  <i class="fas fa-save"></i>
+                  <button type="submit" class="btn btn-success btn-sm btn-block efecto_button" style="margin-bottom: 20px;">Enviar mi Pedido & Confirmar por Whatsapp</button>   
                 </div>
             </form>
         </div>
@@ -85,9 +110,7 @@
         </div>
         
     </div> 
-</div>
-<div class="alert alert-success confir_pedido" role="alert" style="display: none;"></div> 
-<div class="alert alert-danger error_pedido" role="alert" style="display: none;"></div> 
+</section>
 <script>
     $(function(){
       $("#date_time").value = "{% now 'd-m-Y H:i:s' %}";
@@ -120,7 +143,7 @@
             $(".form_msj").hide();
             $(".col-6 h2").fadeIn(1000).html("No hay productos");
             setTimeout(function(){
-                window.location.href = "/";
+                window.location.href = "/{{company.id}}/catalogo";
             },3000);
         }
     });
@@ -166,7 +189,7 @@
                     web = "_sitio web: {{ request.get_host }}_"//corregir ir a la orden
                     //href="https://api.whatsapp.com/send?text=Mas informacion sobre este producto: {{p.description|default:' '}}, gracias. &phone={{company.mobile}}/?u={{request.build_absolute_uri}}"
                     var ruta = "https://api.whatsapp.com/send?phone=+591"+resp.cel_company+"&text="+datos + pedido + total + lugar + web;
-                    window.open(ruta, "Diseño Web", "width=700, height=500");
+                    window.open(ruta, "Sistema Amceb", "width=700, height=500");
                         //location.reload();
                   }
                 }
@@ -180,11 +203,32 @@
             success:function(resp){
                 $("#cont_compras").html(resp);
                 //$(".datos_confirmar").fadeIn(1000).html(resp)
-                window.location.href="/confirmar_compra/";
+                window.location.href="/{{company.id}}/confirmar_compra/";
                 //verCarrito('/ver_carrito/');
             }
         });
         return false;
     }
   </script> 
-{% endblock card_productos %}
+{% endblock contenido %}
+{% block button_whatsap %}
+  {% include 'button_whatsap.html' %}
+{% endblock button_whatsap %}
+
+{% block productos_mas_vistos %}
+  <!-- ======= Contact Section ======= -->
+<section id="product_mas_vistos" class="product_view">
+  <div class="container">
+    {% include 'catalog/productos_mas_vistos.html' %}
+  </div>
+</section>
+{% endblock productos_mas_vistos %}
+
+{% block contact %}
+  <!-- ======= Contact Section ======= -->
+<section id="contact" class="contact">
+  <div class="container">
+    {% include 'contact.html' %}
+  </div>
+</section>
+{% endblock contact %}

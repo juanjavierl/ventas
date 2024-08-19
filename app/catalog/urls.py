@@ -7,6 +7,7 @@ urlpatterns = [
     path('<int:id_company>/catalogo', views.CatalogView, name='CatalogView'),
     path('<int:id_producto>/<int:id_company>/detail_product', views.optenerProducto, name='detail_product'),
     path('<int:id_company>/ver_carrito/', views.ver_carrito, name='ver_carrito'),
+    path('<int:id_company>/show_productos_carrito/', views.show_productos_carrito, name='show_productos'),
     path('vaciar_carrito/', views.vaciar_carrito, name='vaciar_carrito'),
     path('eliminarProducto/<int:id_producto>', views.eliminarProducto, name='eliminarProducto'),
     path('<int:id_company>/shear_product/',views.shear_product, name='shear_product'),

@@ -9,19 +9,19 @@
      {% csrf_token %}
      
        {{form|crispy}}
-     
+       <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="bi bi-arrow-left-circle"></i> Cancelar</button>
+        <button type="submit" class="btn btn-success btn-sm"><i class="bi bi-user"></i> Iniciar Sesion</button>
+      </div>
     </form>
     <p class="invalid text-danger"></p>
- </div>
- <div class="modal-footer">
-   <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="bi bi-arrow-left-circle"></i> Cancelar</button>
-   <button type="submit" class="btn btn-success btn-sm" onclick="loguarse()"><i class="bi bi-user"></i> Iniciar Sesion</button>
  </div>
   <script>
     $(function(){
       $("#login_forms #div_id_username .form-label").html("Correo Elec. ó Usuario");
     });
-    function loguarse(){
+    $('.modal-body #login_forms').on('submit', function(e){
+      e.preventDefault();
       $.ajax({
             type:'POST',
             url:$("#login_forms").attr('action'),
@@ -36,6 +36,6 @@
               }
             }
         });
-    }
+    });
     
   </script>

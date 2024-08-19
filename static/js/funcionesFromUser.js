@@ -19,6 +19,7 @@ function newProducto(urls){
         url:urls,
         success:function(resp){
             $("#team_productos .productos_por_categorias").html(resp);
+            $(".navbar-mobile i").click();
         }
     });
 }
@@ -28,6 +29,18 @@ function updateUser(urls){
         url:urls,
         success:function(resp){
             $("#team_productos .productos_por_categorias").html(resp);
+            $(".navbar-mobile i").click();
+        }
+    });
+}
+
+function add_hivicacion(urls){
+    $.ajax({
+        type:'GET',
+        url:urls,
+        success:function(resp){
+            $(".modal-content").html(resp);
+            $(".navbar-mobile i").click();
         }
     });
 }

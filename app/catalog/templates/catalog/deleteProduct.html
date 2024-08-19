@@ -7,7 +7,6 @@
     <form action="/{{product.id}}/deleteProduct/" method="post" id="product_forms_update" enctype="multipart/form-data">
      {% csrf_token %}
      <div class="alert alert-danger" role="alert">
-        Tambien se eliminaran sus productos y categorias.<br>
         Esta seguro de Eliminar: {{product.name|title}} ?.
       </div>
        <div class="modal-footer">

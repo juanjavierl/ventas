@@ -78,8 +78,8 @@ input[type=number]::-webkit-outer-spin-button {
 }
 input[type=number] { -moz-appearance:textfield; }
 </style>
-<div class="card col-12 container productos_por_categorias" id="team_productos" data-aos="fade-up" style=" box-shadow: 0 7px 7px rgb(0 0 0 / 18%); margin-top: 80px;">
-  <div class="row g-0">
+<div class="card col-12 container" id="team_productos" data-aos="fade-up" style=" box-shadow: 0 7px 7px rgb(0 0 0 / 18%); margin-top: 80px;">
+  <div class="row g-0 productos_por_categorias">
     <div class="col-md-4 detail">
         {% if p.image %}
           <img src="/media/{{p.image}}" class="card-img-top" alt="..." onclick="detailView('/{{p.id}}/{{company.id}}/detail_product')">
@@ -101,7 +101,7 @@ input[type=number] { -moz-appearance:textfield; }
               <!-- <li><a class="dropdown-item text-primary" style="cursor: pointer;" href="javascript: void(0);" onclick="window.open('http://www.facebook.com/sharer.php?u={{request.build_absolute_uri}}','ventanacompartir', 'toolbar=0, status=0, width=650, height=450');">En Facebook</a></li>
               <li><a class="dropdown-item text-success" href="javascript: void(0);" onclick="window.open('whatsapp://send?text=Puedes ver: {{p.description}}/?u={{request.build_absolute_uri}}','ventanacompartir', 'toolbar=0, status=0, width=650, height=450');">En whatsapp</a></li> -->
               <li id="status"><a class="dropdown-item" id="compartir" href="#">Compartir</a></li>                                                                     
-              <li><a class="dropdown-item text-success" href="https://api.whatsapp.com/send?text=Más información sobre el Item: *{{p.name|title|default:' '}}*, gracias.%0A{{request.build_absolute_uri}} &phone={{company.mobile}}" target="_blank">Preguntar sobre este producto <i class="bi bi-whatsapp"></i></a></li>
+              <li><a class="dropdown-item text-success" href="https://api.whatsapp.com/send?text=Más información sobre el Item: *{{p.name|title|default:' '}} cod: {{p.id}}*, gracias.%0A{{request.build_absolute_uri}} &phone={{company.mobile}}" target="_blank">Preguntar sobre este producto <i class="bi bi-whatsapp"></i></a></li>
             </ul>
           </div>
         </span>

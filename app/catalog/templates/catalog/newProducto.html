@@ -35,7 +35,7 @@
               <select name="category" class="select form-select select-control" required="" id="id_category" tabindex="-1" aria-hidden="true">
                 <option value="" selected="">---------</option>
                 {% for c in categorys %}
-                <option value="{{c.id}}">{{c.name}}</option>
+                <option value="{{c.id}}">{{c.name|capfirst}}</option>
                 {% empty %}
                 <option value="">No hay Registros</option>
                 {% endfor %}

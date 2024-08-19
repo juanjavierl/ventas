@@ -110,3 +110,12 @@ class Banco(models.Model):
     def __str__(self):
         """Unicode representation of Bancos."""
         return self.name
+
+class Sucursal(models.Model):
+    company=models.ForeignKey(Company, on_delete=models.CASCADE, verbose_name='Negocio')
+    latitud=models.CharField(max_length=50, verbose_name='Latitud')
+    longitud=models.CharField(max_length=50, verbose_name='Longitud')
+    date_joined = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.company.name

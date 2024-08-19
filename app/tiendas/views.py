@@ -180,3 +180,15 @@ def update_perfil_user(request, user_id):
             return JsonResponse({'error':'Error intente nuevamente.'})
     form = UpdateUserForm(instance=user)
     return render(request,'update_perfil_user.html',{'form':form})
+
+def add_huvicacion(request, id_company):
+    company = Company.objects.get(id=id_company)
+    if request.method == 'POST':
+        form = FormHuvicacion(request.POST)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'success':'Datos actualizados correctamente.'})
+        else:
+            return JsonResponse({'error':'Error intente nuevamente.'})
+    form = FormHuvicacion()
+    return render(request,'add_huvicacion.html',{'form':form, 'company':company})

@@ -121,6 +121,13 @@ def ver_carrito(request, id_company):
     t_pago = calcular_pago(request)
     return render(request, 'catalog/ver_carrito.html',{'datos':datos,'t_pago':t_pago, 'company':company})
 
+def show_productos_carrito(request, id_company):
+    company = get_object_or_404(Company, id=id_company)
+    datos = request.session['compra']
+    t_pago = calcular_pago(request)
+    return render(request, 'catalog/show_productos_carrito.html',{'datos':datos,'t_pago':t_pago, 'company':company})
+
+
 def calcular_pago(request):
     total_pago = 0
     try:
@@ -299,8 +306,8 @@ def newProducto(request, id_company):
         producto.description = request.POST['description']
         producto.category_id = int(request.POST['category'])
         producto.company_id = int(id_company)
-        producto.price = request.POST['price']
-        producto.price_before = request.POST['price_before']
+        producto.price = float(request.POST['price'])
+        producto.price_before = float(request.POST['price_before'])
         producto.stock = request.POST['stock']
         producto.image = request.FILES.get('image','')
         producto.is_service = service

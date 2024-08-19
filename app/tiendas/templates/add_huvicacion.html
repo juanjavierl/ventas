@@ -1,10 +1,10 @@
 {% load crispy_forms_tags %}
 <div class="modal-header  thead-light" style="background-color: #58bba9;">
-  <h5 class="modal-title text-white" id="exampleModalLabel">Agregar Nueva Categoria</h5>
+  <h5 class="modal-title text-white" id="exampleModalLabel">Registrar Nueva Sucursal</h5>
   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <div class="modal-body table-responsive">
-  <form action="/new_category/" method="POST" id="category_forms">
+  <form action="/{{company.py}}/add_huvicacion/" method="POST" id="add_hivicacion_forms">
     {% csrf_token %}
     {{form|crispy}}
     <div class="modal-footer">
@@ -16,7 +16,7 @@
   <p class="invalid_ct"></p>
 </div>
 <script>
-  $('#category_forms').on('submit', function (e) {
+  $('#add_hivicacion_forms').on('submit', function (e) {
     e.preventDefault();
     $.ajax({
       type: 'POST',
@@ -26,14 +26,8 @@
         if (resp.error) {
           $(".invalid_ct").html(resp.error);
         } else {
-          console.log(resp.category_id + " / " + resp.category_name);
-          var newOption = new Option(resp.category_name.toUpperCase(), resp.category_id, false, true);
-          $('#form_producto #id_category').append(newOption).trigger('change');
-          $('.invalid_ct').html(resp.category_name.toUpperCase() + ' ,Registro exitoso.');
-          setTimeout(function () {
+            
             $(".btn-close").click();
-          }, 1000);
-
         }
       },
       error: function (xhr, ajaxOptions, thrownError) {

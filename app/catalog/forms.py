@@ -19,7 +19,7 @@ class formProducto(forms.ModelForm):
 
     class Meta:
         model = Product
-        fields = '__all__'
+        exclude = ['company']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'code': forms.TextInput(attrs={'class': 'form-control'}),

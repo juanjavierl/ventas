@@ -1,5 +1,6 @@
 #encoding:utf-8
 import os
+from random import randint
 from datetime import datetime
 from django.db.models import Sum, FloatField
 from django.db.models.functions import Coalesce
@@ -70,6 +71,10 @@ class Product(models.Model):
     def porcentage(self):
         total = (self.price_before - self.price)/self.price * 100
         return int(total)
+
+    def num_aleatorio(self):
+        num = randint(1,21)
+        return num
 
     class Meta:
         verbose_name = 'Producto'

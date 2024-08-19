@@ -29,7 +29,7 @@
     position: absolute;
     top: 0;
     padding: 5px 10px;
-    z-index: 22;
+    z-index: 4;
   }
   
   .card_p .new-tag {

@@ -34,3 +34,8 @@ class formCompanyImage(forms.ModelForm):
     class Meta:
         model = Company
         exclude = ('user','date_joined','plan')
+
+class FormHuvicacion(forms.ModelForm):
+    class Meta:
+        model = Sucursal
+        exclude = ('date_joined','company')

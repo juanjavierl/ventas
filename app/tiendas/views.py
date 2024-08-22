@@ -61,7 +61,7 @@ def validar_form(request):
 def validar_username(request):
     if request.method == "POST":
         if User.objects.filter(email = request.POST['email']).exists():
-            menj = "La cuenta: "+request.POST['email']+" ya existe " + " <a href='/login/'>Iniciar Sesion</a>"
+            menj = "La cuenta: "+"<span style='color:green;'>"+request.POST['email']+"</span>"+" ya existe "
             return JsonResponse({'error':menj})
         else:
             return JsonResponse({'valido':'valido'})
@@ -70,6 +70,8 @@ def login_user(request):
     if request.method == "POST":
         form = AuthenticationForm(data=request.POST)
         if form.is_valid():
+            print(request.POST['username'])
+            print(request.POST['password'])
             user = authenticate(username=request.POST['username'],password=request.POST['password'])
             if user is not None:
                 print("TE AUTENTICASTE EN EL SISTEMA")
@@ -102,8 +104,8 @@ def datos_registro(request):
         print("*"*50)"""
 
         datos = ast.literal_eval(datos)
-        print(datos)#como dict
-        print(type(datos))#como string
+        #print(datos)#como dict
+        #print(type(datos))#como string
         
         user = User()
         user.username = datos['user_data']['user']
@@ -126,12 +128,11 @@ def datos_registro(request):
         company.save()
         print(datos['user_data']['user'])
         print(datos['user_data']['pass1'])
-        print(company.id)
-        user_login = authenticate(username=datos['user_data']['user'],password=datos['user_data']['pass1'])
-        print(user_login)
 
-        login(request, user_login)
-        return JsonResponse({'company_id':company.id})
+        #user_login = authenticate(username=datos['user_data']['user'],password=datos['user_data']['pass1'])
+        login(request, user)
+
+        return JsonResponse({'user_id':user.id})
         #else:
             #return JsonResponse({'error': 'Up. algo salio mal intentalo nuevamente gracias.'})
 

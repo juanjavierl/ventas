@@ -197,7 +197,7 @@ def confirmar_compra(request, id_company):
 
             d = datetime.strptime(request.POST['date_time']+":00", '%Y-%m-%dT%H:%M:%S')
             if d < datetime.now():
-                return JsonResponse({'error':"Por favor, Ingrese 1 hora más adelantado"})
+                return JsonResponse({'error':"Error: La fecha debe ser mayor o igual a hoy"})
             else:
                 fecha = datetime.strftime(d,'%A %d/%m/%y hora: %H:%M %p')
                 print(type(d))

@@ -34,11 +34,12 @@
 </style>
 {% load crispy_forms_tags %}
 <section class="container" id="team_productos" style="margin-top: 80px;">
-    <div class="section-title" data-aos="fade-up">
-        <h2>Por favor complete sus datos</h2>
-    </div>
     <div class="row d-flex no-gutters justify-content-center info productos_por_categorias" data-aos="fade-up" id="data_dable">
-        <div class="col-lg-5 d-flex align-items-stretch form_msj">
+      <div class="section-title" data-aos="fade-up">
+        <h2>Por favor complete sus datos</h2>
+      </div>  
+      <div class="col-lg-5 d-flex align-items-stretch form_msj">
+          
             <form action="/{{company.id}}/confirmar_compra/" method="post" class="" id="form_pedido" style="width: 100%;">
                 {% csrf_token %}
                 {{ form|crispy }}

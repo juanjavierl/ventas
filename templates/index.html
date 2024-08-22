@@ -54,8 +54,6 @@
           </a>
           {% endblock company %}
         </h1>
-        <!-- Uncomment below if you prefer to use an image logo -->
-       <!--  <a href="index.html"><img src="{% static 'img/empty.png' %}" alt="" class="img-fluid"></a> -->
         
         {% block carrito %}
           {% include 'sheart_companys.html' %}
@@ -69,12 +67,16 @@
         <ul>
           <li><a class="nav-link scrollto active" href="#" onclick="form_company('/registro_company/')" 
             data-bs-toggle="modal" data-bs-target="#exampleModal">Crear Catálogo</a></li>
-          <!-- <li class="dropdown"><a href="#"><span>Categorias</span> <i class="bi bi-chevron-down"></i></a>
+      
+          <li class="dropdown"><a href="#team"><span>Categorias</span> <i class="bi bi-chevron-down"></i></a>
             <ul>
-              <li style="cursor: pointer;" class="nav-link scrollto"><a onclick="mostrar_por_categoria('{{c.id}}')" href="#product">{{c.name|title}}</a></li>
+              {% for c in type_company %}
+                <li style="cursor: pointer;" class="nav-link scrollto"><a href="/{{c.id}}/type">{{c.name|title}}</a></li>
+              {% empty %}
+                <li class="bi-x"><a href="">No hay Categorias</a></li>
+              {% endfor %}
             </ul>
-          </li> -->
-          <li><a class="nav-link scrollto" href="#team">Categorias</a></li>
+          </li>
           <li><a class="nav-link scrollto" href="#footer">Nosotros</a></li>
           {% if user.is_authenticated %}
           <!-- <li class="dropdown"><a href="#"><span>Mi Perfil</span> <i class="bi bi-chevron-down"></i></a>

@@ -98,9 +98,10 @@ class Company(models.Model):
 class Banco(models.Model):
     """Model definition for Bancos."""
     name = models.CharField(max_length=50, verbose_name='Nombre del Banco')
+    destinatario = models.CharField(max_length=60, verbose_name='Nombre Destinatario')
     cuenta = models.CharField(max_length=50, verbose_name='Nro. de cuenta')
-    qr_img = models.ImageField(null=True, blank=True, upload_to='img_qr', verbose_name='Img QR de pago', help_text="Imagen que tenga validacion de un año")
-    compania = models.ForeignKey(Company, on_delete=models.CASCADE, verbose_name='Negocio')
+    qr_img = models.ImageField(null=True, blank=True, upload_to='img_qr', verbose_name='Img QR de pago', help_text="Imagen que tenga validacion de un año o mas")
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, verbose_name='Negocio')
     class Meta:
         """Meta definition for Bancos."""
 
@@ -115,6 +116,14 @@ class Sucursal(models.Model):
     company=models.ForeignKey(Company, on_delete=models.CASCADE, verbose_name='Negocio')
     latitud=models.CharField(max_length=50, verbose_name='Latitud')
     longitud=models.CharField(max_length=50, verbose_name='Longitud')
+    date_joined = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.company.name
+
+class Precio_envio(models.Model):
+    company = models.OneToOneField(Company, on_delete=models.CASCADE, verbose_name='Negocio')
+    precio = models.IntegerField(verbose_name='Precio de Envio')
     date_joined = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

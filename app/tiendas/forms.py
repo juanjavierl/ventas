@@ -39,3 +39,8 @@ class FormHuvicacion(forms.ModelForm):
     class Meta:
         model = Sucursal
         exclude = ('date_joined','company')
+
+class PrecioForm(forms.ModelForm):
+    class Meta:
+        model = Precio_envio
+        exclude = ('date_joined','company')

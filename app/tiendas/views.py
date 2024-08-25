@@ -12,6 +12,7 @@ from app.tiendas.models import *
 from app.tiendas.forms import *
 from app.catalog.models import Product
 from app.inicio.views import get_Dashboard
+from app.catalog.views import get_company, categorys_from_productos
 # Create your views here.
 def getTypes(request, id_type):
     if request.user.is_authenticated:
@@ -193,3 +194,28 @@ def add_huvicacion(request, id_company):
             return JsonResponse({'error':'Error intente nuevamente.'})
     form = FormHuvicacion()
     return render(request,'add_huvicacion.html',{'form':form, 'company':company})
+
+def configuraciones_company(request, id_company):
+
+    productos = Product.objects.filter(stock__gt=0, company_id=int(id_company)).order_by('-id')
+    dic = {
+        'form_precio':PrecioForm(),
+        'categorias':categorys_from_productos(productos),
+        'company':get_company(id_company),
+        'total_compra':len(request.session['compra']),
+        'precios':Precio_envio.objects.filter(company_id=int(id_company))[:1]
+    }
+    return render(request,'configuraciones_company.html', dic)
+
+def precio_envio(request, id_company):
+    company = get_object_or_404(Company, id = int(id_company))
+    if request.method == 'POST':
+        form_precio = PrecioForm(request.POST, instance=company)
+        if form_precio.is_valid():
+            preci = Precio_envio()
+            preci.precio = request.POST['precio']
+            preci.company_id = company.id
+            preci.save()
+            return JsonResponse({'success':'Registro Exitoso.'})
+        else:
+            return JsonResponse({'error':'Error intente nuevamente.'})

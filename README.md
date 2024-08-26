@@ -51,7 +51,7 @@ source venv/bin/active
 ##### 5) Instalar todas las librerias del proyecto que se encuentran en la carpeta deploy
 
 ```bash
-pip install -r deploy/txt/requirements.txt
+pip install -r deploy/requirements.txt
 ```
 
 ##### 6) Crear la tablas de la base de datos a partir de las migraciones de django
@@ -85,9 +85,7 @@ password: admin
 
 ------------
 
-PROBLEMA PARA REALIZAR LA INSTALACION DE :
-    django-crispy-forms - crispy_bootstrap5
+INSTALACION DE CRISPY FORM PARA LOS STYLOS DE FORMULARIOS:
+> pip install django-crispy-forms
 
-INSTALACION DE:django-crispy-forms https://www.programink.com/django-tutorial/django-crispy-forms.html
-SALUCION DEL PROBLEMA TEMAPLTE_PACK
-LINK.- https://stackoverflow.com/questions/65238459/templatedoesnotexist-at-users-register-bootstrap5-uni-form-html
+> pip install crispy-bootstrap5

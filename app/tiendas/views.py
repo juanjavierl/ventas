@@ -216,6 +216,6 @@ def precio_envio(request, id_company):
             preci.precio = request.POST['precio']
             preci.company_id = company.id
             preci.save()
-            return JsonResponse({'success':'Registro Exitoso.'})
+            return JsonResponse({'success':'Registro Exitoso.', 'precio':preci.precio})
         else:
             return JsonResponse({'error':'Error intente nuevamente.'})

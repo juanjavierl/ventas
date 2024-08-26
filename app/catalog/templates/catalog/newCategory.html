@@ -13,7 +13,6 @@
       <button type="submit" class="btn btn-success btn-sm">Registrar</button>
     </div>
   </form>
-  <p class="invalid_ct"></p>
 </div>
 <script>
   $('#category_forms').on('submit', function (e) {
@@ -24,12 +23,16 @@
       data: $(this).serialize(),
       success: function (resp) {
         if (resp.error) {
-          $(".invalid_ct").html(resp.error);
+          $('.confir_pedido').addClass('alet alert-danger');
+          $('.confir_pedido').fadeIn(1000).html(resp.error).show();
+          
         } else {
           console.log(resp.category_id + " / " + resp.category_name);
           var newOption = new Option(resp.category_name.toUpperCase(), resp.category_id, false, true);
           $('#form_producto #id_category').append(newOption).trigger('change');
-          $('.invalid_ct').html(resp.category_name.toUpperCase() + ' ,Registro exitoso.');
+          $('.confir_pedido').addClass('alet alert-success');
+          $('.confir_pedido').fadeIn(1000).html(resp.category_name.toUpperCase() + ' ,Registro exitoso.').show();
+          toastBootstrap.show()
           setTimeout(function () {
             $(".btn-close").click();
           }, 1000);

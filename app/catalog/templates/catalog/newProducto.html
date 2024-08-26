@@ -88,7 +88,7 @@
           <button type="submit" class="btn btn-success btn-sm"><i class="bi bi-save"></i> Registrar Producto</button>
         </div>
       </form>
-      <p class="sent-message text-success text-center" style="margin-top: 20;"></p>
+      
     </div>
   </div>
 </div>
@@ -110,9 +110,9 @@
       contentType: false,
       processData: false,
       success: function (resp) {
-        $(".sent-message").html(resp.success);
+        //$(".sent-message").html(resp.success);
+        $('.confir_pedido').fadeIn(1000).html(resp.success).show();
         $('#form_producto')[0].reset();
-        $(".sent-message").fadeIn(3000).show();
       },
       error: function (xhr, ajaxOptions, thrownError) {
         alert("Error:" + thrownError);

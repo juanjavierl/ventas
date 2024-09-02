@@ -23,16 +23,21 @@
       data: $(this).serialize(),
       success: function (resp) {
         if (resp.error) {
-          $('.confir_pedido').addClass('alet alert-danger');
-          $('.confir_pedido').fadeIn(1000).html(resp.error).show();
-          
+          $('.toast-body').addClass('alert alert-danger');
+          $('.toast-body').fadeIn(1000).html(resp.error);
+          const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+          toastBootstrap.show();
+         
         } else {
-          console.log(resp.category_id + " / " + resp.category_name);
           var newOption = new Option(resp.category_name.toUpperCase(), resp.category_id, false, true);
           $('#form_producto #id_category').append(newOption).trigger('change');
-          $('.confir_pedido').addClass('alet alert-success');
-          $('.confir_pedido').fadeIn(1000).html(resp.category_name.toUpperCase() + ' ,Registro exitoso.').show();
-          toastBootstrap.show()
+
+          $('.toast-body').addClass('alert alert-success');
+          $('.toast-body').fadeIn(1000).html('Categoria Registrado.');
+          $('#category_forms')[0].reset();
+          const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+          toastBootstrap.show();
+
           setTimeout(function () {
             $(".btn-close").click();
           }, 1000);

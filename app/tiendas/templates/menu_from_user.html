@@ -37,7 +37,7 @@
         {% endif %}
         <li><a class="nav-link scrollto" href="#" onclick="updateUser('/{{request.user.id}}/update_perfil_user/')">Actualizar mi Perfil</a></li>
         {% if company.id %}
-          <li><a class="nav-link scrollto" href="#" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="add_hivicacion('/{{company.id}}/add_huvicacion/')">Agregar Huvicación</a></li>
+        <!--   <li><a class="nav-link scrollto" href="#" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="add_hivicacion('/{{company.id}}/add_huvicacion/')">Agregar Huvicación</a></li> -->
           <li><a class="nav-link scrollto" href="/{{company.id}}/configuraciones">Configuraciones</a></li>
         {% endif %}
         <li><a class="nav-link scrollto" href="/{{request.user.id}}/companys">Mis Catálogos</a></li>

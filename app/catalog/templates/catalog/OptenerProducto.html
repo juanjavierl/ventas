@@ -2,51 +2,55 @@
 {% load static %}
 
 {% block titulo %}
-    {{company.name|title|truncatechars:17|cut:" "}}
+{{company.name|title|truncatechars:17|cut:" "}}
 {% endblock titulo %}
 
 {% block company %}
-  <a href="/{{company.id}}/catalogo">
-    <marquee behavior="" direction="">{{company.name|title|cut:" "}}</marquee>
-  </a>
+<a href="/{{company.id}}/catalogo">
+  <marquee behavior="" direction="">{{company.name|title|cut:" "}}</marquee>
+</a>
 {% endblock company %}
 
 {% block carrito %}
-  {% include 'catalog/carrito.html'  with total_compra=total_compra %}
+{% include 'catalog/carrito.html' with total_compra=total_compra %}
 {% endblock carrito %}
 
 {% block menus %}
-    {% include 'menu_from_user.html' with categorias=categorias %}
+{% include 'menu_from_user.html' with categorias=categorias %}
 {% endblock menus %}
 
-{% block hero %}  {% endblock hero %}
+{% block hero %} {% endblock hero %}
 
 {% block contenido %}
 <style>
-  .cantidades{
+  .cantidades {
     display: flex;
   }
-  .cant input{
+
+  .cant input {
     width: 60px;
     text-align: center;
   }
-  .valores{
+
+  .valores {
     text-align: center;
     background-color: rgb(167, 182, 182);
     padding: 4px 10px 5px 10px;
     height: 30px;
     font-family: cursive;
   }
-  .valores:hover{
+
+  .valores:hover {
     background-color: rgb(24, 24, 22);
     color: white;
     cursor: pointer;
   }
 
-.btn_add .btn_icon{
-  display: none;
-}
-.sale-tag {
+  .btn_add .btn_icon {
+    display: none;
+  }
+
+  .sale-tag {
     border-radius: 2px;
     font-size: 12px;
     color: #fff;
@@ -57,7 +61,8 @@
     z-index: 5;
     margin-top: 5px;
   }
-.opciones{
+
+  .opciones {
     font-size: 12px;
     color: #fff;
     font-weight: bold;
@@ -65,43 +70,51 @@
     padding: 5px 10px;
     z-index: 22;
     right: 5px;
-}
+  }
 
-  .multiple-card-slider{
+  .multiple-card-slider {
     display: none;
   }
 
-input[type=number]::-webkit-inner-spin-button, 
-input[type=number]::-webkit-outer-spin-button { 
-  -webkit-appearance: none; 
-  margin: 0; 
-}
-input[type=number] { -moz-appearance:textfield; }
+  input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type=number] {
+    -moz-appearance: textfield;
+  }
 </style>
-<div class="card col-12 container" id="team_productos" data-aos="fade-up" style=" box-shadow: 0 7px 7px rgb(0 0 0 / 18%); margin-top: 80px;">
+<div class="card col-12 container" id="team_productos" data-aos="fade-up"
+  style=" box-shadow: 0 7px 7px rgb(0 0 0 / 18%); margin-top: 80px;">
   <div class="row g-0 productos_por_categorias">
     <div class="col-md-4 detail">
-        {% if p.image %}
-          <img src="/media/{{p.image}}" class="card-img-top" alt="..." onclick="detailView('/{{p.id}}/{{company.id}}/detail_product')">
-          {% else %}
-          <i class="bi bi-box-seam icon" alt="..." onclick="detailView('/{{p.id}}/{{company.id}}/detail_product')"></i>
-        {% endif %}
+      {% if p.image %}
+      <img src="/media/{{p.image}}" class="card-img-top" alt="..."
+        onclick="detailView('/{{p.id}}/{{company.id}}/detail_product')">
+      {% else %}
+      <i class="bi bi-box-seam icon" alt="..." onclick="detailView('/{{p.id}}/{{company.id}}/detail_product')"></i>
+      {% endif %}
       {% if p.is_new %}
-          <span class="badge rounded-pill bg-primary sale-tag d-flex">Nuevo</span>
+      <span class="badge rounded-pill bg-primary sale-tag d-flex">Nuevo</span>
       {% endif %}
     </div>
     <div class="col-md-8">
       <div class="card-body">
         <span class="badge opciones">
           <div class="dropdown btn-sm">
-            <button class="btn btn-sm dropdown-toggle btn btn-light text-success" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+            <button class="btn btn-sm dropdown-toggle btn btn-light text-success" type="button" id="dropdownMenuButton1"
+              data-bs-toggle="dropdown" aria-expanded="false">
               Compartir
             </button>
             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
               <!-- <li><a class="dropdown-item text-primary" style="cursor: pointer;" href="javascript: void(0);" onclick="window.open('http://www.facebook.com/sharer.php?u={{request.build_absolute_uri}}','ventanacompartir', 'toolbar=0, status=0, width=650, height=450');">En Facebook</a></li>
               <li><a class="dropdown-item text-success" href="javascript: void(0);" onclick="window.open('whatsapp://send?text=Puedes ver: {{p.description}}/?u={{request.build_absolute_uri}}','ventanacompartir', 'toolbar=0, status=0, width=650, height=450');">En whatsapp</a></li> -->
-              <li id="status"><a class="dropdown-item" id="compartir" href="#">Compartir</a></li>                                                                     
-              <li><a class="dropdown-item text-success" href="https://api.whatsapp.com/send?text=Más información sobre el Item: *{{p.name|title|default:' '}} cod: {{p.id}}*, gracias.%0A{{request.build_absolute_uri}} &phone={{company.mobile}}" target="_blank">Preguntar sobre este producto <i class="bi bi-whatsapp"></i></a></li>
+              <li id="status"><a class="dropdown-item" id="compartir" href="#">Compartir</a></li>
+              <li><a class="dropdown-item text-success"
+                  href="https://api.whatsapp.com/send?text=Más información sobre el Item: *{{p.name|title|default:' '}} cod: {{p.id}}*, gracias.%0A{{request.build_absolute_uri}} &phone={{company.mobile}}"
+                  target="_blank">Preguntar sobre este producto <i class="bi bi-whatsapp"></i></a></li>
             </ul>
           </div>
         </span>
@@ -114,10 +127,11 @@ input[type=number] { -moz-appearance:textfield; }
         <p class="card-text">
           <strong>Precio Bs. {{p.price|default:" 0 "}}</strong>
           {% if p.price_before %}
-            <strong class="text-decoration-line-through text-danger" style="font-size: 12px; padding-left: 30px;">Antes: Bs. {{p.price_before}}</strong>
+          <strong class="text-decoration-line-through text-danger" style="font-size: 12px; padding-left: 30px;">Antes:
+            Bs. {{p.price_before}}</strong>
           {% endif %}
         </p>
-          
+
         <p>
           {% if p.price_before %}
           <span style="font-size: 14px;" class="badge text-bg-warning text-white">Desc. {{p.porcentage}}%</span>
@@ -129,28 +143,32 @@ input[type=number] { -moz-appearance:textfield; }
             Cantidad disponible: {{p.stock}}
           </span>
         </p>
-        
+
         <div class="row">
           <form action="/{{p.id}}/{{company.id}}/detail_product" id="form_pedido" method="post" class="form-row row">
-              {% csrf_token %}
-              
-              <div class="col-12 col-md-6 col-lg-4 cantidades form-group">
-                <label for="inputPassword6" class="col-form-label text-dark" style="width: 165px; text-align: center;"><strong> Cantidad:  </strong></label>
-                <div class="valores menos" style="border-radius: 15px 0px 0px 15px;"> - </div>
-                <div class="cant">
-                    <input type="number" name="cantidad" placeholder="ejem. 1" value="1" min="1" max="{{p.stock}}" id="cantidad_id" class="form-control form-control-sm valor_numerico" required>
-                </div>
-                <div class="valores mas" style="border-radius: 0px 15px 15px 0px;"> + </div>
+            {% csrf_token %}
+
+            <div class="col-12 col-md-6 col-lg-4 cantidades form-group">
+              <label for="inputPassword6" class="col-form-label text-dark"
+                style="width: 165px; text-align: center;"><strong> Cantidad: </strong></label>
+              <div class="valores menos" style="border-radius: 15px 0px 0px 15px;"> - </div>
+              <div class="cant">
+                <input type="number" name="cantidad" placeholder="ejem. 1" value="1" min="1" max="{{p.stock}}"
+                  id="cantidad_id" class="form-control form-control-sm valor_numerico" required>
               </div>
-              <div class="col-auto btn_add align-items-center" style="height: 30px;">
-                  <button type="submit" class="btn btn-success btn-sm tb_text"> + <i class="bi bi-cart-fill"></i> Agregar</button>
-                  <!-- &nbsp;
+              <div class="valores mas" style="border-radius: 0px 15px 15px 0px;"> + </div>
+            </div>
+            <div class="col-auto btn_add align-items-center" style="height: 30px;">
+              <button type="submit" class="btn btn-success btn-sm tb_text"> + <i class="bi bi-cart-fill"></i>
+                Agregar</button>
+              <!-- &nbsp;
                   <button type="submit" class="btn btn-success btn-sm btn_icon">+<i class="bi bi-cart-fill"></i></button> -->
-                
-                  <a href="/{{company.id}}/catalogo" class="btn btn-secondary btn-sm tb_text" style="padding-top: 5px;"><i class="bi bi-arrow-left-circle"></i> Volver Atrás</a>
-                  
-              </div>
-            </form>
+
+              <a href="/{{company.id}}/catalogo" class="btn btn-secondary btn-sm tb_text" style="padding-top: 5px;"><i
+                  class="bi bi-arrow-left-circle"></i> Volver Atrás</a>
+
+            </div>
+          </form>
         </div>
       </div>
     </div>
@@ -158,98 +176,101 @@ input[type=number] { -moz-appearance:textfield; }
 </div>
 <script>
 
-if (navigator.share) {
-  // Código si la Web Share API es soportada
-  document.getElementById("compartir").value = "En más lugares"
-  const shareData = {
-    title: "Catalogo",
-    text: "Visita mi Catalogo!",
-    url: window.location.href,
-  };
-  let btn = document.getElementById("compartir");
-  const resultPara = document.getElementsByClassName("alert-success");
+  if (navigator.share) {
+    // Código si la Web Share API es soportada
+    document.getElementById("compartir").value = "En más lugares"
+    const shareData = {
+      title: "Catalogo",
+      text: "Visita mi Catalogo!",
+      url: window.location.href,
+    };
+    let btn = document.getElementById("compartir");
+    const resultPara = document.getElementsByClassName("alert-success");
 
-  btn.addEventListener("click", async () => {
-    try {
-      await navigator.share(shareData);
-      resultPara.textContent = "Recurso compartido";
-      
-    } catch (err) {
-      $("#status").hide()
-      document.getElementById("status").hidden();
-      alert("Up! parase que tu navegador no esta lista para compartir este recurso.");
-    }
-  });
-} else {
-  // Fallback
-  $("#status").hide()
-}
+    btn.addEventListener("click", async () => {
+      try {
+        await navigator.share(shareData);
+        resultPara.textContent = "Recurso compartido";
 
-$('#form_pedido').submit(function(e){
+      } catch (err) {
+        $("#status").hide()
+        document.getElementById("status").hidden();
+        alert("Up! parase que tu navegador no esta lista para compartir este recurso.");
+      }
+    });
+  } else {
+    // Fallback
+    $("#status").hide()
+  }
+
+  $('#form_pedido').submit(function (e) {
     e.preventDefault();
-  //if(Number.isInteger($('#cantidad_id').val()) || parseInt($('#cantidad_id').val())){
+    //if(Number.isInteger($('#cantidad_id').val()) || parseInt($('#cantidad_id').val())){
     $.ajax({
-        type:'POST',
-        url:$(this).attr("action"),
-        data:$(this).serialize(),
-        success:function(resp){
-          if(resp.error){
-            $(".alert-danger").fadeIn(1000).html(resp.error).show();
-            $(".alert-success").html(resp.success).hide();
-          }
-          else{
-            $(".alert-success").fadeIn(1000).html(resp.success).show();
-
-            $(".alert-danger").html(resp.error).hide();
-            $("#cont_compras").html(resp.total_compra);
-          }
-          setTimeout(function(){
-              $(".tamanio").fadeIn().html(resp.success).hide();
-            },4000);
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-             alert("Error:"+ thrownError);
-           }
+      type: 'POST',
+      url: $(this).attr("action"),
+      data: $(this).serialize(),
+      success: function (resp) {
+        if (resp.error) {
+          $('.toast-body').addClass('alert alert-danger');
+          $('.toast-body').fadeIn(1000).html(resp.error);
+          const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+          toastBootstrap.show();
+        }
+        else {
+          $('.toast-body').addClass('alert alert-success');
+          $('.toast-body').fadeIn(1000).html(resp.success);
+          const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+          toastBootstrap.show();
+          $("#cont_compras").html(resp.total_compra);
+        }
+      },
+      error: function (xhr, ajaxOptions, thrownError) {
+        $('.toast-body').addClass('alert alert-danger');
+        $('.toast-body').fadeIn(1000).html(thrownError);
+        const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+        toastBootstrap.show();
+      }
     });
-});
-$(function(){
-  //validaciones del input cantidad
-  $('#cantidad_id').focus();
-
-  input = $(".valor_numerico");
-  min = $(".valor_numerico").attr('min'),
-  max = $(".valor_numerico").attr('max');
-  $(".menos").on('click',function(){
-    var oldValue = parseFloat(input.val());
-    if (oldValue <= min) {
-      var newVal = oldValue;
-    } else {
-      var newVal = oldValue - 1;
-    }
-    $(".valor_numerico").val(newVal);
-    $(".valor_numerico").trigger("change");
   });
-  //cuando se preciona el boton mas
-  $(".mas").on('click',function(){
-    var oldValue = parseFloat(input.val());
-    if (oldValue >= max) {
-      var newVal = oldValue;
-    } else {
-      var newVal = oldValue + 1;
-    }
-    $(".valor_numerico").val(newVal);
-    $(".valor_numerico").trigger("change");
+  $(function () {
+    //validaciones del input cantidad
+    $('#cantidad_id').focus();
+
+    input = $(".valor_numerico");
+    min = $(".valor_numerico").attr('min'),
+      max = $(".valor_numerico").attr('max');
+    $(".menos").on('click', function () {
+      var oldValue = parseFloat(input.val());
+      if (oldValue <= min) {
+        var newVal = oldValue;
+      } else {
+        var newVal = oldValue - 1;
+      }
+      $(".valor_numerico").val(newVal);
+      $(".valor_numerico").trigger("change");
     });
-});
-</script>  
+    //cuando se preciona el boton mas
+    $(".mas").on('click', function () {
+      var oldValue = parseFloat(input.val());
+      if (oldValue >= max) {
+        var newVal = oldValue;
+      } else {
+        var newVal = oldValue + 1;
+      }
+      $(".valor_numerico").val(newVal);
+      $(".valor_numerico").trigger("change");
+    });
+  });
+</script>
 {% endblock contenido %}
 
 {% block button_whatsap %}
-  {% include 'button_whatsap.html' %}
+{% include 'button_whatsap.html' %}
 {% endblock button_whatsap %}
-  
+
 {% block contact %}
-  <!-- ======= Contact Section ======= -->
+<!-- ======= Contact Section ======= -->
 <section id="contact" class="contact">
   <div class="container">
     {% include 'contact.html' %}

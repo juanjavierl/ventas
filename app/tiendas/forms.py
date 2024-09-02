@@ -44,3 +44,8 @@ class PrecioForm(forms.ModelForm):
     class Meta:
         model = Precio_envio
         exclude = ('date_joined','company')
+
+class form_banco(forms.ModelForm):
+    class Meta:
+        model = Banco
+        exclude = ('company',)

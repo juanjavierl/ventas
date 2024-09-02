@@ -48,6 +48,7 @@
                   <option value="domicilio">Recibir en mi domicilio</option>
                   <option value="ciudad">Enviarme a otra Ciudad</option>
                 </select>
+                <small class="text-muted menj_valor_envio"></small>
                 <br>
                 <div id="div_id_fecha">
                   <label for="">Fecha y Hora a Recoger</label>
@@ -125,18 +126,24 @@
           $("#div_id_fecha input").focus();
             $("#div_id_address").hide();
             $("#destino").hide();
+            $(".menj_valor_envio").hide();
           }
         if($(this).val() == "domicilio"){
             $("#div_id_fecha").hide();
             $("#destino").hide();
             $("#div_id_address").show();
             $("#div_id_address input").focus();
+            if({{precio_envio.precio}} > 0){
+              $(".menj_valor_envio").text("Total envio: Bs. "+{{precio_envio.precio}}).show();
+            }
+            
           }
           if($(this).val() == "ciudad"){
             $("#div_id_address").hide();
             $("#div_id_fecha").hide();
             $("#destino").show();
-            $("#destino").focus()
+            $("#destino").focus();
+            $(".menj_valor_envio").hide();
           }
         });
 
@@ -157,14 +164,21 @@
                 data:$(this).serialize(),
                 success: function(resp){
                   if(resp.error){
-                    $('.error_pedido').fadeIn(1000).html(resp.error).show();
+                    $('.toast-body').addClass('alert alert-danger');
+                    $('.toast-body').fadeIn(1000).html(resp.error);
+                    const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+                    toastBootstrap.show();
                   }
                   else{
                     $("#confirmacion").hide();
-                    $('.error_pedido').hide();
-                    $('.confir_pedido').fadeIn(1000).html(resp.success).show();
-                    $("#cont_compras").html(resp.products);
+                    
+                    $('.toast-body').addClass('alert alert-success');
+                    $('.toast-body').fadeIn(1000).html(resp.success);
+                    const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+                    toastBootstrap.show();
+
                     $('#form_pedido')[0].reset();
+                    $("#cont_compras").html(resp.products);
                     var datos = "***** *Mi Pedido* ***** %0A";
                     datos = datos + "Nombre: "+resp.cliente+ "%0A %0A";
                     var pedido = "";
@@ -179,14 +193,16 @@
                        lugar = "Fecha y hora a recoger: %0A"+resp.lugar.fecha+"%0A %0A";
                     }
                     if(resp.lugar.dir == "dir"){
+
                       lugar = "Dirección de envio: "+resp.lugar.direccion+"%0A";
                     }
                     if(resp.lugar.cuidad == "cuidad"){
+
                       lugar = "Ciudad de envio: "+resp.lugar.destino+"%0A";
                     }
-
                     dir = "Dirección: "+resp.dir +"%0A";
                     cuidad = "Ciudad:" +resp.cuidad+"%0A";
+
                     total = "- *Total a pagar: Bs."+resp.t_pago+"* %0A %0A"
                     web = "_sitio web: {{ request.get_host }}_"//corregir ir a la orden
                     //href="https://api.whatsapp.com/send?text=Mas informacion sobre este producto: {{p.description|default:' '}}, gracias. &phone={{company.mobile}}/?u={{request.build_absolute_uri}}"

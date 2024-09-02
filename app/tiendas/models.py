@@ -98,7 +98,7 @@ class Company(models.Model):
 class Banco(models.Model):
     """Model definition for Bancos."""
     name = models.CharField(max_length=50, verbose_name='Nombre del Banco')
-    destinatario = models.CharField(max_length=60, verbose_name='Nombre Destinatario')
+    destinatario = models.CharField(max_length=60, verbose_name='A Nombre de')
     cuenta = models.CharField(max_length=50, verbose_name='Nro. de cuenta')
     qr_img = models.ImageField(null=True, blank=True, upload_to='img_qr', verbose_name='Img QR de pago', help_text="Imagen que tenga validacion de un año o mas")
     company = models.ForeignKey(Company, on_delete=models.CASCADE, verbose_name='Negocio')

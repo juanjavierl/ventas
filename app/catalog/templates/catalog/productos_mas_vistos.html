@@ -49,8 +49,9 @@
                     <div class="row g-0">
                         <div class="col-md-4">
                             {% if p.image %}
-                                <img src="/media/{{p.image}}" class="card-img-top img-fluid rounded mx-auto d-block" alt="...">
-                            
+                            <img src="/media/{{p.image}}" class="card-img-top img-fluid rounded mx-auto d-block"
+                                alt="...">
+
                             {% endif %}
                         </div>
                         <div class="col-md-8">
@@ -65,12 +66,16 @@
                                 </small>
                                 <small class="">
                                     {% if p.price_before %}
-                                     Desc. {{p.porcentage}}%
+                                    Desc. {{p.porcentage}}%
                                     {% endif %}
                                 </small>
-                                <p class="card-text"><small class="text-success" style="font-size: 15px;">Última venta hace {{p.num_aleatorio}} dias</small></p>
-                                <button type="submit" id="id_{{p.id}}" onclick="add_item('/{{p.id}}/{{p.company.id}}/detail_product','{{p.id}}')" class="btn btn-primary btn-sm">Agregar</button>
-                                <button type="submit" onclick="detailView('/{{p.id}}/{{company.id}}/detail_product')" class="btn btn-warning btn-sm text-white">Ver datalles</button>
+                                <p class="card-text"><small class="text-success" style="font-size: 15px;">Última venta
+                                        hace {{p.num_aleatorio}} dias</small></p>
+                                <button type="submit" id="id_{{p.id}}"
+                                    onclick="add_item('/{{p.id}}/{{p.company.id}}/detail_product','{{p.id}}')"
+                                    class="btn btn-primary btn-sm">Agregar</button>
+                                <button type="submit" onclick="detailView('/{{p.id}}/{{company.id}}/detail_product')"
+                                    class="btn btn-warning btn-sm text-white">Ver datalles</button>
                             </div>
                         </div>
                     </div>
@@ -92,72 +97,73 @@
 </div>
 
 <script>
-    $('.multiple-card-slider .carousel').each(function(){
-    var currentCarouselId = '#' + $(this).attr('id');
-    const multipleItemCarousel = document.querySelector(currentCarouselId);
+    $('.multiple-card-slider .carousel').each(function () {
+        var currentCarouselId = '#' + $(this).attr('id');
+        const multipleItemCarousel = document.querySelector(currentCarouselId);
 
-    if(window.matchMedia("(min-width:576px)").matches){
-        const carousel = new bootstrap.Carousel(multipleItemCarousel, {
-            interval: false,
-            wrap: false
-        })
-        var carouselWidth = $(currentCarouselId + ' .carousel-inner')[0].scrollWidth;
-        var cardWidth = $(currentCarouselId + ' .carousel-item').width();
-        var scrollPosition = 0;    
-        $(currentCarouselId + ' .carousel-control-next').on('click', function(){
-            if(scrollPosition < (carouselWidth - (cardWidth * 4))){
-                console.log('next');
-                scrollPosition = scrollPosition + cardWidth;
-                $(currentCarouselId + ' .carousel-inner').animate({scrollLeft: scrollPosition},600);
-            }
-        });
-        $(currentCarouselId + ' .carousel-control-prev').on('click', function(){
-            if(scrollPosition > 0){
-                console.log('prev');
-                scrollPosition = scrollPosition - cardWidth;
-                $(currentCarouselId + ' .carousel-inner').animate({scrollLeft: scrollPosition},600);
-            }
-        });
-    }else{
-        $(multipleItemCarousel).addClass('slide');
-    }
-});
-$(function(){
-  $('.carousel-item:first-child').addClass('active');
-});
-
-function add_item(urls, id_producto){
-      let b = $(this).attr("id_"+id_producto);
-      b.innerHTML = "Agregar +";
-      $.ajax({
-        type:'POST',
-        url:urls,
-        data:{csrfmiddlewaretoken: '{{ csrf_token }}','cantidad':1, 'id_producto':id_producto},
-        success:function(resp){
-          if(resp.error){
-              $(".alert-danger").fadeIn(1000).html(resp.error).show();
-              $(".alert-success").html(resp.success).hide();
-            }
-            else{
-              $(".alert-success").fadeIn(1000).html(resp.success).show();
-              $(".alert-danger").html(resp.error).hide();
-
-              $("#cont_compras").html(resp.total_compra);
-              $.ajax({
-                type:'GET',
-                url:'/{{company.id}}/show_productos_carrito/',
-                success:function(respuesta){
-                    $('#carritos_items').html(respuesta);
+        if (window.matchMedia("(min-width:576px)").matches) {
+            const carousel = new bootstrap.Carousel(multipleItemCarousel, {
+                interval: false,
+                wrap: false
+            })
+            var carouselWidth = $(currentCarouselId + ' .carousel-inner')[0].scrollWidth;
+            var cardWidth = $(currentCarouselId + ' .carousel-item').width();
+            var scrollPosition = 0;
+            $(currentCarouselId + ' .carousel-control-next').on('click', function () {
+                if (scrollPosition < (carouselWidth - (cardWidth * 4))) {
+                    console.log('next');
+                    scrollPosition = scrollPosition + cardWidth;
+                    $(currentCarouselId + ' .carousel-inner').animate({ scrollLeft: scrollPosition }, 600);
                 }
-              })
-            }
-            setTimeout(function(){
-                $(".tamanio").fadeIn().html(resp.success).hide();
-              },4000);
+            });
+            $(currentCarouselId + ' .carousel-control-prev').on('click', function () {
+                if (scrollPosition > 0) {
+                    console.log('prev');
+                    scrollPosition = scrollPosition - cardWidth;
+                    $(currentCarouselId + ' .carousel-inner').animate({ scrollLeft: scrollPosition }, 600);
+                }
+            });
+        } else {
+            $(multipleItemCarousel).addClass('slide');
         }
-      });
+    });
+    $(function () {
+        $('.carousel-item:first-child').addClass('active');
+    });
+
+    function add_item(urls, id_producto) {
+        let b = $(this).attr("id_" + id_producto);
+        b.innerHTML = "Agregar +";
+        $.ajax({
+            type: 'POST',
+            url: urls,
+            data: { csrfmiddlewaretoken: '{{ csrf_token }}', 'cantidad': 1, 'id_producto': id_producto },
+            success: function (resp) {
+                if (resp.error) {
+                    $('.toast-body').addClass('alert alert-danger');
+                    $('.toast-body').fadeIn(1000).html(resp.error);
+                    const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+                    toastBootstrap.show();
+                }
+                else {
+                    $('.toast-body').addClass('alert alert-success');
+                    $('.toast-body').fadeIn(1000).html(resp.success);
+                    const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+                    toastBootstrap.show();
+
+                    $("#cont_compras").html(resp.total_compra);
+                    $.ajax({
+                        type: 'GET',
+                        url: '/{{company.id}}/show_productos_carrito/',
+                        success: function (respuesta) {
+                            $('#carritos_items').html(respuesta);
+                        }
+                    })
+                }
+            }
+        });
     }
-    function detailView(urls){
-      window.location.href = urls;
+    function detailView(urls) {
+        window.location.href = urls;
     }
 </script>

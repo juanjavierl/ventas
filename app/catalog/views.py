@@ -181,6 +181,7 @@ def mostrar_por_categoria(request, id_company, id_categoria):
 
 def confirmar_compra(request, id_company):
     company = get_object_or_404(Company, id = id_company)
+    t_pago = calcular_pago(request)#total a pagar de todo el carrito
     if request.method == 'POST':
         if not request.POST['dni'].isdigit():
             return JsonResponse({'error': "El Nro de Nit/CI debe ser numérico."})
@@ -213,7 +214,7 @@ def confirmar_compra(request, id_company):
         try:#si ya existe ese cliente
             print("ya existe ese cliente")
             cliente = Client.objects.get(dni = int(request.POST['dni']))
-            orden = crear_orden(cliente.id, id_company)#se crea una orden
+            orden = crear_orden(request, cliente.id, id_company)#se crea una orden
             for productos in request.session['compra']:#[{'id_producto':12,'cantidad':1},{'id_producto':10,'cantidad':2}]
                 pedido = Pedido()
                 pedido.orden_id = int(orden.id)
@@ -223,7 +224,7 @@ def confirmar_compra(request, id_company):
                 pedido.total = float(int(productos['cantidad']) * float(productos['precio_uni']))
                 pedido.save()
             lista_product = request.session['compra']
-            t_pago = calcular_pago(request)
+            #t_pago = calcular_pago(request)
             request.session['compra'] = []#cuando al cliente confirma su pedido se resetea al carrito a 0
             return JsonResponse(
                         {
@@ -234,7 +235,8 @@ def confirmar_compra(request, id_company):
                             'products':len(request.session['compra']),
                             'success':"Bien, tu pedido a sido registrado. <a href='/'> Ir al Inicio</a>",
                             'lista':lista_product,#envio lasession en la variable lista_product
-                            't_pago':t_pago
+                            't_pago':t_pago,
+                            'precio_envio':determinarPrecioEnvio(id_company)
                         }
                     )
         except Client.DoesNotExist:
@@ -242,7 +244,7 @@ def confirmar_compra(request, id_company):
             if forms.is_valid():
                 cliente = forms.save(commit=False)
                 cliente.save()
-                orden = crear_orden(cliente.id, id_company)
+                orden = crear_orden(request, cliente.id, id_company)
                 for productos in request.session['compra']:#[{'id_producto':12,'cantidad':1},{'id_producto':10,'cantidad':2}]
                     pedido = Pedido()
                     pedido.orden_id = int(orden.id)
@@ -251,7 +253,7 @@ def confirmar_compra(request, id_company):
                     pedido.price = float(productos['precio_uni'])
                     pedido.total = float(int(productos['cantidad']) * float(productos['precio_uni']))
                     pedido.save()
-                t_pago = calcular_pago(request)
+                #t_pago = calcular_pago(request)
                 lista_product = request.session['compra']
                 request.session['compra'] = []#cuando al cliente confirma su pedido se resetea al carrito a 0
                 return JsonResponse(
@@ -263,26 +265,38 @@ def confirmar_compra(request, id_company):
                                 'products':len(request.session['compra']),
                                 'success':"En hora buena realizaste tu pedido.<a href='/'> Ir al Inicio</a>",
                                 'lista':lista_product,
-                                't_pago':t_pago
+                                't_pago':t_pago,
+                                'precio_envio':determinarPrecioEnvio(id_company)
                             }
                         )
     productos = Product.objects.filter(stock__gt=0, company_id=id_company)
+    
     dic = {
         'form':ClientFormOrder(),
         'total_compra':len(request.session['compra']),
         'company':get_company(id_company),
         'categorias':categorys_from_productos(productos),
         'datos':request.session['compra'],
-         "t_pago":calcular_pago(request),
-         'productos':productos
+        't_pago':t_pago,
+        'productos':productos,
+        'precio_envio':determinarPrecioEnvio(id_company)
     }
     return render(request,'catalog/confirmar_compra.html',dic)
 
-def crear_orden(id_cliente, id_company):
+def determinarPrecioEnvio(id_company):
+    try:
+        p_envio = Precio_envio.objects.get(company_id=int(id_company))
+    except:
+        p_envio = {'precio':0}
+    return p_envio#QUIERO ENVIAR SOLO EL PRECIO AL TEMPLATE
+
+def crear_orden(request, id_cliente, id_company):
+    p_envio = determinarPrecioEnvio(id_company)
     orden = Orden()
     orden.client_id = int(id_cliente)
     orden.company_id = int(id_company)
-    orden.total = float(calcular_pago(request))
+    orden.subtotal = float(calcular_pago(request))
+    orden.total = float(calcular_pago(request)) + p_envio
     orden.save()
     return orden
 

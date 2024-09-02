@@ -87,12 +87,17 @@ url:urls,
 data:{csrfmiddlewaretoken: '{{ csrf_token }}','cantidad':1, 'id_producto':id_producto},
 success:function(resp){
   if(resp.error){
-      $(".alert-danger").fadeIn(1000).html(resp.error).show();
-      $(".alert-success").html(resp.success).hide();
+
+      $('.toast-body').addClass('alert alert-danger');
+      $('.toast-body').fadeIn(1000).html(resp.error);
+      const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+      toastBootstrap.show();
     }
     else{
-      $(".alert-success").fadeIn(1000).html(resp.success).show();
-      $(".alert-danger").html(resp.error).hide();
+      $('.toast-body').addClass('alert alert-success');
+      $('.toast-body').fadeIn(1000).html(resp.success);
+      const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+      toastBootstrap.show();
 
       $("#cont_compras").html(resp.total_compra);
     }

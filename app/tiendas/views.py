@@ -192,13 +192,13 @@ def add_huvicacion(request, id_company):
             return JsonResponse({'success':'Datos actualizados correctamente.'})
         else:
             return JsonResponse({'error':'Error intente nuevamente.'})
-    form = FormHuvicacion()
-    return render(request,'add_huvicacion.html',{'form':form, 'company':company})
 
 def configuraciones_company(request, id_company):
 
     productos = Product.objects.filter(stock__gt=0, company_id=int(id_company)).order_by('-id')
     dic = {
+        'form_huvicacion':FormHuvicacion(),
+        'form_banco':form_banco(),
         'form_precio':PrecioForm(),
         'categorias':categorys_from_productos(productos),
         'company':get_company(id_company),

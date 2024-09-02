@@ -1,15 +1,16 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
   <title>
     {% block titulo %}
-      {{dashboard.name|upper|truncatechars:17|cut:" "}}
+    {{dashboard.name|upper|truncatechars:17|cut:" "}}
     {% endblock titulo %}
-    </title>
+  </title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
@@ -18,7 +19,9 @@
   <link href="{% static 'assets/img/apple-touch-icon.png' %}" rel="apple-touch-icon">
 
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+    rel="stylesheet">
 
   <!-- Vendor CSS Files -->
   <link href="{% static 'assets/vendor/aos/aos.css' %}" rel="stylesheet">
@@ -27,25 +30,26 @@
   <link href="{% static 'assets/vendor/boxicons/css/boxicons.min.css' %}" rel="stylesheet">
   <link href="{% static 'assets/vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet">
   <link href="{% static 'assets/vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
-  
+
   <!-- Template Main CSS File -->
   <link href="{% static 'assets/css/style.css' %}" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/card_products.css' %}">
 
-<!--   <script src="https://code.jquery.com/jquery-3.7.1.js"
+  <!--   <script src="https://code.jquery.com/jquery-3.7.1.js"
     integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
     crossorigin="anonymous"></script> -->
-  
+
   <script src="{% static 'js/jquery-2.2.4.min.js' %}"></script>
   <link href="{% static 'select2/css/select2.css' %}" rel="stylesheet" />
   <script src="{% static 'select2/js/select2.js' %}"></script>
 </head>
+
 <body>
 
   <!-- ======= Header ======= -->
   <header id="header" class="fixed-top d-flex align-items-center">
     <div class="container d-flex justify-content-between">
-      
+
       <div class="logo" style="display: flex;width: 400px;justify-content: space-around;">
         <h1>
           {% block company %}
@@ -54,26 +58,26 @@
           </a>
           {% endblock company %}
         </h1>
-        
+
         {% block carrito %}
-          {% include 'sheart_companys.html' %}
+        {% include 'sheart_companys.html' %}
         {% endblock carrito %}
-            
+
       </div>
 
       <nav id="navbar" class="navbar">
-        
+
         {% block menus %}
         <ul>
-          <li><a class="nav-link scrollto active" href="#" onclick="form_company('/registro_company/')" 
-            data-bs-toggle="modal" data-bs-target="#exampleModal">Crear Catálogo</a></li>
-      
+          <li><a class="nav-link scrollto active" href="#" onclick="form_company('/registro_company/')"
+              data-bs-toggle="modal" data-bs-target="#exampleModal">Crear Catálogo</a></li>
+
           <li class="dropdown"><a href="#team"><span>Categorias</span> <i class="bi bi-chevron-down"></i></a>
             <ul>
               {% for c in type_company %}
-                <li style="cursor: pointer;" class="nav-link scrollto"><a href="/{{c.id}}/type">{{c.name|title}}</a></li>
+              <li style="cursor: pointer;" class="nav-link scrollto"><a href="/{{c.id}}/type">{{c.name|title}}</a></li>
               {% empty %}
-                <li class="bi-x"><a href="">No hay Categorias</a></li>
+              <li class="bi-x"><a href="">No hay Categorias</a></li>
               {% endfor %}
             </ul>
           </li>
@@ -88,44 +92,44 @@
           </li>
             {% else %}
             <li><a class="nav-link scrollto" href="#login" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="login('/login_user/')">Ingresar</a></li> -->
-            
+
           {% endif %}
-            
+
         </ul>
         {% endblock menus %}
-          
+
         <i class="bi bi-list mobile-nav-toggle"></i>
       </nav><!-- .navbar -->
     </div>
   </header>
   <!-- End Header -->
-   <!-- ======= Hero Section ======= -->
-   
-   {% block hero %}
-   <section id="hero" class="d-flex flex-column justify-content-center align-items-center">
+  <!-- ======= Hero Section ======= -->
+
+  {% block hero %}
+  <section id="hero" class="d-flex flex-column justify-content-center align-items-center">
     <div class="container text-center text-md-left" data-aos="fade-up">
       <h1>Bienvenido al Sistema {{dashboard.name|upper|cut:" "}}</h1>
       <h2>Crea & encuentra las mejores tiendas online de toda Bolivia</h2>
-      <a href="#team" class="btn-get-started scrollto" > Ver Ultimas Novedades</a>
+      <a href="#team" class="btn-get-started scrollto"> Ver Ultimas Novedades</a>
     </div>
   </section>
-   {% endblock hero %}
-    
-    
-   <!-- End Hero -->
+  {% endblock hero %}
+
+
+  <!-- End Hero -->
 
   <main id="main">
     <!-- ======= Services Section ======= -->
-    {% include 'sheart_product_by_company.html' with dashboard=dashboard  %}
+    {% include 'sheart_product_by_company.html' with dashboard=dashboard %}
     <!-- End Services Section -->
     <!-- ======= Team Section ======= -->
     {% block contenido %}
-    <section id="team" class="team" style="margin-top: 10px;" >
+    <section id="team" class="team" style="margin-top: 10px;">
       <div class="container-fluid productos_por_categorias" data-aos="fade-up">
-          {% include 'card_type_companys.html' with type_company=type_company count_comp=count_comp  %}
+        {% include 'card_type_companys.html' with type_company=type_company count_comp=count_comp %}
         <hr>
-          {% include 'pag_productos.html' %}
-      </div> 
+        {% include 'pag_productos.html' %}
+      </div>
     </section>
     {% endblock contenido %}
     <!-- <section id="category" class="category">
@@ -135,51 +139,48 @@
     </section> -->
     <!-- End Team Section -->
     <!-- Modal -->
-    <div class="modal fade" id="exampleModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal fade" id="exampleModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+      aria-labelledby="staticBackdropLabel" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content" id="optenerProducto">
-            
+
         </div>
       </div>
     </div>
-    
-    {% block productos_mas_vistos %}  {% endblock productos_mas_vistos %}
-      
+
+    {% block productos_mas_vistos %} {% endblock productos_mas_vistos %}
+
     {% block contact %} {% endblock contact %}
-      
+
   </main><!-- End #main -->
 
   <!-- ======= Footer ======= -->
-      {% include 'footer_catalog.html' %}
+  {% include 'footer_catalog.html' %}
   <!-- End Footer -->
-  
-  {% block button_whatsap %}
-    
-  {% endblock button_whatsap %}
-    
-  <div class="container align-items-center justify-content-center">
-    <div class="alert alert-danger tamanio error_pedido" style="display: none;" role="alert"></div>
-  <div class="alert alert-success tamanio confir_pedido" style="display: none;" role="alert"></div>
-   
-  <button type="button" class="btn btn-primary" id="liveToastBtn">Show live toast</button>
 
+  {% block button_whatsap %}
+
+  {% endblock button_whatsap %}
   <div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
       <div class="toast-header">
-        <img src="..." class="rounded me-2" alt="...">
-        <strong class="me-auto">Bootstrap</strong>
-        <small>11 mins ago</small>
+        <strong class="me-auto">Aviso</strong>
+        <small>hace 1 segundo</small>
         <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
       </div>
       <div class="toast-body">
-        Hello, world! This is a toast message.
+
       </div>
     </div>
   </div>
-  
+  <div class="container align-items-center justify-content-center">
+    <!--  <div class="alert alert-danger tamanio error_pedido" style="display: none;" role="alert"></div>
+  <div class="alert alert-success tamanio confir_pedido" style="display: none;" role="alert"></div>
+ -->
   </div>
-   <!-- Button de llava hacia arriba -->
-  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+  <!-- Button de llava hacia arriba -->
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
+      class="bi bi-arrow-up-short"></i></a>
   <!-- Vendor JS Files -->
   <script src="{% static 'assets/vendor/aos/aos.js' %}"></script>
   <script src="{% static 'assets/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
@@ -192,39 +193,43 @@
   <script src="{% static 'assets/js/main.js' %}"></script>
   <script src="{% static 'js/funcionesFromUser.js' %}"></script>
   {% block js %}
-    
+
   {% endblock js %}
-  
+
 </body>
 <script>
-function mostrar_por_categoria(urls){
-      $.ajax({
-          type: 'GET',
-          url: urls,
-          success:function(resp){
-              $(".productos_por_categorias").fadeIn(1000).html(resp);
-              $(".navbar-mobile i").click();
-          }
-      });
-  }
-  function form_company(urls){
+  const toastLiveExample = document.getElementById('liveToast')
+
+
+  function mostrar_por_categoria(urls) {
     $.ajax({
-          type: 'GET',
-          url: urls,
-          success:function(resp){
-              $(".modal-content").html(resp);
-          }
-      });
+      type: 'GET',
+      url: urls,
+      success: function (resp) {
+        $(".productos_por_categorias").fadeIn(1000).html(resp);
+        $(".navbar-mobile i").click();
+      }
+    });
   }
-  function login(urls){
-    
+  function form_company(urls) {
     $.ajax({
-          type:'GET',
-          url:urls,
-          success:function(resp){
-              $(".modal-content").html(resp);
-          }
-      });
+      type: 'GET',
+      url: urls,
+      success: function (resp) {
+        $(".modal-content").html(resp);
+      }
+    });
+  }
+  function login(urls) {
+
+    $.ajax({
+      type: 'GET',
+      url: urls,
+      success: function (resp) {
+        $(".modal-content").html(resp);
+      }
+    });
   }
 </script>
+
 </html>

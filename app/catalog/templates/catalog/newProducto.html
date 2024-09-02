@@ -110,9 +110,11 @@
       contentType: false,
       processData: false,
       success: function (resp) {
-        //$(".sent-message").html(resp.success);
-        $('.confir_pedido').fadeIn(1000).html(resp.success).show();
+        $('.toast-body').addClass('alert alert-success');
+        $('.toast-body').fadeIn(1000).html(resp.success);
         $('#form_producto')[0].reset();
+        const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+        toastBootstrap.show()
       },
       error: function (xhr, ajaxOptions, thrownError) {
         alert("Error:" + thrownError);

@@ -211,7 +211,8 @@ def confirmar_compra(request, id_company):
             lugar = {'destino':request.POST['destino'],'cuidad':'cuidad'}
         else:
             return JsonResponse({'error': "Por favor complete sus datos."})
-        try:#si ya existe ese cliente
+        #try:#si ya existe ese cliente
+        if Client.objects.filter(dni = int(request.POST['dni'])).exists():
             print("ya existe ese cliente")
             cliente = Client.objects.get(dni = int(request.POST['dni']))
             orden = crear_orden(request, cliente.id, id_company)#se crea una orden
@@ -239,7 +240,8 @@ def confirmar_compra(request, id_company):
                             'precio_envio':determinarPrecioEnvio(id_company)
                         }
                     )
-        except Client.DoesNotExist:
+        #except Client.DoesNotExist:
+        else:
             print("NO existe ese cliente")
             if forms.is_valid():
                 cliente = forms.save(commit=False)
@@ -291,12 +293,17 @@ def determinarPrecioEnvio(id_company):
     return p_envio#QUIERO ENVIAR SOLO EL PRECIO AL TEMPLATE
 
 def crear_orden(request, id_cliente, id_company):
-    p_envio = determinarPrecioEnvio(id_company)
+    pr_envio = determinarPrecioEnvio(id_company)
+    pp = float(calcular_pago(request)) + float(pr_envio.precio)
+    print(pr_envio.precio)
+    print(type(pr_envio))
+    print(pp)
+
     orden = Orden()
     orden.client_id = int(id_cliente)
     orden.company_id = int(id_company)
     orden.subtotal = float(calcular_pago(request))
-    orden.total = float(calcular_pago(request)) + p_envio
+    orden.total = pp
     orden.save()
     return orden
 

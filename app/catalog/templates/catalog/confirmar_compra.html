@@ -133,8 +133,11 @@
             $("#destino").hide();
             $("#div_id_address").show();
             $("#div_id_address input").focus();
-            if({{precio_envio.precio}} > 0){
-              $(".menj_valor_envio").text("Total envio: Bs. "+{{precio_envio.precio}}).show();
+            if( '{{precio_envio.precio}}' != '0'){
+              $(".menj_valor_envio").text("Envio: Bs. "+'{{precio_envio.precio}}').show();
+            }
+            else{
+              $(".menj_valor_envio").text("Envio gratis");
             }
             
           }
@@ -203,10 +206,12 @@
                     dir = "Dirección: "+resp.dir +"%0A";
                     cuidad = "Ciudad:" +resp.cuidad+"%0A";
 
-                    total = "- *Total a pagar: Bs."+resp.t_pago+"* %0A %0A"
+                    var Envio = "- *Sub total: Bs."+resp.precio_envio+"* %0A"
+                    var total_pagar =  parseFloat(resp.t_pago) + parseFloat(resp.precio_envio);
+                    total =  "- *Sub total: Bs. "+parseFloat(resp.t_pago)+" Total: "+total_pagar+"* %0A%0A"
                     web = "_sitio web: {{ request.get_host }}_"//corregir ir a la orden
                     //href="https://api.whatsapp.com/send?text=Mas informacion sobre este producto: {{p.description|default:' '}}, gracias. &phone={{company.mobile}}/?u={{request.build_absolute_uri}}"
-                    var ruta = "https://api.whatsapp.com/send?phone=+591"+resp.cel_company+"&text="+datos + pedido + total + lugar + web;
+                    var ruta = "https://api.whatsapp.com/send?phone=+591"+resp.cel_company+"&text="+datos + pedido + Sub_total + total_pagar +  lugar + web;
                     window.open(ruta, "Sistema AMCEB", "width=700, height=500");
                         //location.reload();
                   }

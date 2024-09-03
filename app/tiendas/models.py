@@ -128,3 +128,10 @@ class Precio_envio(models.Model):
 
     def __str__(self):
         return self.company.name
+
+    def toJSON(self):
+        item = model_to_dict(self)
+        item['company'] = self.company.name
+        item['precio'] = self.precio
+        item['date_joined'] = self.date_joined.strftime('%Y-%m-%d')
+        return item

@@ -225,12 +225,12 @@ def confirmar_compra(request, id_company):
                 pedido.total = float(int(productos['cantidad']) * float(productos['precio_uni']))
                 pedido.save()
             lista_product = request.session['compra']
-            #t_pago = calcular_pago(request)
             request.session['compra'] = []#cuando al cliente confirma su pedido se resetea al carrito a 0
             return JsonResponse(
                         {
                             'company':company.name,
                             'cliente':orden.client.names,
+                            'orden':orden.id,
                             'lugar':lugar,
                             'cel_company':company.mobile,
                             'products':len(request.session['compra']),
@@ -255,7 +255,6 @@ def confirmar_compra(request, id_company):
                     pedido.price = float(productos['precio_uni'])
                     pedido.total = float(int(productos['cantidad']) * float(productos['precio_uni']))
                     pedido.save()
-                #t_pago = calcular_pago(request)
                 lista_product = request.session['compra']
                 request.session['compra'] = []#cuando al cliente confirma su pedido se resetea al carrito a 0
                 return JsonResponse(
@@ -263,6 +262,7 @@ def confirmar_compra(request, id_company):
                                 'company':company.name,
                                 'cel_company':company.mobile,
                                 'cliente':orden.client.names,
+                                'orden':orden.id,
                                 'lugar':lugar,
                                 'products':len(request.session['compra']),
                                 'success':"En hora buena realizaste tu pedido.<a href='/'> Ir al Inicio</a>",
@@ -288,29 +288,25 @@ def confirmar_compra(request, id_company):
 def determinarPrecioEnvio(id_company):
     try:
         p_envio = Precio_envio.objects.get(company_id=int(id_company))
+        return p_envio.precio
     except:
-        p_envio = {'precio':0}
-    return p_envio#QUIERO ENVIAR SOLO EL PRECIO AL TEMPLATE
+        p_envio = 0
+        return p_envio#QUIERO ENVIAR SOLO EL PRECIO AL TEMPLATE
 
 def crear_orden(request, id_cliente, id_company):
     pr_envio = determinarPrecioEnvio(id_company)
-    pp = float(calcular_pago(request)) + float(pr_envio.precio)
-    print(pr_envio.precio)
-    print(type(pr_envio))
-    print(pp)
+    print(pr_envio)
 
     orden = Orden()
     orden.client_id = int(id_cliente)
     orden.company_id = int(id_company)
     orden.subtotal = float(calcular_pago(request))
-    orden.total = pp
+    orden.total = float(calcular_pago(request)) + pr_envio
     orden.save()
     return orden
 
 def newProducto(request, id_company):
     if request.method == 'POST':
-        #print(request.POST['is_new'])
-        #print(request.POST['is_service'])
         new = request.POST.get('is_new', False) == 'on'
         if new == 'on':
             new = True

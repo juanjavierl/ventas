@@ -106,15 +106,15 @@
           <div class="dropdown btn-sm">
             <button class="btn btn-sm dropdown-toggle btn btn-light text-success" type="button" id="dropdownMenuButton1"
               data-bs-toggle="dropdown" aria-expanded="false">
-              Compartir
+              ¿Consultar?
             </button>
             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
               <!-- <li><a class="dropdown-item text-primary" style="cursor: pointer;" href="javascript: void(0);" onclick="window.open('http://www.facebook.com/sharer.php?u={{request.build_absolute_uri}}','ventanacompartir', 'toolbar=0, status=0, width=650, height=450');">En Facebook</a></li>
               <li><a class="dropdown-item text-success" href="javascript: void(0);" onclick="window.open('whatsapp://send?text=Puedes ver: {{p.description}}/?u={{request.build_absolute_uri}}','ventanacompartir', 'toolbar=0, status=0, width=650, height=450');">En whatsapp</a></li> -->
-              <li id="status"><a class="dropdown-item" id="compartir" href="#">Compartir</a></li>
+              <li id="status"><a class="dropdown-item" id="compartir" href="#">Compartir en más lugares</a></li>
               <li><a class="dropdown-item text-success"
                   href="https://api.whatsapp.com/send?text=Más información sobre el Item: *{{p.name|title|default:' '}} cod: {{p.id}}*, gracias.%0A{{request.build_absolute_uri}} &phone={{company.mobile}}"
-                  target="_blank">Preguntar sobre este producto <i class="bi bi-whatsapp"></i></a></li>
+                  target="_blank">Consultar sobre el producto <i class="bi bi-whatsapp"></i></a></li>
             </ul>
           </div>
         </span>
@@ -176,9 +176,10 @@
 </div>
 <script>
 
-  if (navigator.share) {
+  if(navigator.share) {
+    
     // Código si la Web Share API es soportada
-    document.getElementById("compartir").value = "En más lugares"
+    //document.getElementById("compartir").value = "En más lugares"
     const shareData = {
       title: "Catalogo",
       text: "Visita mi Catalogo!",
@@ -200,7 +201,7 @@
     });
   } else {
     // Fallback
-    $("#status").hide()
+    $("#status").hide();
   }
 
   $('#form_pedido').submit(function (e) {

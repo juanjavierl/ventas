@@ -133,13 +133,12 @@
             $("#destino").hide();
             $("#div_id_address").show();
             $("#div_id_address input").focus();
-            if( '{{precio_envio.precio}}' != '0'){
-              $(".menj_valor_envio").text("Envio: Bs. "+'{{precio_envio.precio}}').show();
-            }
-            else{
-              $(".menj_valor_envio").text("Envio gratis");
-            }
-            
+            if('{{precio_envio}}' != '0'){
+              $(".menj_valor_envio").text("Envio: Bs. "+'{{precio_envio}}').show();
+            }else{
+              $(".menj_valor_envio").text('Envio Gratis').show();
+            }  
+        
           }
           if($(this).val() == "ciudad"){
             $("#div_id_address").hide();
@@ -182,7 +181,7 @@
 
                     $('#form_pedido')[0].reset();
                     $("#cont_compras").html(resp.products);
-                    var datos = "***** *Mi Pedido* ***** %0A";
+                    var datos = "***** *Mi Pedido #" +resp.orden+ "* ***** %0A";
                     datos = datos + "Nombre: "+resp.cliente+ "%0A %0A";
                     var pedido = "";
                     for(let productos=0; productos < resp.lista.length; productos ++){
@@ -196,22 +195,24 @@
                        lugar = "Fecha y hora a recoger: %0A"+resp.lugar.fecha+"%0A %0A";
                     }
                     if(resp.lugar.dir == "dir"){
-
                       lugar = "Dirección de envio: "+resp.lugar.direccion+"%0A";
                     }
                     if(resp.lugar.cuidad == "cuidad"){
-
                       lugar = "Ciudad de envio: "+resp.lugar.destino+"%0A";
                     }
+
                     dir = "Dirección: "+resp.dir +"%0A";
                     cuidad = "Ciudad:" +resp.cuidad+"%0A";
 
-                    var Envio = "- *Sub total: Bs."+resp.precio_envio+"* %0A"
-                    var total_pagar =  parseFloat(resp.t_pago) + parseFloat(resp.precio_envio);
-                    total =  "- *Sub total: Bs. "+parseFloat(resp.t_pago)+" Total: "+total_pagar+"* %0A%0A"
+                    var Envio = "- *Envio: Bs."+resp.precio_envio+"* %0A";
+
+                    var sub_total =  "- *Sub total: Bs. "+parseFloat(resp.t_pago)+"* %0A";
+
+                    var to_p = parseFloat(resp.t_pago)+ parseFloat(resp.precio_envio);
+                    total =  "- *total: Bs. "+to_p+"* %0A%0A"
                     web = "_sitio web: {{ request.get_host }}_"//corregir ir a la orden
                     //href="https://api.whatsapp.com/send?text=Mas informacion sobre este producto: {{p.description|default:' '}}, gracias. &phone={{company.mobile}}/?u={{request.build_absolute_uri}}"
-                    var ruta = "https://api.whatsapp.com/send?phone=+591"+resp.cel_company+"&text="+datos + pedido + Sub_total + total_pagar +  lugar + web;
+                    var ruta = "https://api.whatsapp.com/send?phone=+591"+resp.cel_company+"&text="+datos + pedido + Envio +  sub_total + total +  lugar + web;
                     window.open(ruta, "Sistema AMCEB", "width=700, height=500");
                         //location.reload();
                   }

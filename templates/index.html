@@ -198,8 +198,11 @@
 
 </body>
 <script>
-  const toastLiveExample = document.getElementById('liveToast')
-
+  const toastLiveExample = document.getElementById('liveToast');
+  function mostrar_notificacion(menj){
+    const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+    toastBootstrap.show();
+  }
 
   function mostrar_por_categoria(urls) {
     $.ajax({

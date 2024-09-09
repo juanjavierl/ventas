@@ -73,7 +73,7 @@ class Product(models.Model):
         return int(total)
 
     def num_aleatorio(self):
-        num = randint(1,21)
+        num = randint(1,11)
         return num
 
     class Meta:

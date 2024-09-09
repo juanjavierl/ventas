@@ -10,9 +10,9 @@ import json
 import ast
 from app.tiendas.models import *
 from app.tiendas.forms import *
-from app.catalog.models import Product
+from app.catalog.models import Product, Orden, Pedido
 from app.inicio.views import get_Dashboard
-from app.catalog.views import get_company, categorys_from_productos
+from app.catalog.views import get_company, categorys_from_productos, determinarPrecioEnvio
 # Create your views here.
 def getTypes(request, id_type):
     if request.user.is_authenticated:
@@ -200,10 +200,14 @@ def configuraciones_company(request, id_company):
         'form_huvicacion':FormHuvicacion(),
         'form_banco':form_banco(),
         'form_precio':PrecioForm(),
+        'form_avisos':Form_avisos(),
         'categorias':categorys_from_productos(productos),
         'company':get_company(id_company),
         'total_compra':len(request.session['compra']),
-        'precios':Precio_envio.objects.filter(company_id=int(id_company))[:1]
+        'precios':Precio_envio.objects.filter(company_id=int(id_company))[:1],
+        'avisos':Aviso.objects.filter(company_id = int(id_company))[:1]
+        #'precio_env':determinarPrecioEnvio(id_company),
+        #'orden':Orden.objects.filter(company_id=int(id_company)).order_by('-id')[:10]
     }
     return render(request,'configuraciones_company.html', dic)
 
@@ -219,3 +223,36 @@ def precio_envio(request, id_company):
             return JsonResponse({'success':'Registro Exitoso.', 'precio':preci.precio})
         else:
             return JsonResponse({'error':'Error intente nuevamente.'})
+
+def buscar_orden(request, id_company):
+    precio_envio=determinarPrecioEnvio(id_company)
+    if request.method == 'POST':
+        pedidos = None
+        cod = int(request.POST['codigo_orden'])
+        if Orden.objects.filter(id=cod, company_id=int(id_company)).exists():
+            orden = Orden.objects.get(id=cod)
+            pedidos = Pedido.objects.filter(orden_id = orden.id)
+            print(pedidos)
+        else:
+            orden = None
+        return render(request, 'buscar_orden.html', {'orden':orden, 'pedidos':pedidos, 'precio_envio':precio_envio})
+
+def add_avisos(request, id_company):
+    company = get_object_or_404(Company, id = int(id_company))
+    if request.method == 'POST':
+        form_aviso = Form_avisos(request.POST, instance=company)
+        if form_aviso.is_valid():
+            a = Aviso()
+            a.company_id = company.id
+            a.Tiempo_entrega = request.POST['Tiempo_entrega']
+            a.envios = request.POST['envios']
+            a.pedidos = request.POST['pedidos']
+            a.pide_ahora = request.POST['pide_ahora']
+            a.save()
+            return JsonResponse({'success':'Registro Exitoso.', 'avisos':a.toJSON()})
+        else:
+            return JsonResponse({'error':'Error intente nuevamente.'})
+
+def get_opciones(request, id_company):
+    avisos = Aviso.objects.filter(company_id = int(id_company))
+    return render(request, 'get_opciones.html', {'avisos':avisos})

@@ -256,3 +256,10 @@ def add_avisos(request, id_company):
 def get_opciones(request, id_company):
     avisos = Aviso.objects.filter(company_id = int(id_company))
     return render(request, 'get_opciones.html', {'avisos':avisos})
+
+def del_precio(request, id_precio):
+    precio = get_object_or_404(Precio_envio, id = int(id_precio))
+    if request.method == 'POST':
+        precio.delete()
+        return JsonResponse({'success':"Se Borro el registro. "})
+    return render(request, 'notificaciones/del_precio.html', {'precio':precio})

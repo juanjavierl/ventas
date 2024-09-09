@@ -77,22 +77,15 @@
               {% for c in type_company %}
               <li style="cursor: pointer;" class="nav-link scrollto"><a href="/{{c.id}}/type">{{c.name|title}}</a></li>
               {% empty %}
-              <li class="bi-x"><a href="">No hay Categorias</a></li>
+              <li class="nav-link scrollto"><a href="">No hay Categorias</a></li>
               {% endfor %}
             </ul>
           </li>
           <li><a class="nav-link scrollto" href="#footer">Nosotros</a></li>
           {% if user.is_authenticated %}
-          <!-- <li class="dropdown"><a href="#"><span>Mi Perfil</span> <i class="bi bi-chevron-down"></i></a>
-            <ul>
-              <li><a class="nav-link scrollto" href="#" onclick="updateUser('/{{request.user.id}}/update_perfil_user/')">Actualizar mi cuenta</a></li>
-              <li><a class="nav-link scrollto" href="/{{request.user.id}}/companys">Mis Catalogos</a></li>
-              <li><a class="nav-link scrollto" href="/salir/">Cerrar Sesion</a></li>
-            </ul>
-          </li>
-            {% else %}
-            <li><a class="nav-link scrollto" href="#login" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="login('/login_user/')">Ingresar</a></li> -->
-
+          
+          {% else %}
+            <li><a class="nav-link scrollto" href="#login" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="login('/login_user/')">Ingresar</a></li>
           {% endif %}
 
         </ul>

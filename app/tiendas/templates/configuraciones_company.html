@@ -30,7 +30,7 @@
                 <h2 class="accordion-header">
                     <button class="accordion-button" type="button" data-bs-toggle="collapse"
                         data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                        <strong>Conultar Pedidos</strong>
+                        <strong>Consultar Pedidos</strong>
                     </button>
                 </h2>
                 <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
@@ -58,14 +58,14 @@
                     </button>
                 </h2>
                 <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
-                    <div class="accordion-body row d-flex no-gutters justify-content-center">
-                        <div class="forn-envio col-lg-5 d-flex align-items-stretch">
+                    <div class="accordion-body row d-flex justify-content-center">
+                        <div class="forn-envio col-lg-5 align-items-stretch">
                             <div class="input-group">
                                 <form action="/{{company.id}}/precio_envio" method="post" id="form_precio_envio">
                                     {% csrf_token %}
                                     <div class="input-group mb-3">
                                         {{form_precio}}
-                                        <button type="submit" class="btn btn-primary btn-sm" id="button-addon2">Regitrar</button>
+                                        <button type="submit" class="btn btn-primary btn-sm" id="button-addon2" style="height: 38px;margin-top: 24px;">Regitrar</button>
                                     </div>
                                     
                                 </form>
@@ -74,7 +74,8 @@
                         <div class="precios_env col-lg-5 d-flex align-items-stretch">
                             {% for preci in precios %}
                             <li>
-                                Precio de envio registrado : <strong>{{preci.precio}} Bs.</strong>
+                                Precio de envio registrado : <strong>{{preci.precio}} Bs.</strong>  <a href="#" type="button" data-bs-toggle="modal"
+                                data-bs-target="#exampleModal" onclick="del_precio('/{{preci.id}}/del_precio')">Borrar</a>
                             </li>
                             {% endfor %}
                         </div>
@@ -262,7 +263,7 @@
                     const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
                     toastBootstrap.show();
 
-                    $('.precios_env').html("<li> Precio de Envio Registrado : <strong> " + resp.precio + "Bs.</strong></li>");
+                    $('.precios_env').html("<li> Precio de Envio Registrado : <strong> " + resp.precio + "Bs. <a href='#' type='button' data-bs-toggle='modal' data-bs-target='#exampleModal' onclick='del_precio('/{{preci.id}}/del_precio')'>Borrar</a> </strong></li>");
                     $('#form_precio_envio')[0].reset();
                 }
             },
@@ -293,6 +294,24 @@
             }
         });
     });
+    function del_precio(urls){
+        $.ajax({
+            type: 'get',
+            url: urls,
+            success: function (resp) {
+                if (resp.error) {
+                    $(".invalid_ct").html(resp.error);
+                } else {
+
+                    $(".modal-content").html(resp);
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("Error:" + thrownError);
+            }
+        });
+        return false;
+    }
 </script>
 {% endblock contenido %}
 

@@ -13,7 +13,17 @@
 <div class="card dark card_p single-product">
   
   {% if p.image %}
-    <img src="/media/{{p.image}}" class="card-img-top" alt="..." onclick="detailView('/{{p.id}}/{{company.id}}/detail_product')">
+  <div class="col-lg-4 col-md-6 portfolio-item">
+    <div class="portfolio-wrap">
+      <img src="/media/{{p.image}}" class="img-fluid" alt="">
+      <div class="portfolio-info">
+        <div class="portfolio-links">
+          <a href="/media/{{p.image}}" data-gallery="portfolioGallery" class="portfolio-lightbox" title="{{p.name|capfirst}}"><i class="bx bx-plus"></i></a>
+          <a href="/{{p.id}}/{{company.id}}/detail_product" title="Mas detalles"><i class="bx bx-link"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
     {% else %}
     <i class="bi bi-box-seam card-img-top icon" alt="..." onclick="detailView('/{{p.id}}/{{company.id}}/detail_product')"></i>
   {% endif %}

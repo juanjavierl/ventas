@@ -34,6 +34,9 @@
 </style>
 {% load crispy_forms_tags %}
 <section class="container" id="team_productos" style="margin-top: 80px;">
+  {% if aviso %}
+    {% include 'notificaciones/opciones_avisos.html' %}
+  {% endif %}
     <div class="row d-flex no-gutters justify-content-center info productos_por_categorias" data-aos="fade-up" id="data_dable">
       <div class="section-title" data-aos="fade-up">
         <h2>Por favor complete sus datos</h2>

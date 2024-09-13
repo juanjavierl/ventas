@@ -34,9 +34,17 @@ def CatalogView(request, id_company):
             'paginator':paginator,
             'total_compra':len(request.session['compra']),
             't_pago':calcular_pago(request),
-            'company':get_company(id_company)
+            'company':get_company(id_company),
+            'aviso':optener_avisos_by_company(id_company)
         }
         return render(request,template_name, dic)
+
+def optener_avisos_by_company(id_company):
+    try:
+        aviso = Aviso.objects.get(company_id=int(id_company))
+    except:
+        aviso = False
+    return aviso
 
 def categorys_from_productos(productos):
     ct = []
@@ -49,7 +57,7 @@ def get_company(id_company):
     try:
         company = Company.objects.get(id=int(id_company))
     except:
-        company = {'name':"company"}
+        company = {'name':"company",'id':'1'}
     return company
 
 def optenerProducto(request, id_producto, id_company):
@@ -103,7 +111,8 @@ def optenerProducto(request, id_producto, id_company):
                         'p':p,
                         'total_compra':len(request.session['compra']),
                         'company':get_company(id_company),
-                        'categorias':categorys_from_productos(productos)
+                        'categorias':categorys_from_productos(productos),
+                        'aviso':optener_avisos_by_company(id_company)
                     }
                 )
 
@@ -281,7 +290,8 @@ def confirmar_compra(request, id_company):
         'datos':request.session['compra'],
         't_pago':t_pago,
         'productos':productos,
-        'precio_envio':determinarPrecioEnvio(id_company)
+        'precio_envio':determinarPrecioEnvio(id_company),
+        'aviso':optener_avisos_by_company(id_company)
     }
     return render(request,'catalog/confirmar_compra.html',dic)
 

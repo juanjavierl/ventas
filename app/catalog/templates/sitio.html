@@ -21,7 +21,11 @@
 {% block hero %}  {% endblock hero %}
   
 {% block contenido %}
-    <section id="team_productos" class="team" style="margin-top: 80px;" >
+    <section id="portfolio" class="portfolio section-bg" style="margin-top: 80px;" >
+      
+      {% if aviso %}
+        {% include 'notificaciones/opciones_avisos.html' %}
+      {% endif %}
       <div class="container-fluid productos_por_categorias" data-aos="fade-up">
           {% include 'catalog/card_productos.html' with productos=productos %}
         <hr>

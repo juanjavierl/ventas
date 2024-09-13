@@ -32,7 +32,11 @@
                   $(".invalid").text(resp.error);
                 }
                 else{
-                  window.location.href='/'+{{precio.company.id}}+'/configuraciones';
+                  //window.location.href='/'+{{precio.company.id}}+'/configuraciones';
+                  $('#delete_precio').html(" ");
+                  setTimeout(function () {
+                    $(".btn-close").click();
+                  }, 1000);
                 }
               }
           });

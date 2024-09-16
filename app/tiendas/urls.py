@@ -22,4 +22,6 @@ urlpatterns = [
     
     path('<int:id_company>/get_opciones', views.get_opciones, name='get_opciones'),
     path('<int:id_precio>/del_precio', views.del_precio, name='del_precio'),
+    path('<int:id_company>/banco_envio', views.banco_envio, name='banco_envio'),
+    
 ]

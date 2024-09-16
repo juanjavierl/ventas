@@ -95,7 +95,7 @@
                             <div class="input-group">
                                 <form action="/{{company.id}}/banco_envio" method="post" id="form_banco_envio" enctype="multipart/form-data">
                                     {% csrf_token %}
-                                    {{form_banco|crispy}}
+                                    {{form_ban|crispy}}
                                     <button type="submit" class="btn btn-primary btn-sm">Regitrar</button>
                                 </form>
                             </div>

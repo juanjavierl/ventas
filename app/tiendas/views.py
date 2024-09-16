@@ -198,7 +198,7 @@ def configuraciones_company(request, id_company):
     productos = Product.objects.filter(stock__gt=0, company_id=int(id_company)).order_by('-id')
     dic = {
         'form_huvicacion':FormHuvicacion(),
-        'form_banco':form_banco(),
+        'form_ban':form_banco(),
         'form_precio':PrecioForm(),
         'form_avisos':Form_avisos(),
         'categorias':categorys_from_productos(productos),
@@ -263,3 +263,21 @@ def del_precio(request, id_precio):
         precio.delete()
         return JsonResponse({'success':"Se Borro el registro. "})
     return render(request, 'notificaciones/del_precio.html', {'precio':precio})
+
+def banco_envio(request, id_company):
+    company = get_object_or_404(Company, id = int(id_company))
+    if request.method == 'POST':
+        
+        form_ban = form_banco(request.POST, request.FILES ,instance=company)
+        if form_ban.is_valid():
+            print(request.POST)
+            banco = Banco()
+            banco.name = request.POST['name']
+            banco.destinatario = request.POST['destinatario']
+            banco.cuenta = request.POST['cuenta']
+            banco.qr_img = request.FILES['qr_img']
+            banco.company_id = company.id
+            banco.save()
+            return JsonResponse({'success':'Registro Exitoso.'})
+        else:
+            return JsonResponse({'error':'Error intente nuevamente.'})

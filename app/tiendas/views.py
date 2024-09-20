@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, request,HttpResponse
 from django.template.loader import render_to_string
 from ventas import settings
-from weasyprint import HTML, CSS
+#from weasyprint import HTML, CSS
 import os
 import json
 
@@ -115,8 +115,13 @@ def datos_registro(request):
         user = User()
         user.username = datos['user_data']['user']
         user.email = datos['user_data']['email']
+        
         user.password1 = datos['user_data']['pass1']
         user.password2 = datos['user_data']['pass2']
+
+        print("User:",datos['user_data']['user'])
+        print("email:",datos['user_data']['email'])
+        print("pass:", datos['user_data']['pass1'])
         user.save()
         
         company = Company()

@@ -48,7 +48,7 @@ class PrecioForm(forms.ModelForm):
             'precio': forms.TextInput(attrs={'class': 'form-control'})
         }
 
-class form_banco(forms.ModelForm):
+class FormBanco(forms.ModelForm):
     class Meta:
         model = Banco
         exclude = ('company',)

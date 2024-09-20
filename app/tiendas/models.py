@@ -105,13 +105,25 @@ class Banco(models.Model):
     company = models.OneToOneField(Company, on_delete=models.CASCADE, verbose_name='Negocio')
     class Meta:
         """Meta definition for Bancos."""
-
         verbose_name = 'Banco'
         verbose_name_plural = 'Bancos'
 
     def __str__(self):
-        """Unicode representation of Bancos."""
         return self.name
+
+    def get_image(self):
+        if self.qr_img:
+            return f'{settings.MEDIA_URL}{self.qr_img}'
+        return f'{settings.STATIC_URL}img/empty.png'
+    
+    def toJSON(self):
+        item = model_to_dict(self)
+        item['name'] = self.name
+        item['destinatario'] = self.destinatario
+        item['cuenta'] = self.cuenta
+        item['qr_img'] = self.get_image()
+        #item['company'] = self.category.toJSON()
+        return item
 
 class Sucursal(models.Model):
     company=models.ForeignKey(Company, on_delete=models.CASCADE, verbose_name='Negocio')
@@ -124,7 +136,7 @@ class Sucursal(models.Model):
 
 class Precio_envio(models.Model):
     company = models.OneToOneField(Company, on_delete=models.CASCADE, verbose_name='Negocio')
-    precio = models.IntegerField(verbose_name='Precio de Envio', default=0)
+    precio = models.IntegerField(verbose_name='Precio de Envio')
     date_joined = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -139,7 +151,7 @@ class Precio_envio(models.Model):
 
 class Aviso(models.Model):
     company = models.OneToOneField(Company, on_delete=models.CASCADE, verbose_name='Negocio')
-    Tiempo_entrega = models.CharField(verbose_name='Tiempo de Entrega', max_length=50, help_text="Ejemplo: En 24 Hrs.  2 a 3 dias")
+    Tiempo_entrega = models.CharField(verbose_name='Tiempo de Entrega', max_length=50, help_text="Ejemplo: En 24 Hrs.")
     envios = models.CharField(verbose_name='Lugar de envio', max_length=50, help_text="Ejemplo: Envios a todo el pais")
     pedidos = models.CharField(verbose_name='Pedidos', max_length=50, help_text="Ejemplo: Pedidos las 24 hrs.")
     pide_ahora = models.CharField(verbose_name='Metodo de Pedir', max_length=50, help_text="Ejemplo: Pide ahora y pague en casa")

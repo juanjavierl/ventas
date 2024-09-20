@@ -5,6 +5,10 @@ from django.contrib.auth.forms import User
 from django.contrib.auth import authenticate,login, logout
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, request,HttpResponse
+from django.template.loader import render_to_string
+from ventas import settings
+from weasyprint import HTML, CSS
+import os
 import json
 
 import ast
@@ -198,14 +202,15 @@ def configuraciones_company(request, id_company):
     productos = Product.objects.filter(stock__gt=0, company_id=int(id_company)).order_by('-id')
     dic = {
         'form_huvicacion':FormHuvicacion(),
-        'form_ban':form_banco(),
+        'form_ban':FormBanco(),
         'form_precio':PrecioForm(),
         'form_avisos':Form_avisos(),
         'categorias':categorys_from_productos(productos),
         'company':get_company(id_company),
         'total_compra':len(request.session['compra']),
         'precios':Precio_envio.objects.filter(company_id=int(id_company))[:1],
-        'avisos':Aviso.objects.filter(company_id = int(id_company))[:1]
+        'avisos':Aviso.objects.filter(company_id = int(id_company))[:1],
+        'banco':Banco.objects.filter(company_id = int(id_company))[:1]
         #'precio_env':determinarPrecioEnvio(id_company),
         #'orden':Orden.objects.filter(company_id=int(id_company)).order_by('-id')[:10]
     }
@@ -220,7 +225,7 @@ def precio_envio(request, id_company):
             preci.precio = request.POST['precio']
             preci.company_id = company.id
             preci.save()
-            return JsonResponse({'success':'Registro Exitoso.', 'precio':preci.precio})
+            return JsonResponse({'success':'Registro Exitoso.', 'precio':preci.precio, 'id_precio':preci.id})
         else:
             return JsonResponse({'error':'Error intente nuevamente.'})
 
@@ -255,7 +260,7 @@ def add_avisos(request, id_company):
 
 def get_opciones(request, id_company):
     avisos = Aviso.objects.filter(company_id = int(id_company))
-    return render(request, 'get_opciones.html', {'avisos':avisos})
+    return render(request, 'notificaciones/get_opciones.html', {'avisos':avisos})
 
 def del_precio(request, id_precio):
     precio = get_object_or_404(Precio_envio, id = int(id_precio))
@@ -268,16 +273,56 @@ def banco_envio(request, id_company):
     company = get_object_or_404(Company, id = int(id_company))
     if request.method == 'POST':
         
-        form_ban = form_banco(request.POST, request.FILES ,instance=company)
+        form_ban = FormBanco(request.POST, request.FILES)
         if form_ban.is_valid():
-            print(request.POST)
-            banco = Banco()
-            banco.name = request.POST['name']
-            banco.destinatario = request.POST['destinatario']
-            banco.cuenta = request.POST['cuenta']
-            banco.qr_img = request.FILES['qr_img']
-            banco.company_id = company.id
-            banco.save()
+            formulario = form_ban.save(commit=False)
+            formulario.company_id = company.id
+            formulario.save()
             return JsonResponse({'success':'Registro Exitoso.'})
         else:
             return JsonResponse({'error':'Error intente nuevamente.'})
+
+def infor_banco(request, id_company):
+    banco = Banco.objects.filter(company_id = int(id_company))
+    return render(request, 'notificaciones/infor_banco.html', {'banco':banco})
+
+def del_infor_banco_by_company(request, id_banco):
+    banco = get_object_or_404(Banco, id = int(id_banco))
+    if request.method == 'POST':
+        banco.delete()
+        return JsonResponse({'success':"Se Borro el registro. "})
+    return render(request, 'notificaciones/del_infor_banco_by_company.html', {'banco':banco})
+
+def eliminar_opciones(request, id_aviso):
+    aviso = get_object_or_404(Aviso, id = int(id_aviso))
+    if request.method == 'POST':
+        aviso.delete()
+        return JsonResponse({'success':"Se Borro el registro. "})
+    return render(request, 'notificaciones/eliminar_opciones.html', {'aviso':aviso})
+
+
+def report_pdf(request, id_company, id_orden):
+    precio_envio=determinarPrecioEnvio(id_company)
+    company = None
+
+    pedidos = None
+    cod = int(id_orden)
+    if Orden.objects.filter(id=cod, company_id=int(id_company)).exists():
+        orden = Orden.objects.get(id=cod)
+        company = Company.objects.get(id = int(id_company))
+        pedidos = Pedido.objects.filter(orden_id = orden.id)
+        print(pedidos)
+    else:
+        orden = None
+
+    dic = {'precio_envio':precio_envio, 'company':company, 'orden':orden}
+    html = render_to_string("reportes/report_order_pdf.html", dic)
+
+    
+    response = HttpResponse(content_type="application/pdf")
+    response["Content-Disposition"] = "inline; reporte_orden.pdf"
+    
+    #font_config = FontConfiguration()
+    HTML(string=html).write_pdf(response)
+
+    return response

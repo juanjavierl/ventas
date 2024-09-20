@@ -75,7 +75,7 @@
                             {% for preci in precios %}
                             <li>
                                 Precio de envio registrado : <strong>{{preci.precio}} Bs.</strong>  <a href="#" type="button" data-bs-toggle="modal"
-                                data-bs-target="#exampleModal" onclick="del_precio('/{{preci.id}}/del_precio')">Borrar</a>
+                                data-bs-target="#exampleModal" onclick="del_precio('/{{preci.id}}/del_precio')">Eliminar</a>
                             </li>
                             {% endfor %}
                         </div>
@@ -100,8 +100,14 @@
                                 </form>
                             </div>
                         </div>
-                        <div class="info_banco col-lg-5 d-flex align-items-stretch">
-
+                        <div class="info_banco col-lg-5 align-items-stretch">
+                            {% for a in banco %}
+                                <li><strong>Banco: </strong> {{a.name|title}}</li>
+                                <li><strong>A nombre de : </strong> {{a.destinatario|title}}</li>
+                                <li><strong>Nro de Cuenta : </strong> {{a.cuenta}}</li>
+                                <li><strong>Imagen Qr: </strong> <img src="/media/{{a.qr_img}}" style="width: 250px; height: 250px;" alt=""></li>
+                                <p style="text-align: center;"><a href="#" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="del_infor_comp('/{{a.id}}/del_infor_banco_by_company')"> Eliminar </a></p>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
@@ -131,6 +137,7 @@
                                 <li><strong>Envios : </strong> {{a.envios}}</li>
                                 <li><strong>Pedidos : </strong> {{a.pedidos}}</li>
                                 <li><strong>Contra Entrega: </strong> {{a.pide_ahora}}</li>
+                                <p style="text-align: center;"><a href="#" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="elimnarOpciones('/{{a.id}}/eliminar_opciones')"> Eliminar </a></p>
                             {% endfor %}
                         </div>
                     </div>
@@ -171,6 +178,49 @@
         $('.pedidos').hide();
     });
 
+    function elimnarOpciones(urls){
+        $.ajax({
+            type: 'GET',
+            url: urls,
+            success: function (resp) {
+                if (resp.error) {
+                    $(".invalid_ct").html(resp.error);
+                } else {
+
+                    $(".modal-content").html(resp);
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                $('.toast-body').addClass('alert alert-danger');
+                $('.toast-body').fadeIn(1000).html(thrownError);
+                mostrar_notificacion();
+            }
+        });
+        return false; 
+    }
+
+    function del_infor_comp(urls){
+        $.ajax({
+            type: 'GET',
+            url: urls,
+            success: function (resp) {
+                if (resp.error) {
+                    $(".invalid_ct").html(resp.error);
+                } else {
+
+                    $(".modal-content").html(resp);
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                $('.toast-body').addClass('alert alert-danger');
+                $('.toast-body').fadeIn(1000).html(thrownError);
+                mostrar_notificacion();
+            }
+        });
+        return false;
+    }
+
+
     $('#form_banco_envio').on('submit', function(e){
         e.preventDefault();
         let datos = new FormData(this);
@@ -181,15 +231,29 @@
             contentType: false,
             processData: false,
             success: function (resp) {
-                if (resp) {
-                    $('.pedidos').fadeIn('slow').html(resp);
+                if (resp.success) {
+                    $('.toast-body').addClass('alert alert-success');
+                    $('.toast-body').fadeIn(1000).html(resp.success);
+                    mostrar_notificacion(); 
+                    $('#form_banco_envio')[0].reset();
+                    $.ajax({
+                        type: 'get',
+                        url: '/{{company.id}}/infor_banco',
+                        success: function(resp){
+                            $('.info_banco').html(resp);
+                        }
+
+                    });
+                }else{
+                    $('.toast-body').addClass('alert alert-danger');
+                    $('.toast-body').fadeIn(1000).html(resp.error);
                     mostrar_notificacion();
-                } 
+                }
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 $('.toast-body').addClass('alert alert-danger');
-                $('.toast-body').fadeIn(1000).html(thrownError);
-                mostrar_notificacion();
+                $('.toast-body').fadeIn(1000).html(resp.error);
+                mostrar_notificacion(resp.error);
             }
         });
     });
@@ -205,7 +269,7 @@
                     $('.toast-body').addClass('alert alert-success');
                     $('.toast-body').fadeIn(1000).html(resp.success);
                     mostrar_notificacion();
-
+                    $('#add_avisos_forms')[0].reset();
                     $.ajax({
                         type: 'get',
                         url: '/{{company.id}}/get_opciones',
@@ -258,12 +322,11 @@
                     $('.toast-body').fadeIn(1000).html(resp.error);
                     mostrar_notificacion();
                 } else {
+                    $(".precios_env").html("");
                     $('.toast-body').addClass('alert alert-success');
                     $('.toast-body').fadeIn(1000).html(resp.success);
-                    const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
-                    toastBootstrap.show();
-
-                    $('.precios_env').html("<li> Precio de Envio Registrado : <strong> " + resp.precio + "Bs. <a href='#' type='button' data-bs-toggle='modal' data-bs-target='#exampleModal' onclick='del_precio('/{{preci.id}}/del_precio')'>Borrar</a> </strong></li>");
+                    mostrar_notificacion();
+                    $('.precios_env').html('<li>Precio de envio registrado :</li><strong>'+resp.precio+"</strong> <a href='#' type='button' data-bs-toggle='modal' data-bs-target='#exampleModal'"+ "onclick='del_precio("+"/"+resp.id_precio+"/del_precio')"+">Eliminar</a>");
                     $('#form_precio_envio')[0].reset();
                 }
             },

@@ -23,6 +23,15 @@
               <h4>Celular:</h4>
               <p>{{company.mobile|default:" - - -"}}</p>
             </div>
+            
+            {% if company.website %}
+            <div class="phone mt-4">
+              <i class="bi bi-people-fill"></i>
+              <h4>Grupo de WhatsApp:</h4>
+              <p><a href="{{company.website}}" target="__blank">Unirme Al grupo de WhatsApp</a></p>
+            </div>
+            {% endif %}
+              
           </div>
 
         </div>

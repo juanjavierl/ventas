@@ -346,7 +346,7 @@
 .card_c .card-body:hover{
   cursor: pointer;
 }
-.card_c i {
+.card_c .icon_img {
   max-width: 25%;
   margin: auto;
   border-radius: 0.7em;

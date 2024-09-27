@@ -4,6 +4,8 @@ from django.forms import model_to_dict
 from django.db import models
 from django.contrib.auth.forms import User
 
+from ventas import settings
+
 class Tipo_company(models.Model):
     """Model definition for Categoria  ."""
     name = models.CharField('Categoria', max_length=50)
@@ -65,7 +67,7 @@ class Company(models.Model):
     #phone = models.CharField(max_length=9, verbose_name='Teléfono convencional')
     #email = models.CharField(max_length=50, verbose_name='Email')
     user = models.ForeignKey(User,on_delete=models.CASCADE)
-    #website = models.CharField(max_length=250, verbose_name='Dirección de página web', blank=True, null=True)
+    website = models.CharField(max_length=250, verbose_name='Link a grupo de WhatsApp', blank=True, null=True, help_text="Tus clientes se uniran mediante este link")
     #iva = models.DecimalField(default=0.00, decimal_places=2, max_digits=9, verbose_name='IVA')
     image = models.ImageField(null=True, blank=True, upload_to='company/%Y/%m/%d', verbose_name='Logotipo de la empresa (Opcional)')    
     date_joined = models.DateField(default=datetime.now, verbose_name='Fecha de registro')
@@ -85,7 +87,10 @@ class Company(models.Model):
     def toJSON(self):
         item = model_to_dict(self)
         item['image'] = self.get_image()
-        item['iva'] = float(self.iva)
+        item['id'] = int(self.id)
+        item['name'] = self.name
+        item['mobile'] = self.mobile
+        item['description'] = self.description
         return item
 
     class Meta:

@@ -15,7 +15,7 @@
   {% if p.image %}
   <div class="col-lg-4 col-md-6 portfolio-item">
     <div class="portfolio-wrap">
-      <img src="/media/{{p.image}}" class="img-fluid" alt="">
+      <img src="/media/{{p.image}}" style="max-height: 150px; width: 100%;" class="img-fluid object-fit-cover" alt="">
       <div class="portfolio-info">
         <div class="portfolio-links">
           <a href="/media/{{p.image}}" data-gallery="portfolioGallery" class="portfolio-lightbox" title="{{p.name|capfirst}}"><i class="bx bx-plus"></i></a>

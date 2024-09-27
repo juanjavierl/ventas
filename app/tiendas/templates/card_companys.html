@@ -40,7 +40,7 @@
         {% if n.image %}
           <img src="/media/{{n.image}}" class="card-img-top" alt="...">
         {% else %}
-          <i class="bi bi-shop-window" class="card-img-top" alt="..."></i>
+          <i class="bi bi-shop-window icon_img card-img-top" alt="..."></i>
         {% endif %}
         <!-- {% if n.is_new %}        
           <span class="badge rounded-pill bg-primary sale-tag d-flex">
@@ -52,33 +52,36 @@
                 <h5 class="card-title text-wrap text-primary fw-bolder">{{n.name|title}}</h5>
                 <p class="card-text text-break text-wrap">{{n.description|default:" - - - "|capfirst|truncatewords:10}}
                 </p>
-                <p class="card-text"> 
+                <p class="card-text">
                   {% for c, v in count_productos.items %}
                     {% if c == n.name %}
                         {{ v }}
                     {% endif %}
                   {% endfor %}
-                  <small class="text-muted text-success">: Productos</small>
+                  <small class="text-muted text-success fst-italic" style="margin-right: 10px;">: Productos</small> 
+                  <small class="text-muted  fst-italic">Verificado: </small><i class="bi bi-check-lg" style="margin-right: 10px;"></i>
+                  
                 </p>
             </div>
             
-            {% if user.is_authenticated %}
-            <div class="">
-              <div class="dropdown">
-                <button type="button" class="btn btn-outline-success" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
+            
+            
+              <div class="dropdown position-relative" style="width: 50px; margin-right: -20px;">
+                {% if user.is_authenticated %}
+                <button type="button" class="btn btn-outline-success position-absolute top-0 start-0" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
                   <span class="bi bi-three-dots-vertical"></span>
                 </button>
+                
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                   <a class="dropdown-item" href="#actualizar" onclick="updateCompany('/{{n.id}}/updateCompany/')" 
                   data-bs-toggle="modal" data-bs-target="#exampleModal">Actualizar</a>
                   <a class="dropdown-item" href="#eliminar" onclick="deleteCompany('/{{n.id}}/deleteCompany/')" 
                   data-bs-toggle="modal" data-bs-target="#exampleModal">Eliminar</a>
-                </div>
+                </div><br>
+                {% endif %}
+                <div class="position-absolute bottom-0 start-0" ><i class="bi bi-hand-thumbs-up-fill text-muted"></i> 6</div>
               </div>
-            </div>
 
-            {% endif %}
-              
         </div>
       </div>
           {% empty %}

@@ -65,7 +65,7 @@
                                     {% csrf_token %}
                                     <div class="input-group mb-3">
                                         {{form_precio}}
-                                        <button type="submit" class="btn btn-primary btn-sm" id="button-addon2" style="height: 38px;margin-top: 24px;">Regitrar</button>
+                                        <button type="submit" class="btn btn-primary btn-sm" id="button-addon2">Regitrar</button>
                                     </div>
                                     
                                 </form>
@@ -332,7 +332,7 @@
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 $('.toast-body').addClass('alert alert-danger');
-                $('.toast-body').fadeIn(1000).html(thrownError);
+                $('.toast-body').fadeIn(1000).html("Ya existe un precio");
                 mostrar_notificacion();
             }
         });

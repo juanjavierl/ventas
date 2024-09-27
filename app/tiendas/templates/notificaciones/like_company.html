@@ -1,0 +1,65 @@
+{% extends 'index.html' %}
+
+{% block titulo %}
+    {{company.name|title|truncatechars:17|cut:" "}}
+{% endblock titulo %}
+
+{% block company %}
+  <a href="/{{company.id}}/catalogo">
+    <marquee behavior="" direction="">{{company.name|title|cut:" "}}</marquee>
+  </a>
+{% endblock company %}
+
+{% block carrito %}
+  {% include 'catalog/carrito.html'  with total_compra=total_compra %}
+{% endblock carrito %}
+
+{% block menus %}
+    {% include 'menu_from_user.html' %}
+{% endblock menus %}
+
+{% block hero %}  {% endblock hero %}
+  
+{% block contenido %}
+<style>
+    .card-horizontal {
+        display: flex;
+        flex-direction: row;
+        max-width: 600px;
+    }
+</style>   
+<section id="team_productos" class="portfolio section-bg justify-content-center" style="margin-top: 30px;" >
+    <div class="container productos_por_categorias " data-aos="fade-up">
+        <div class="mt-5">
+            <div class="card card-horizontal">
+                <img src="https://via.placeholder.com/150" class="card-img-left" alt="Imagen de ejemplo">
+                <div class="card-body">
+                    <h5 class="card-title">Título de la Tarjeta</h5>
+                    <p class="card-text">Este es un texto descriptivo de la tarjeta. Aquí puedes incluir información relevante.</p>
+                    <a href="#" class="btn btn-primary">Acción</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+{% endblock contenido %}
+
+
+{% block button_whatsap %}
+  {% include 'button_whatsap.html' %}
+{% endblock button_whatsap %}
+{% block contact %}
+  <!-- ======= Contact Section ======= -->
+<section id="contact" class="contact">
+  <div class="container">
+    {% include 'contact.html' with company=company %}
+  </div>
+</section>
+<!-- End Contact Section -->
+{% endblock contact %}
+  
+
+  

@@ -106,15 +106,15 @@ def optenerProducto(request, id_producto, id_company):
                 dic['total_compra'] = len(request.session['compra'])
                 dic['success'] = p.name.title(),", agregado al Carrito."
                 return JsonResponse(dic)
-    return render(request,'catalog/OptenerProducto.html',
-                    {
-                        'p':p,
-                        'total_compra':len(request.session['compra']),
-                        'company':get_company(id_company),
-                        'categorias':categorys_from_productos(productos),
-                        'aviso':optener_avisos_by_company(id_company)
-                    }
-                )
+    else:
+        context = { 'p':p,
+                    'total_compra':len(request.session['compra']),
+                    'company':get_company(id_company),
+                    'categorias':categorys_from_productos(productos),
+                    'aviso':optener_avisos_by_company(id_company),
+                    'productos':productosMasVistos(id_company)
+                }
+    return render(request,'catalog/OptenerProducto.html',context)
 
 def add_iten(request, id_producto):
     
@@ -212,7 +212,6 @@ def confirmar_compra(request, id_company):
                 fecha = datetime.strftime(d,'%A %d/%m/%y hora: %H:%M %p')
                 print(type(d))
                 lugar = {'fecha':fecha,'date':'date'}
-
         elif request.POST['tipo_envio'] == 'domicilio':
             lugar = {'direccion':request.POST['address'],'dir':'dir'}
 
@@ -239,6 +238,7 @@ def confirmar_compra(request, id_company):
                         {
                             'company':company.name,
                             'cliente':orden.client.names,
+                            'company_object':company.toJSON(),
                             'orden':orden.id,
                             'lugar':lugar,
                             'cel_company':company.mobile,
@@ -269,6 +269,7 @@ def confirmar_compra(request, id_company):
                 return JsonResponse(
                             {
                                 'company':company.name,
+                                'company_object':company.toJSON(),
                                 'cel_company':company.mobile,
                                 'cliente':orden.client.names,
                                 'orden':orden.id,
@@ -280,20 +281,23 @@ def confirmar_compra(request, id_company):
                                 'precio_envio':determinarPrecioEnvio(id_company)
                             }
                         )
-    productos = Product.objects.filter(stock__gt=0, company_id=id_company)
     
     dic = {
         'form':ClientFormOrder(),
         'total_compra':len(request.session['compra']),
         'company':get_company(id_company),
-        'categorias':categorys_from_productos(productos),
+        'categorias':categorys_from_productos(productosMasVistos(id_company)),
         'datos':request.session['compra'],
         't_pago':t_pago,
-        'productos':productos,
+        'productos':productosMasVistos(id_company),
         'precio_envio':determinarPrecioEnvio(id_company),
         'aviso':optener_avisos_by_company(id_company)
     }
     return render(request,'catalog/confirmar_compra.html',dic)
+
+def productosMasVistos(id_company):
+    productos = Product.objects.filter(stock__gt=0, company_id=id_company)
+    return productos
 
 def determinarPrecioEnvio(id_company):
     try:

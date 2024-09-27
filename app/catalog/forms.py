@@ -40,3 +40,8 @@ class formCategory(forms.ModelForm):
         model = Category
         #exclude = ('gender','date_joined','email',)
         fields = '__all__'
+
+class FormLike(forms.ModelForm):
+    class Meta:
+        model = Like
+        exclude = ('company','date_joined')

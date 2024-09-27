@@ -185,7 +185,7 @@
   if(navigator.share) {
     
     // Código si la Web Share API es soportada
-    //document.getElementById("compartir").value = "En más lugares"
+    document.getElementById("compartir").value = "En más lugares"
     const shareData = {
       title: "Catalogo",
       text: "Visita mi Catalogo!",
@@ -275,6 +275,15 @@
 {% block button_whatsap %}
 {% include 'button_whatsap.html' %}
 {% endblock button_whatsap %}
+
+{% block productos_mas_vistos %}
+<!-- ======= Contact Section ======= -->
+<section id="product_mas_vistos" class="product_view">
+  <div class="container">
+    {% include 'catalog/productos_mas_vistos.html' %}
+  </div>
+</section>
+{% endblock productos_mas_vistos %}
 
 {% block contact %}
 <!-- ======= Contact Section ======= -->

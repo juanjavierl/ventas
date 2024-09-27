@@ -146,3 +146,19 @@ class Pedido(models.Model):
     def __str__(self):
         """Unicode representation of Pedido."""
         return "%s, orden # %s"%(self.product.name, self.orden)
+
+
+class Like(models.Model):
+    like = models.IntegerField(verbose_name='like')
+    date_joined = models.DateTimeField(auto_now_add=True)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, verbose_name='Negocio')
+    client = models.ForeignKey(Client, on_delete=models.CASCADE, verbose_name='Cliente')
+    orden = models.ForeignKey(Orden, on_delete=models.CASCADE, verbose_name='Orden')
+
+    class Meta:
+        """Meta definition for Bancos."""
+        verbose_name = 'Like'
+        verbose_name_plural = 'Likes'
+
+    def __str__(self):
+        return self.company.name

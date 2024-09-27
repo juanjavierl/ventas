@@ -64,7 +64,7 @@
                                 <form action="/{{company.id}}/precio_envio" method="post" id="form_precio_envio">
                                     {% csrf_token %}
                                     <div class="input-group mb-3">
-                                        {{form_precio}}
+                                        {{form_precio.precio}}
                                         <button type="submit" class="btn btn-primary btn-sm" id="button-addon2">Regitrar</button>
                                     </div>
                                     

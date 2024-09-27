@@ -1,5 +1,5 @@
 from datetime import datetime, date
-
+from random import randint
 from django.forms import model_to_dict
 from django.db import models
 from django.contrib.auth.forms import User
@@ -25,6 +25,9 @@ class Tipo_company(models.Model):
         """Unicode representation of Categoria ."""
         return self.name
 
+    def num_vistos(self):
+        num = randint(1500,5000)
+        return num
 
 class Ciudad(models.Model):
     """Model definition for Cuidad."""

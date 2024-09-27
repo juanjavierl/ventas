@@ -8,7 +8,7 @@ from django.http import JsonResponse, request,HttpResponse
 from django.template.loader import render_to_string
 from django.core.paginator import Paginator
 from ventas import settings
-from weasyprint import HTML, CSS
+#from weasyprint import HTML, CSS
 import os
 import json
 

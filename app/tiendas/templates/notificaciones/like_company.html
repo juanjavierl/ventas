@@ -1,58 +1,111 @@
 {% extends 'index.html' %}
 
 {% block titulo %}
-    {{company.name|title|truncatechars:17|cut:" "}}
+{{company.name|title|truncatechars:17|cut:" "}}
 {% endblock titulo %}
 
 {% block company %}
-  <a href="/{{company.id}}/catalogo">
-    <marquee behavior="" direction="">{{company.name|title|cut:" "}}</marquee>
-  </a>
+<a href="/{{company.id}}/catalogo">
+  <marquee behavior="" direction="">{{company.name|title|cut:" "}}</marquee>
+</a>
 {% endblock company %}
 
 {% block carrito %}
-  {% include 'catalog/carrito.html'  with total_compra=total_compra %}
+{% include 'catalog/carrito.html' with total_compra=total_compra %}
 {% endblock carrito %}
 
 {% block menus %}
-    {% include 'menu_from_user.html' %}
+{% include 'menu_from_user.html' %}
 {% endblock menus %}
 
-{% block hero %}  {% endblock hero %}
-  
+{% block hero %} {% endblock hero %}
+
 {% block contenido %}
 <style>
-    .card-horizontal {
-        display: flex;
-        flex-direction: row;
-        max-width: 600px;
-    }
-</style>   
-<section id="team_productos" class="portfolio section-bg justify-content-center" style="margin-top: 30px;" >
-    <div class="container productos_por_categorias " data-aos="fade-up">
-        <div class="mt-5">
-            <div class="card card-horizontal">
-                <img src="https://via.placeholder.com/150" class="card-img-left" alt="Imagen de ejemplo">
-                <div class="card-body">
-                    <h5 class="card-title">Título de la Tarjeta</h5>
-                    <p class="card-text">Este es un texto descriptivo de la tarjeta. Aquí puedes incluir información relevante.</p>
-                    <a href="#" class="btn btn-primary">Acción</a>
-                </div>
+  .card-horizontal {
+    display: flex;
+    flex-direction: row;
+    max-width: 600px;
+  }
+</style>
+<section id="team_productos" class="portfolio section-bg justify-content-center" style="margin-top: 30px;">
+  <div class="container productos_por_categorias " data-aos="fade-up">
+    <div class="mt-5">
+      <div class="card card-horizontal">
+
+        <div class="card-body">
+
+          {% if like %}
+          <div class="alert-success">
+            <h5 class="card-title fst-italic">{{company.name|title}} te dice</h5>
+            <p class="card-text text-start fst-italic">{{like}}<br>
+              <a href="/{{company.id}}/catalogo">Ir al Catálogo</a>
+            </p>
+          </div>
+          {% else %}
+          <h5 class="card-title fst-italic">{{company.name|title}} te dice ¡Califica nuestra página!</h5>
+          <p class="card-text text-start fst-italic">Registra una opción para evaluar nuestra sistema, asi para llegar a
+            más personas, muchas gracias por su participación.</p>
+
+          <form action="/{{company.id}}/{{id_orden}}/{{id_cliente}}/like" method="post" id="form_like">
+            {% csrf_token %}
+            <div class="input-group">
+              <select class="form-select" id="inputGroupSelect04" name="like"
+                aria-label="Example select with button addon" required>
+                <option selected>Elige un opcion</option>
+                <option value="0">Malo</option>
+                <option value="1">Bueno</option>
+                <option value="2">Muy bueno</option>
+              </select>
+              <button class="btn btn-outline-success" type="submit">Enviar</button>
             </div>
+          </form>
+          {% endif %}
+
+
         </div>
+      </div>
     </div>
+  </div>
 </section>
+<script>
+  $('#form_like').on('submit', function (e) {
+    e.preventDefault();
+    $.ajax({
+      type: 'POST',
+      url: $(this).attr('action'),
+      data: $(this).serialize(),
+      success: function (resp) {
+        if (resp.error) {
+          $('.toast-body').addClass('alert alert-danger');
+          $('.toast-body').fadeIn(1000).html('<strong>' + resp.error + '</strong>');
+          mostrar_notificacion();
+        }
+        else {
+          $('.toast-body').addClass('alert alert-success');
+          $('.toast-body').fadeIn(1000).html(resp.success);
+          $('#form_like')[0].reset();
 
+          mostrar_notificacion();
+          setTimeout(function () {
+            window.location.href = "/{{company.id}}/catalogo";
+          }, 3000);
 
-
+        }
+      },
+      error: function (xhr, ajaxOptions, thrownError) {
+        alert("Error:" + thrownError);
+      }
+    });
+  });
+</script>
 {% endblock contenido %}
 
-
 {% block button_whatsap %}
-  {% include 'button_whatsap.html' %}
+{% include 'button_whatsap.html' %}
 {% endblock button_whatsap %}
 {% block contact %}
-  <!-- ======= Contact Section ======= -->
+<!-- ======= Contact Section ======= -->
 <section id="contact" class="contact">
   <div class="container">
     {% include 'contact.html' with company=company %}
@@ -60,6 +113,3 @@
 </section>
 <!-- End Contact Section -->
 {% endblock contact %}
-  
-
-  

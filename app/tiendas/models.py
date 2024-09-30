@@ -78,6 +78,15 @@ class Company(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def contarLikes(self):
+        from app.catalog.models import Like
+        suma_likes = Like.objects.filter(company_id=self.id).aggregate(like=models.Sum('like'))
+        if suma_likes['like'] == None:
+            suma_likes = {'like':0}
+            return suma_likes
+        else:
+            return suma_likes
 
     def get_iva(self):
         return float(self.iva)

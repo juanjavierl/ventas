@@ -100,9 +100,11 @@ class Client(models.Model):
 
     def toJSON(self):
         item = model_to_dict(self)
-        item['text'] = self.get_full_name()
+        item['names'] = self.get_full_name()
         item['gender'] = {'id': self.gender, 'name': self.get_gender_display()}
-        item['birthdate'] = self.birthdate.strftime('%Y-%m-%d')
+        item['dni'] = self.dni
+        item['id'] = int(self.id)
+        item['mobile'] = self.mobile
         return item
 
     class Meta:

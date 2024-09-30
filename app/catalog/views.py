@@ -237,13 +237,13 @@ def confirmar_compra(request, id_company):
             return JsonResponse(
                         {
                             'company':company.name,
-                            'cliente':orden.client.names,
+                            'cliente_object':cliente.toJSON(),
                             'company_object':company.toJSON(),
                             'orden':orden.id,
                             'lugar':lugar,
                             'cel_company':company.mobile,
                             'products':len(request.session['compra']),
-                            'success':"Bien, tu pedido a sido registrado. <a href='/'> Ir al Inicio</a>",
+                            'success':"Bien, tu pedido a sido registrado.",
                             'lista':lista_product,#envio lasession en la variable lista_product
                             't_pago':t_pago,
                             'precio_envio':determinarPrecioEnvio(id_company)
@@ -271,11 +271,11 @@ def confirmar_compra(request, id_company):
                                 'company':company.name,
                                 'company_object':company.toJSON(),
                                 'cel_company':company.mobile,
-                                'cliente':orden.client.names,
+                                'cliente_object':cliente.toJSON(),
                                 'orden':orden.id,
                                 'lugar':lugar,
                                 'products':len(request.session['compra']),
-                                'success':"En hora buena realizaste tu pedido.<a href='/'> Ir al Inicio</a>",
+                                'success':"En hora buena realizaste tu pedido.",
                                 'lista':lista_product,
                                 't_pago':t_pago,
                                 'precio_envio':determinarPrecioEnvio(id_company)

@@ -27,5 +27,5 @@ urlpatterns = [
     path('<int:id_aviso>/eliminar_opciones', views.eliminar_opciones, name='eliminar_opciones'),
     
     path('<int:id_company>/<int:id_orden>/report_pdf', views.report_pdf, name='report_pdf'),
-    path('<int:id_company>/like_company', views.like_company, name='like_company'),
+    path('<int:id_company>/<int:id_orden>/<int:id_cliente>/like', views.like_company, name='like'),
 ]

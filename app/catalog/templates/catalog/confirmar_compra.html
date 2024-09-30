@@ -196,7 +196,7 @@
           $("#cont_compras").html(resp.products);
 
           var datos = "***** *Mi Pedido Nro. " + resp.orden + "* ***** %0A";
-          datos = datos + "Nombre: " + resp.cliente + "%0A %0A";
+          datos = datos + "Nombre: " + resp.cliente_object.names + "%0A %0A";
           var pedido = "";
           for (let productos = 0; productos < resp.lista.length; productos++) {
             pedido = pedido + resp.lista[productos]['name'] + " " + resp.lista[productos]['cantidad'] + "x" + resp.lista[productos]['precio_uni'] + "=" + resp.lista[productos]['total'] + "%0A";
@@ -222,9 +222,9 @@
 
           var to_p = parseFloat(resp.t_pago) + parseFloat(resp.precio_envio);
           total = "- *total: Bs. " + to_p + "* %0A%0A"
-          web = "_Gracias por su preferencia: {{ request.get_host }}/" + resp.company_object.id + "/like_company_"//corregir ir a la orden
+          web = "_Califica nuestra página para seguir mejorando gracias: {{ request.get_host }}/" + resp.company_object.id +"/"+ resp.orden + "/" + resp.cliente_object.id + "/like_ %0A"//corregir ir a la orden
           //href="https://api.whatsapp.com/send?text=Mas informacion sobre este producto: {{p.description|default:' '}}, gracias. &phone={{company.mobile}}/?u={{request.build_absolute_uri}}"
-          var ruta = "https://api.whatsapp.com/send?phone=+591" + resp.cel_company + "&text=" + datos + pedido + Envio + sub_total + total + lugar + web;
+          var ruta = "https://api.whatsapp.com/send?phone=+591" + resp.cel_company + "&text=" + datos + pedido  + sub_total + Envio + total + lugar + web;
           window.open(ruta, "Sistema AMCEB", "width=700, height=500");
           //location.reload();
         }

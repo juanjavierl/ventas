@@ -1,11 +1,11 @@
 {% if dashboard.name %}
-<h1>
+<h1 id="status_share">
         <a class="dropdown-item" id="compartir_url" href="#"><i class="bi bi-share-fill"></i></a>
 </h1>
 <h1>
         <a href="https://api.whatsapp.com/send?text=*_Visita el Sistema AMCEB_* %0A _Crea y encuentra las mejores tiendas online de toda Bolivia_%0A{{request.build_absolute_uri}}"
                 target="_blank" title="Compartir con whatsapp" style="font-size: 25px;">
-                <i class="bi bi-whatsapp"></i>
+                <i class="bi bi-send"></i>
         </a>
 </h1>
 <!-- <h1> COMENTADO PORQUE AUN NO CREE EL BUSCADOR DE COMPANIAS
@@ -38,14 +38,14 @@
                                 resultPara.textContent = "Recurso compartido";
 
                         } catch (err) {
-                                $("#status").hide()
-                                document.getElementById("status").hidden();
+                                $("#status_share").hide()
+                                document.getElementById("status_share").hidden();
                                 alert("Up! parase que tu navegador no esta lista para compartir este recurso.");
                         }
                 });
         } else {
                 // Fallback
-                $("#status").hide();
+                $("#status_share").hide();
         }
 </script>
 {% endif %}

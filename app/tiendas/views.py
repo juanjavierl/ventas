@@ -8,14 +8,14 @@ from django.http import JsonResponse, request,HttpResponse
 from django.template.loader import render_to_string
 from django.core.paginator import Paginator
 from ventas import settings
-#from weasyprint import HTML, CSS
+from weasyprint import HTML, CSS
 import os
 import json
 
 import ast
 from app.tiendas.models import *
 from app.tiendas.forms import *
-from app.catalog.models import Product, Orden, Pedido
+from app.catalog.models import Product, Orden, Pedido, Like
 from app.inicio.views import get_Dashboard
 from app.catalog.views import *
 # Create your views here.
@@ -331,31 +331,54 @@ def report_pdf(request, id_company, id_orden):
     HTML(string=html).write_pdf(response)
     return response
 
-def like_company(request, id_company):
-        
+def like_company(request, id_company, id_orden, id_cliente):
     if request.method == 'POST':
-        form = FormLike(request.POST)
-        if form.is_valid():
-            datos = form.save(commit=False)
-            datos.company_id = id_company
-            datos.save()
-            return JsonResponse({'success':'Registro Exitoso.'})
+        lik = Like()
+        lik.like = int(request.POST['like'])
+        lik.company_id = int(id_company)
+        lik.client_id = int(id_cliente)
+        lik.orden_id = int(id_orden)
+        lik.save()
+        ruta = "/"+str(id_company)+"/catalogo" 
+        print(ruta)
+        return JsonResponse({'success':'Muchas gracias por su preserencia','ruta:':ruta})
     else:
-        form = FormLike()
-        productos = Product.objects.filter(stock__gt=0, company_id=int(id_company)).order_by('-id')
-        page = request.GET.get('page',1)
-        try: 
-            paginator = Paginator(productos, 10)
-            productos = paginator.page(page)
-        except:
-            raise Http404
-        dic = {
-            'categorias':categorys_from_productos(productos),
-            'productos':productos,
-            'paginator':paginator,
-            'total_compra':len(request.session['compra']),
-            't_pago':calcular_pago(request),
-            'company':get_company(id_company),
-            'aviso':optener_avisos_by_company(id_company)
-        }
-    return render(request, 'notificaciones/like_company.html', dic)   
+        if Like.objects.filter(company_id=id_company, orden_id=id_orden, client_id=id_cliente).exists():
+            ruta = str(id_company)+"/catalogo"
+            dic = {
+                'categorias':categorys_from_productos(productosDeCatalogo(request, id_company)),
+                'total_compra':len(request.session['compra']),
+                't_pago':calcular_pago(request),
+                'company':get_company(id_company),
+                'aviso':optener_avisos_by_company(id_company),
+                'id_orden':id_orden,
+                'id_cliente':id_cliente,
+                'like':'Muchas gracias por su preserencia',
+                'ruta:':ruta
+            }
+            return render(request, 'notificaciones/like_company.html', dic)
+
+        else:
+
+            dic = {
+                'categorias':categorys_from_productos(productosDeCatalogo(request, id_company)),
+                'productos':productosDeCatalogo(request, id_company),
+                'total_compra':len(request.session['compra']),
+                't_pago':calcular_pago(request),
+                'company':get_company(id_company),
+                'aviso':optener_avisos_by_company(id_company),
+                'id_orden':id_orden,
+                'id_cliente':id_cliente
+            }
+            return render(request, 'notificaciones/like_company.html', dic)
+
+
+def productosDeCatalogo(request ,id_company):
+    productos = Product.objects.filter(stock__gt=0, company_id=int(id_company)).order_by('-id')
+    page = request.GET.get('page',1)
+    try: 
+        paginator = Paginator(productos, 10)
+        productos = paginator.page(page)
+    except:
+        raise Http404
+    return productos

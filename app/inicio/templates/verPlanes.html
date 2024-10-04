@@ -1,0 +1,53 @@
+<div class="modal-header  thead-light" style="background-color: #58bba9;">
+    <h5 class="modal-title text-white" id="exampleModalLabel">Elige un plan de tu prederencia</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+  </div>
+  
+<div class="planes">
+    <div class="modal-body table-responsive">
+      <form action="" method="post">
+        {% csrf_token %}
+  
+        {% for p in planes %}
+        <div class="card dark card_c single-product">
+          <i class="{{p.icono}} icon_img card-img-top" alt="..."></i>
+          <span class="badge rounded-pill bg-primary sale-tag d-flex">
+            {{p.name|title}}
+          </span>
+          <div class="card-body" style="padding: 10px;">
+            <div class="text-section">
+              <!--  <h5 class="card-title text-wrap text-primary fw-bolder">{{p.planes|capfirst}}</h5> -->
+              <p class="card-text text-break text-wrap">{{p.description|default:" - - - "|capfirst}}</p>
+              <small class="text-section">Tiempo.- {{p.contracts_min}}  Precio.- {{p.price_min}} Bs.</small><br>
+              <small  class="text-section">Tiempo.- {{p.contracts_max}}  Precio.- {{p.price_max}} Bs.</small>
+            </div>
+            <div class="cta_c-sectiformPlaneson">
+  
+              {% if p.name|upper == 'GRATIS' %}
+              <input type="radio" name="plan" value="{{p.name}}" id="id_plan_{{p.id}}" checked required>
+              {% else %}
+              <input type="radio" name="plan" value="{{p.name}}" id="id_plan_{{p.id}}">
+              {% endif %}
+  
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+  
+      </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="bi bi-arrow-left-circle"></i> Cancelar</button>
+      <button type="button" class="btn btn-success btn-sm" id="btn_solicitarPlan"><i class="bi bi-check-lg"></i>
+        Solicitar plan & enviar al whatsapp</button>
+    </div>
+  </div>
+
+  <script>
+    $("#btn_solicitarPlan").on('click', function(){
+        let name = $('input:radio[name=plan]:checked').val();
+        let ruta = "https://api.whatsapp.com/send?text=_Hola Visite el sistema www.{{request.get_host}}_  %0A _Solicito comprar el Plan_: *"+ name.toUpperCase() +"* %0A _muchas gracias_.%0A &phone={{celular.mobile}}";
+        window.open(ruta, '_blank')
+    })
+
+  </script>

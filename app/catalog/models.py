@@ -40,6 +40,7 @@ class Product(models.Model):
     is_service = models.BooleanField(default=False, verbose_name='¿Es un servicio?')
     #with_tax = models.BooleanField(default=False, verbose_name='¿Se cobra impuesto?')
     stock = models.IntegerField(default=1)
+    salida = models.IntegerField(blank=True,null=True)
     is_new = models.BooleanField(default=False, verbose_name='¿Es novedad?', help_text='marque solo si corresponde')
     is_promotion = models.BooleanField(default=False, verbose_name='¿Esta en promocion?',help_text='marque solo si corresponde')
 

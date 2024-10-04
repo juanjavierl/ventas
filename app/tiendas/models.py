@@ -44,9 +44,16 @@ class Ciudad(models.Model):
         return self.ciudad
 
 class Plataforma(models.Model):
-    name = models.CharField(max_length=20)
+    name = models.CharField(max_length=20, verbose_name="Nombre")
     description = models.CharField(max_length=150, verbose_name="Descripción")
-    icono = models.CharField(max_length=100, verbose_name="Icono de Bootstrap", default="bi bi-file-bar-graph")
+    
+    contracts_min = models.CharField(verbose_name="Tiempo de minimo", max_length=50)
+    price_min = models.IntegerField(verbose_name="Precio")
+
+    contracts_max = models.CharField(verbose_name="Tiempo de maximo", max_length=50)
+    price_max = models.IntegerField(verbose_name="Precio")
+
+    icono = models.CharField(max_length=100, verbose_name="Icono de Bootstrap", default="bi bi-clipboard2-check")
     qr_img = models.ImageField(upload_to='img_qr', verbose_name='Img QR de pago', help_text="Imagen que tenga validacion de un año")
 
     class Meta:

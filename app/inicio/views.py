@@ -24,5 +24,13 @@ def get_Dashboard():
     try:
         dashboard = Dashboard.objects.get(id=1)
     except:
-        dashboard = {'name':"AMCEB"}
+        dashboard = {'name':"AMCEB",'mobile':79436914}
     return dashboard
+
+def verPlanes(request):
+
+    dic = {
+        'celular':get_Dashboard(),
+        'planes':Plataforma.objects.all()
+    }
+    return render(request, 'verPlanes.html',dic)

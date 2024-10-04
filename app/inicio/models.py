@@ -2,11 +2,11 @@ from django.db import models
 
 # Create your models here.
 class Dashboard(models.Model):
-    name = models.CharField(max_length=50, unique=True, verbose_name='Nombre')
-    description = models.TextField(verbose_name='Icono FontAwesome', help_text='Escriba una descripción de que trata.?')
+    name = models.CharField(max_length=50, unique=True, verbose_name='Nombre del Plan')
+    description = models.TextField(verbose_name='Descripcion', help_text='Escriba una descripción de que trata.?')
     icon = models.CharField(max_length=100, verbose_name='Icono FontAwesome', default="bi bi-shop-window")
     image = models.ImageField(upload_to='dashboard/%Y/%m/%d', null=True, blank=True, verbose_name='Logo')
-    author = models.CharField(max_length=120, verbose_name='Autor')
+    author = models.CharField(max_length=120, verbose_name='Autor', default="jjavierl")
     mobile = models.CharField(max_length=10, verbose_name='Celular*')
     email = models.CharField(max_length=50, null=True, blank=True, verbose_name='Email')
     address = models.CharField(max_length=500, null=True, blank=True, verbose_name='Dirección*', help_text="Ingrese:Calle,Nro,Zona")

@@ -45,7 +45,7 @@
 
       {% for p in planes %}
       <div class="card dark card_c single-product">
-        <i class="bi bi-shop-window" class="card-img-top" alt="..."></i>
+        <i class="{{p.icono}} card-img-top icon_img" alt="..."></i>
         <span class="badge rounded-pill bg-primary sale-tag d-flex">
           {{p.name|title}}
         </span>

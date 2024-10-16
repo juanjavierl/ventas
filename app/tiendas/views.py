@@ -8,7 +8,7 @@ from django.http import JsonResponse, request,HttpResponse
 from django.template.loader import render_to_string
 from django.core.paginator import Paginator
 from ventas import settings
-from weasyprint import HTML, CSS
+#from weasyprint import HTML, CSS
 from datetime import datetime, date
 import os
 import json
@@ -205,9 +205,9 @@ def configuraciones_company(request, id_company):
         'total_compra':len(request.session['compra']),
         'precios':Precio_envio.objects.filter(company_id=int(id_company))[:1],
         'avisos':Aviso.objects.filter(company_id = int(id_company))[:1],
-        'banco':Banco.objects.filter(company_id = int(id_company))[:1]
+        'banco':Banco.objects.filter(company_id = int(id_company))[:1],
         #'precio_env':determinarPrecioEnvio(id_company),
-        #'orden':Orden.objects.filter(company_id=int(id_company)).order_by('-id')[:10]
+        'clientes':Orden.objects.filter(company_id=int(id_company)).order_by('-id').distinct()
     }
     return render(request,'configuraciones_company.html', dic)
 

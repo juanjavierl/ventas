@@ -18,12 +18,12 @@
             <div class="text-section">
               <!--  <h5 class="card-title text-wrap text-primary fw-bolder">{{p.planes|capfirst}}</h5> -->
               <p class="card-text text-break text-wrap">{{p.description|default:" - - - "|capfirst}}</p>
-              <small class="text-section">Tiempo.- {{p.contracts_min}}  Precio.- {{p.price_min}} Bs.</small><br>
-              <small  class="text-section">Tiempo.- {{p.contracts_max}}  Precio.- {{p.price_max}} Bs.</small>
+              <small class="text-section">Contrato.- {{p.contracts_min}}  Precio.- {{p.price_min}} Bs.</small><br>
+              <small  class="text-section">contrato.- {{p.contracts_max}}  Precio.- {{p.price_max}} Bs.</small>
             </div>
             <div class="cta_c-sectiformPlaneson">
   
-              {% if p.name|upper == 'GRATIS' %}
+              {% if p.name|upper == 'EMPRENDEDOR' %}
               <input type="radio" name="plan" value="{{p.name}}" id="id_plan_{{p.id}}" checked required>
               {% else %}
               <input type="radio" name="plan" value="{{p.name}}" id="id_plan_{{p.id}}">

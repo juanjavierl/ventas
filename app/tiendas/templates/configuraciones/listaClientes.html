@@ -1,0 +1,42 @@
+<h2 class="accordion-header">
+    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSix"
+        aria-expanded="false" aria-controls="collapseSix">
+        <strong>Lista de Clientes</strong>
+    </button>
+</h2>
+<div id="collapseSix" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+    <div class="accordion-body row d-flex no-gutters justify-content-center">
+
+        <div class="col-lg-10 d-flex align-items-stretch">
+            {% if clientes %}
+            <table class="table table-bordered table-striped table-responsive table-sm">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Nombre completo</th>
+                        <th>CI</th>
+                        <th>Celular</th>
+                        <th>Email</th>
+                        <th>Direccion</th>
+                        <th>Fecha. Reg.</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in clientes %}
+                    <tr>
+                        <td>{{c.client.names|title}}</td>
+                        <td>{{c.client.dni}}</td>
+                        <td>{{c.client.mobile}}</td>
+                        <td>{{c.client.email|default:" - - -"}}</td>
+                        <td>{{c.client.address|default:" - - -"}}</td>
+                        <td>{{c.client.date_joined}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="alert alert-warning text-center text-danger" role="alert">No hay clientes</div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>

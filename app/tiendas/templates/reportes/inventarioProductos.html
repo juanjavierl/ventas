@@ -16,6 +16,18 @@
         </thead>
         <tbody>
            {% for p in productos %}
+            {% if p.stock_actual <= 5 %}
+            <tr class="table-danger">
+                <td>{{p.code|default:" - - -"}}</td>
+                <td>{{p.name|title}}</td>
+                <td>{{p.category|title}}</td>
+                <td>{{p.stock}}</td>
+                <td>{{p.salida}}</td>
+                <td>{{p.stock_actual}}</td>
+                <td>{{p.date_joined|date:"d/m/Y"}}</td>
+                <td>{{p.date_update|date:"d/m/Y"}}</td>
+            </tr>
+            {% else %}
             <tr>
                 <td>{{p.code|default:" - - -"}}</td>
                 <td>{{p.name|title}}</td>
@@ -26,9 +38,11 @@
                 <td>{{p.date_joined|date:"d/m/Y"}}</td>
                 <td>{{p.date_update|date:"d/m/Y"}}</td>
             </tr>
+            {% endif %}
            {% endfor %}
         </tbody>
     </table>
+    <small class="text-muted">Los items que muestran en rojo son los que tienen un stock <=5 como criterio</small>
     {% else %}
     <div class="alert alert-warning text-center text-danger" role="alert">No hay Productos</div>
     {% endif %}

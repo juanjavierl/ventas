@@ -335,6 +335,10 @@ def crear_orden(request, id_cliente, id_company):
     orden.save()
     return orden
 
+emprendedor = 30
+profecional = 100
+empresarial = 250
+
 def newProducto(request, id_company):
     if request.method == 'POST':
         new = request.POST.get('is_new', False) == 'on'

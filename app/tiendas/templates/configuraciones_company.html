@@ -169,35 +169,7 @@
             </div>
             
             <div class="accordion-item">
-                <h2 class="accordion-header">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#collapseSix" aria-expanded="false" aria-controls="collapseSix">
-                        <strong>Lista de Clientes</strong>
-                    </button>
-                </h2>
-                <div id="collapseSix" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
-                    <div class="accordion-body row d-flex no-gutters justify-content-center">
-                        
-                            <div class="col-lg-10 align-items-stretch">
-                                <div class="input-group">
-                                    <form action="/{{company.id}}/lista_clientes" method="post" id="form_buscar_orden">
-                                        {% csrf_token %}
-                                        <div class="input-group mb-3">
-                                            <select name="criterio" id="">
-                                                <option value="cero">Todos los productos</option>
-                                                <option value="en_cero">Solo productos agotados</option>
-                                                <option value="con_stock">Solo productos con Stock</option>
-                                            </select>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                       
-                        <div class="col-lg-10 d-flex align-items-stretch">
-
-                        </div>
-                    </div>
-                </div>
+                {% include 'configuraciones/listaClientes.html' %}
             </div>
 
         </div>
@@ -207,7 +179,7 @@
 <script>
     $(function () {
         $('.pedidos').hide();//escondo solo para que muestre con decenio
-
+        var date_now = new moment().format('DD-MM-YYYY');//optengo la fecha actual
         $('input[name="daterange"]').daterangepicker({
             //opens: 'left'
             locale : {
@@ -216,8 +188,8 @@
                 canvelLabel: 'Cancelar'
             },
             minYear: 2024,
-            "startDate": "01/10/2024",
-            "endDate": "07/10/2024"
+            "startDate": date_now,
+            "endDate": date_now
         }, function (start, end, label) {
             
             reportBydate(start.format('DD-MM-YYYY'), end.format('DD-MM-YYYY'))

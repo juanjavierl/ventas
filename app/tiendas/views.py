@@ -9,6 +9,7 @@ from django.template.loader import render_to_string
 from django.core.paginator import Paginator
 from ventas import settings
 from weasyprint import HTML, CSS
+from datetime import datetime, date
 import os
 import json
 
@@ -181,18 +182,6 @@ def deleteCompany(request, id_company):
         return JsonResponse({'companys_from_user':request.user.id})
     return render(request,'deleteCompany.html',{'company':company})
 
-def update_perfil_user(request, user_id):
-    user = get_object_or_404(User, id = int(user_id))
-    if request.method == 'POST':
-        form = UpdateUserForm(request.POST, instance=user)
-        if form.is_valid():
-            form.save()
-            return JsonResponse({'success':'Datos actualizados correctamente.'})
-        else:
-            return JsonResponse({'error':'Error intente nuevamente.'})
-    form = UpdateUserForm(instance=user)
-    return render(request,'update_perfil_user.html',{'form':form})
-
 def add_huvicacion(request, id_company):
     company = Company.objects.get(id=id_company)
     if request.method == 'POST':
@@ -243,10 +232,29 @@ def buscar_orden(request, id_company):
         if Orden.objects.filter(id=cod, company_id=int(id_company)).exists():
             orden = Orden.objects.get(id=cod)
             pedidos = Pedido.objects.filter(orden_id = orden.id)
-            print(pedidos)
         else:
             orden = None
-        return render(request, 'buscar_orden.html', {'orden':orden, 'pedidos':pedidos, 'precio_envio':precio_envio})
+        return render(request, 'reportes/buscar_orden.html', {'orden':orden, 'pedidos':pedidos, 'precio_envio':precio_envio})
+
+def reportByRange(request, id_company):
+    if request.method == 'POST':
+        print(request.POST['startDate'], type(request.POST['startDate']))
+        inicio = datetime.strptime(request.POST['startDate'], '%d-%m-%Y')
+        #print(datetime.strftime(inicio, '%Y-%m-%d')) 
+        final = datetime.strptime(request.POST['endDate'], '%d-%m-%Y')
+        ordenes = Orden.objects.filter(company_id = int(id_company), date_joined__range=(datetime.strftime(inicio, '%Y-%m-%d'), datetime.strftime(final, '%Y-%m-%d')))
+        return render(request, 'reportes/reportByRangeOrden.html', {'ordenes':ordenes})
+
+def inventarioProductos(request, id_company):
+    p = Product()
+    if request.method == 'POST':
+        if request.POST['criterio'] == "todos":
+            productos = Product.objects.filter(company_id = int(id_company))
+        elif request.POST['criterio'] == "con_stock":
+            productos = Product.objects.filter(company_id = int(id_company), stock__gt = 0)
+        else:
+            productos = Product.objects.filter(company_id = int(id_company), stock__lte = 0)
+    return render(request, 'reportes/inventarioProductos.html', {'productos':productos})
 
 def add_avisos(request, id_company):
     company = get_object_or_404(Company, id = int(id_company))

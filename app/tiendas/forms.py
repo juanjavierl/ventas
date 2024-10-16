@@ -12,13 +12,6 @@ class RegisterForm(UserCreationForm):
         model = get_user_model()
         fields = ('username','email', 'password1', 'password2')
 
-class UpdateUserForm(forms.ModelForm):
-    #username = forms.CharField(max_length=140, label="Email / Usuario")
-    class Meta:
-        model = User
-        fields = ('first_name','last_name')
-        #exclude = ('email', 'password1', 'password2')
-
 class formCompany(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

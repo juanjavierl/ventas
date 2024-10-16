@@ -30,22 +30,34 @@
                 <h2 class="accordion-header">
                     <button class="accordion-button" type="button" data-bs-toggle="collapse"
                         data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                        <strong>Consultar Pedidos</strong>
+                        <strong>Reporte de Pedidos</strong>
                     </button>
                 </h2>
                 <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
-                    <div class="accordion-body d-flex no-gutters justify-content-center">
-                        <div class="col-lg-10 align-items-stretch">
+                    <div class="accordion-body row d-flex justify-content-center">
+                        <div class="forn-envio col-lg-5 col-ms-10 align-items-stretch">
                             <div class="input-group">
                                 <form action="/{{company.id}}/buscar_orden" method="post" id="form_buscar_orden">
                                     {% csrf_token %}
                                     <div class="input-group mb-3">
-                                        <input type="number" name="codigo_orden" class="form-control" placeholder="Ingrese codigo de orden" aria-label="Ingrese codigo de orden" aria-describedby="button-addon2" required>
+                                        <input type="number" name="codigo_orden" class="form-control"
+                                            placeholder="Ingrese codigo de orden" aria-label="Ingrese codigo de orden"
+                                            aria-describedby="button-addon2" required>
                                         <button class="btn btn-primary" type="submit" id="button-addon2">Buscar</button>
                                     </div>
                                 </form>
+                                <form action="/{{company.id}}/report_by_date" method="post" id="form_by_date">
+                                    {% csrf_token %}
+                                    <div class="">
+                                        <input type="text" name="daterange" class="form-control" placeholder="Ingrese un rango de fecha" aria-label="Ingrese un rango de fecha" aria-describedby="button-addon2" required style="width: 240px;">
+                                        <small class="text-muted">Reporte de pedidos por fecha</small>
+                                        
+                                    </div>
+                                </form>
                             </div>
-                            <div class="pedidos"></div>
+
+                        </div>
+                        <div class="pedidos col-lg-5 align-items-stretch">
                         </div>
                     </div>
                 </div>
@@ -65,17 +77,19 @@
                                     {% csrf_token %}
                                     <div class="input-group mb-3">
                                         {{form_precio.precio}}
-                                        <button type="submit" class="btn btn-primary btn-sm" id="button-addon2">Regitrar</button>
+                                        <button type="submit" class="btn btn-primary btn-sm"
+                                            id="button-addon2">Regitrar</button>
                                     </div>
-                                    
+
                                 </form>
                             </div>
                         </div>
                         <div class="precios_env col-lg-5 d-flex align-items-stretch" id="delete_precio">
                             {% for preci in precios %}
                             <li>
-                                Precio de envio registrado : <strong>{{preci.precio}} Bs.</strong>  <a href="#" type="button" data-bs-toggle="modal"
-                                data-bs-target="#exampleModal" onclick="del_precio('/{{preci.id}}/del_precio')">Eliminar</a>
+                                Precio de envio registrado : <strong>{{preci.precio}} Bs.</strong> <a href="#"
+                                    type="button" data-bs-toggle="modal" data-bs-target="#exampleModal"
+                                    onclick="del_precio('/{{preci.id}}/del_precio')">Eliminar</a>
                             </li>
                             {% endfor %}
                         </div>
@@ -93,7 +107,8 @@
                     <div class="accordion-body row d-flex no-gutters justify-content-center">
                         <div class="forn-envio col-lg-5 d-flex align-items-stretch">
                             <div class="input-group">
-                                <form action="/{{company.id}}/banco_envio" method="post" id="form_banco_envio" enctype="multipart/form-data">
+                                <form action="/{{company.id}}/banco_envio" method="post" id="form_banco_envio"
+                                    enctype="multipart/form-data">
                                     {% csrf_token %}
                                     {{form_ban|crispy}}
                                     <button type="submit" class="btn btn-primary btn-sm">Regitrar</button>
@@ -102,11 +117,14 @@
                         </div>
                         <div class="info_banco col-lg-5 align-items-stretch">
                             {% for a in banco %}
-                                <li><strong>Banco: </strong> {{a.name|title}}</li>
-                                <li><strong>A nombre de : </strong> {{a.destinatario|title}}</li>
-                                <li><strong>Nro de Cuenta : </strong> {{a.cuenta}}</li>
-                                <li><strong>Imagen Qr: </strong> <img src="/media/{{a.qr_img}}" style="width: 250px; height: 250px;" alt=""></li>
-                                <p style="text-align: center;"><a href="#" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="del_infor_comp('/{{a.id}}/del_infor_banco_by_company')"> Eliminar </a></p>
+                            <li><strong>Banco: </strong> {{a.name|title}}</li>
+                            <li><strong>A nombre de : </strong> {{a.destinatario|title}}</li>
+                            <li><strong>Nro de Cuenta : </strong> {{a.cuenta}}</li>
+                            <li><strong>Imagen Qr: </strong> <img src="/media/{{a.qr_img}}"
+                                    style="width: 250px; height: 250px;" alt=""></li>
+                            <p style="text-align: center;"><a href="#" type="button" data-bs-toggle="modal"
+                                    data-bs-target="#exampleModal"
+                                    onclick="del_infor_comp('/{{a.id}}/del_infor_banco_by_company')"> Eliminar </a></p>
                             {% endfor %}
                         </div>
                     </div>
@@ -133,11 +151,13 @@
                         </div>
                         <div class="info_avisos col-lg-5 align-items-stretch">
                             {% for a in avisos %}
-                                <li><strong>Tiempo de Entregas: </strong> {{a.Tiempo_entrega}}</li>
-                                <li><strong>Envios : </strong> {{a.envios}}</li>
-                                <li><strong>Pedidos : </strong> {{a.pedidos}}</li>
-                                <li><strong>Contra Entrega: </strong> {{a.pide_ahora}}</li>
-                                <p style="text-align: center;"><a href="#" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="elimnarOpciones('/{{a.id}}/eliminar_opciones')"> Eliminar </a></p>
+                            <li><strong>Tiempo de Entregas: </strong> {{a.Tiempo_entrega}}</li>
+                            <li><strong>Envios : </strong> {{a.envios}}</li>
+                            <li><strong>Pedidos : </strong> {{a.pedidos}}</li>
+                            <li><strong>Contra Entrega: </strong> {{a.pide_ahora}}</li>
+                            <p style="text-align: center;"><a href="#" type="button" data-bs-toggle="modal"
+                                    data-bs-target="#exampleModal"
+                                    onclick="elimnarOpciones('/{{a.id}}/eliminar_opciones')"> Eliminar </a></p>
                             {% endfor %}
                         </div>
                     </div>
@@ -145,22 +165,29 @@
             </div>
 
             <div class="accordion-item">
+                {% include 'configuraciones/inventarioProductos.html' %}
+            </div>
+            
+            <div class="accordion-item">
                 <h2 class="accordion-header">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
-                        <strong>Reportes de Pedidos</strong>
+                        data-bs-target="#collapseSix" aria-expanded="false" aria-controls="collapseSix">
+                        <strong>Lista de Clientes</strong>
                     </button>
                 </h2>
-                <div id="collapseFive" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                <div id="collapseSix" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
                     <div class="accordion-body row d-flex no-gutters justify-content-center">
                         
                             <div class="col-lg-10 align-items-stretch">
                                 <div class="input-group">
-                                    <form action="/{{company.id}}/buscar_orden" method="post" id="form_buscar_orden">
+                                    <form action="/{{company.id}}/lista_clientes" method="post" id="form_buscar_orden">
                                         {% csrf_token %}
                                         <div class="input-group mb-3">
-                                            <input type="number" name="codigo_orden" class="form-control" placeholder="Ingrese codigo de orden" aria-label="Ingrese codigo de orden" aria-describedby="button-addon2" required>
-                                            <button class="btn btn-primary" type="submit" id="button-addon2">Buscar</button>
+                                            <select name="criterio" id="">
+                                                <option value="cero">Todos los productos</option>
+                                                <option value="en_cero">Solo productos agotados</option>
+                                                <option value="con_stock">Solo productos con Stock</option>
+                                            </select>
                                         </div>
                                     </form>
                                 </div>
@@ -172,41 +199,59 @@
                     </div>
                 </div>
             </div>
-            <!-- <div class="accordion-item">
-                <h2 class="accordion-header">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
-                        <strong>Agregar Promociones</strong>
-                    </button>
-                </h2>
-                <div id="collapseFour" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
-                    <div class="accordion-body row d-flex no-gutters justify-content-center">
-                        <div class="col-lg-5 d-flex align-items-stretch">
-                            <div class="input-group">
-                                <form action="/{{company.id}}/add_avisos" method="post" id="add_avisos_forms">
-                                    {% csrf_token %}
-                                    {{form_avisos|crispy}}
-                                    <button type="submit" class="btn btn-primary btn-sm">Regitrar</button>
-                                </form>
-                            </div>
-                        </div>
-                        <div class="col-lg-5 d-flex align-items-stretch">
 
-                        </div>
-                    </div>
-                </div>
-            </div> -->
-            
         </div>
     </div>
 </section>
 
 <script>
-    $(function(){
-        $('.pedidos').hide();
+    $(function () {
+        $('.pedidos').hide();//escondo solo para que muestre con decenio
+
+        $('input[name="daterange"]').daterangepicker({
+            //opens: 'left'
+            locale : {
+                format: 'DD/MM/YYYY',
+                applyLabel: 'Aplicar',
+                canvelLabel: 'Cancelar'
+            },
+            minYear: 2024,
+            "startDate": "01/10/2024",
+            "endDate": "07/10/2024"
+        }, function (start, end, label) {
+            
+            reportBydate(start.format('DD-MM-YYYY'), end.format('DD-MM-YYYY'))
+        });
     });
 
-    function elimnarOpciones(urls){
+    function reportBydate(startDate, endDate){
+        console.log("A new date selection was made: " + startDate + ' to ' + endDate);
+        let datos = {
+            'startDate':startDate,
+            'endDate':endDate,
+            'id_company':'{{id_company}}',
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        }
+        $.ajax({
+            type: 'POST',
+            url: $('#form_by_date').attr('action'),
+            data: datos,
+            success: function (resp) {
+                if (resp) {
+                    $('.pedidos').fadeIn('slow').html(resp);
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                $('.toast-body').addClass('alert alert-danger');
+                $('.toast-body').fadeIn(1000).html(thrownError);
+                mostrar_notificacion();
+            }
+        });
+        return false;
+    }
+
+    
+    function elimnarOpciones(urls) {
         $.ajax({
             type: 'GET',
             url: urls,
@@ -224,10 +269,10 @@
                 mostrar_notificacion();
             }
         });
-        return false; 
+        return false;
     }
 
-    function del_infor_comp(urls){
+    function del_infor_comp(urls) {
         $.ajax({
             type: 'GET',
             url: urls,
@@ -249,7 +294,7 @@
     }
 
 
-    $('#form_banco_envio').on('submit', function(e){
+    $('#form_banco_envio').on('submit', function (e) {
         e.preventDefault();
         let datos = new FormData(this);
         $.ajax({
@@ -262,17 +307,17 @@
                 if (resp.success) {
                     $('.toast-body').addClass('alert alert-success');
                     $('.toast-body').fadeIn(1000).html(resp.success);
-                    mostrar_notificacion(); 
+                    mostrar_notificacion();
                     $('#form_banco_envio')[0].reset();
                     $.ajax({
                         type: 'get',
                         url: '/{{company.id}}/infor_banco',
-                        success: function(resp){
+                        success: function (resp) {
                             $('.info_banco').html(resp);
                         }
 
                     });
-                }else{
+                } else {
                     $('.toast-body').addClass('alert alert-danger');
                     $('.toast-body').fadeIn(1000).html(resp.error);
                     mostrar_notificacion();
@@ -286,7 +331,7 @@
         });
     });
 
-    $('#add_avisos_forms').on('submit', function(e){
+    $('#add_avisos_forms').on('submit', function (e) {
         e.preventDefault();
         $.ajax({
             type: 'POST',
@@ -301,7 +346,7 @@
                     $.ajax({
                         type: 'get',
                         url: '/{{company.id}}/get_opciones',
-                        success: function(resp){
+                        success: function (resp) {
                             $('.info_avisos').html(resp);
                         }
 
@@ -310,7 +355,7 @@
                         $('.info_avisos').append("<li>" + a + ": tiene " + resp.avisos[a] + " </li><br>");
                     } */
                     console.log(resp);
-                } 
+                }
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 $('.toast-body').addClass('alert alert-danger');
@@ -318,9 +363,9 @@
                 mostrar_notificacion();
             }
         });
-    });    
+    });
 
-    $('#form_buscar_orden').on('submit', function(e){
+    $('#form_buscar_orden').on('submit', function (e) {
         e.preventDefault();
         $.ajax({
             type: 'POST',
@@ -329,7 +374,7 @@
             success: function (resp) {
                 if (resp) {
                     $('.pedidos').fadeIn('slow').html(resp);
-                } 
+                }
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 $('.toast-body').addClass('alert alert-danger');
@@ -354,7 +399,7 @@
                     $('.toast-body').addClass('alert alert-success');
                     $('.toast-body').fadeIn(1000).html(resp.success);
                     mostrar_notificacion();
-                    $('.precios_env').html('<li>Precio de envio registrado :</li><strong>'+resp.precio+"</strong> <a href='#' type='button' data-bs-toggle='modal' data-bs-target='#exampleModal'"+ "onclick='del_precio("+"/"+resp.id_precio+"/del_precio')"+">Eliminar</a>");
+                    $('.precios_env').html('<li>Precio de envio registrado :</li><strong>' + resp.precio + "</strong> <a href='#' type='button' data-bs-toggle='modal' data-bs-target='#exampleModal'" + "onclick='del_precio(" + "/" + resp.id_precio + "/del_precio')" + ">Eliminar</a>");
                     $('#form_precio_envio')[0].reset();
                 }
             },
@@ -385,7 +430,7 @@
             }
         });
     });
-    function del_precio(urls){
+    function del_precio(urls) {
         $.ajax({
             type: 'get',
             url: urls,

@@ -72,7 +72,6 @@
     right: 5px;
   }
 
-
   input[type=number]::-webkit-inner-spin-button,
   input[type=number]::-webkit-outer-spin-button {
     -webkit-appearance: none;
@@ -85,12 +84,12 @@
 </style>
 <div class="aav" style="margin-top: 80px;">
   {% if aviso %}
-   {% include 'notificaciones/opciones_avisos.html' %}
+  {% include 'notificaciones/opciones_avisos.html' %}
   {% endif %}
 </div>
 <div class="card col-12 container" id="team_productos" data-aos="fade-up"
   style=" box-shadow: 0 7px 7px rgb(0 0 0 / 18%); ">
-  
+
   <div class="row g-0 productos_por_categorias">
     <div class="col-md-4 detail">
       {% if p.image %}
@@ -142,9 +141,16 @@
           {% if p.is_service %}
           <span class="badge text-bg-info" style="color: white;">Servicio</span>
           {% endif %}
+          
+          {% if p.stock > p.salida %}
           <span id="passwordHelpBlock" class="form-text text-success">
-            Cantidad disponible: {{p.stock}}
+            Producto disponible <i class="bi bi-check-lg"></i>
           </span>
+          {% else %}
+          <span id="passwordHelpBlock" class="form-text text-danger">
+            Producto Agotado
+          </span>
+          {% endif %}
         </p>
 
         <div class="row">
@@ -179,8 +185,8 @@
 </div>
 <script>
 
-  if(navigator.share) {
-    
+  if (navigator.share) {
+
     // Código si la Web Share API es soportada
     document.getElementById("compartir").value = "En más lugares"
     const shareData = {

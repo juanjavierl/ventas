@@ -13,7 +13,6 @@ urlpatterns = [
     path('<int:user_id>/companys/', views.companys_from_user, name='companys_from_user'),
     path('<int:id_company>/updateCompany/', views.updateCompany, name='updateCompany'),
     path('<int:id_company>/deleteCompany/', views.deleteCompany, name='deleteCompany'),
-    path('<int:user_id>/update_perfil_user/', views.update_perfil_user, name='update_perfil_user'),
     path('<int:id_company>/add_huvicacion/', views.add_huvicacion, name='add_huvicacion'),
     path('<int:id_company>/configuraciones', views.configuraciones_company, name='configuraciones'),
     path('<int:id_company>/precio_envio', views.precio_envio, name='precio_envio'),
@@ -28,4 +27,6 @@ urlpatterns = [
     
     path('<int:id_company>/<int:id_orden>/report_pdf', views.report_pdf, name='report_pdf'),
     path('<int:id_company>/<int:id_orden>/<int:id_cliente>/like', views.like_company, name='like'),
+    path('<int:id_company>/report_by_date', views.reportByRange, name='reportByRange'),
+    path('<int:id_company>/inventario_productos', views.inventarioProductos, name='inventario_productos'),
 ]

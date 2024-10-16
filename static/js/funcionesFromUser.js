@@ -18,7 +18,7 @@ function newProducto(urls){
         type:'GET',
         url:urls,
         success:function(resp){
-            $("section .productos_por_categorias").html(resp);
+            $("#team_productos .productos_por_categorias").html(resp);
             $(".navbar-mobile i").click();
             
         }

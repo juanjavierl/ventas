@@ -17,23 +17,22 @@
 
 <body>
     {% if orden != None %}
-    <table class="table table-borderless mt-4 invoice-summary  g-0">
+    <table class="table table-borderless invoice-summary  g-0">
         <tbody>
             <tr>
-                <td class="text-center" colspan="2"><strong class="text-primary">Gracias Por Su Preferencia:
-                        {{company.name|title}}</strong></td>
-            </tr>
-            <tr>
-                <td class="label">Número de Orden:</td>
-                <td>{{orden.id}}</td>
-            </tr>
-            <tr>
-                <td class="label">Fecha:</td>
-                <td>{{orden.creation_date}}</td>
-            </tr>
-            <tr>
-                <td class="label">Cliente:</td>
-                <td>{{orden.client}}</td>
+                <td colspan="5">
+                    <tr class="text-center"><strong class="text-primary">{{company.name|title}}</strong></tr>
+                </td>
+                <td colspan="2">
+                    <small>Celular:  {{company.mobile}}</small><br>
+                    <small>Dir:  {{company.address}}</small><br>
+                    <small>{{company.cuidad}} - Bolivia </small>
+                </td>
+                <td colspan="3">
+                    <small>Nro Orden: {{orden.id}}</small><br>
+                    <small>Fecha Pedido: {{orden.creation_date}}</small><br>
+                    <small>Cliente: {{orden.client}}</small>
+                </td>
             </tr>
         </tbody>
     </table>
@@ -62,15 +61,15 @@
 
             <tr>
                 <td colspan="4" class="text-end fw-bold">Subtotal</td>
-                <td>{{orden.subtotal}}</td>
+                <td>{{orden.subtotal|floatformat:1}}</td>
             </tr>
             <tr>
                 <td colspan="4" class="text-end fw-bold">Precio de Envio</td>
-                <td>{{precio_envio}}</td>
+                <td>{{precio_envio|floatformat:1}}</td>
             </tr>
             <tr>
                 <td colspan="4" class="text-end fw-bold">Total</td>
-                <td>{{orden.total}}</td>
+                <td>{{orden.total|floatformat:1}}</td>
             </tr>
 
         </tbody>

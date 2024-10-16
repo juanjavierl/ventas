@@ -1,0 +1,28 @@
+
+{% if ordenes %}
+<h2 class="text-center">Reporte Pedidos</h2>
+<table class="table table-bordered table-striped table-responsive table-sm">
+    <thead class="thead-dark">
+        <tr>
+            <th>Código</th>
+            <th>Cliente</th>
+            <th>Fecha & hora</th>
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+       {% for o in ordenes %}
+        <tr>
+            <td>{{o.id}}</td>
+            <td>{{o.client|title}}</td>
+            <td>{{o.creation_date}}</td>
+            <td>{{o.total}}</td>
+           
+        </tr>
+       {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="alert alert-warning text-center text-danger" role="alert">No hay Registros</div>
+{% endif %}
+

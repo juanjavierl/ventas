@@ -31,6 +31,8 @@
   <link href="{% static 'assets/vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet">
   <link href="{% static 'assets/vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
 
+
+
   <!-- Template Main CSS File -->
   <link href="{% static 'assets/css/style.css' %}" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/card_products.css' %}">
@@ -42,6 +44,11 @@
   <script src="{% static 'js/jquery-2.2.4.min.js' %}"></script>
   <link href="{% static 'select2/css/select2.css' %}" rel="stylesheet" />
   <script src="{% static 'select2/js/select2.js' %}"></script>
+
+  <!-- files by reload date range piker  -->
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 </head>
 
 <body>
@@ -68,7 +75,7 @@
       <nav id="navbar" class="navbar">
 
         {% block menus %}
-          {% include 'menu_index.html' %}
+        {% include 'menu_index.html' %}
         {% endblock menus %}
 
         <i class="bi bi-list mobile-nav-toggle"></i>
@@ -172,7 +179,7 @@
 </body>
 <script>
   const toastLiveExample = document.getElementById('liveToast');
-  function mostrar_notificacion(menj){
+  function mostrar_notificacion(menj) {
     const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
     toastBootstrap.show();
   }
@@ -207,7 +214,7 @@
       }
     });
   }
-  function verPlanes(urls){
+  function verPlanes(urls) {
     $.ajax({
       type: 'GET',
       url: urls,

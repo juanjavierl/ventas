@@ -18,4 +18,5 @@ urlpatterns = [
 
     path('<int:id_product>/updateProduct/', views.updateProduct, name='updateProduct'),
     path('<int:id_product>/deleteProduct/', views.deleteProduct, name='deleteProduct'),
+    path('<int:id_product>/updateStock/', views.updateStock, name='updateStock'),
 ]

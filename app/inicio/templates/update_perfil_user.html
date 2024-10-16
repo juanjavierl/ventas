@@ -1,5 +1,4 @@
 {% load crispy_forms_tags %}
-
 <div class="row">
   <div class="col-12">
       <div class="section-title">
@@ -16,8 +15,11 @@
             {{form|crispy}}
 
             <div class="modal-footer">
+              <button class="btn btn-info btn-sm" type="button" data-bs-toggle="modal" style="margin-right: 10px;"
+                data-bs-target="#exampleModal" onclick="changePassword('/{{request.user.id}}/change_password')">Cambiar Contraseña</button>
+
               <a href="/{{request.user.id}}/companys" class="btn btn-secondary btn-sm" style="margin-right: 10px;"><i class="bi bi-arrow-left-circle"></i> Atras</a>
-              <button type="submit" class="btn btn-success btn-sm"><i class="bi bi-user"></i> Actualizar</button>
+              <button type="submit" class="btn btn-success btn-sm"><i class="bi bi-user"></i> Confirmar</button>
             </div>
          </form>
          <p class="succces text-success center"></p>
@@ -26,6 +28,16 @@
 </div>
 
 <script>
+function changePassword(urls){
+  $.ajax({
+        type:'GET',
+        url:urls,
+        success:function(resp){
+            $(".modal-content").html(resp);
+        }
+    });
+
+}
 $("#update_forms_user").on('submit',function(e){
     e.preventDefault();
     $.ajax({
@@ -34,10 +46,15 @@ $("#update_forms_user").on('submit',function(e){
             data:$(this).serialize(),
             success:function(resp){
               if(resp.error){
-                $(".succces").text(resp.error);
+                $('.toast-body').addClass('alert alert-danger');
+                    $('.toast-body').fadeIn(1000).html(resp.error);
+                    mostrar_notificacion();
               }
               else{
-                $(".succces").text(resp.success);
+                  $('.toast-body').addClass('alert alert-success');
+                  $('.toast-body').fadeIn(1000).html(resp.success);
+                  mostrar_notificacion();
+
                 setTimeout(function(){
                   window.location.href = "/{{request.user.id}}/companys";
               },3000);

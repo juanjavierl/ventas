@@ -40,9 +40,11 @@ class Product(models.Model):
     is_service = models.BooleanField(default=False, verbose_name='¿Es un servicio?')
     #with_tax = models.BooleanField(default=False, verbose_name='¿Se cobra impuesto?')
     stock = models.IntegerField(default=1)
-    salida = models.IntegerField(blank=True,null=True)
+    salida = models.IntegerField(default=0 ,blank=True,null=True)
     is_new = models.BooleanField(default=False, verbose_name='¿Es novedad?', help_text='marque solo si corresponde')
     is_promotion = models.BooleanField(default=False, verbose_name='¿Esta en promocion?',help_text='marque solo si corresponde')
+    date_joined = models.DateField(default=datetime.now, verbose_name='Fecha de registro')
+    date_update = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.get_full_name()
@@ -76,6 +78,10 @@ class Product(models.Model):
     def num_aleatorio(self):
         num = randint(1,11)
         return num
+    
+    def stock_actual(self):
+        en_stock = int(self.stock) - int(self.salida)
+        return en_stock
 
     class Meta:
         verbose_name = 'Producto'
@@ -119,8 +125,8 @@ class Orden(models.Model):
     subtotal = models.DecimalField(max_digits=9, decimal_places=2, default=0.00,verbose_name='Sub Total')
     dscto = models.DecimalField(max_digits=9, decimal_places=2, default=0.00, verbose_name='Descuento')
     total = models.DecimalField(max_digits=9, decimal_places=2, default=0.00, verbose_name='Total a pagar')
-    creation_date = models.DateTimeField(auto_now_add=True, verbose_name='Fecha y hora de registro')
-    date_joined = models.DateField(default=datetime.now, verbose_name='Fecha de registro')
+    creation_date = models.DateTimeField(auto_now_add=True, verbose_name='Fecha y hora de registro')#Fecha de modificacion
+    date_joined = models.DateField(default=datetime.now, verbose_name='Fecha de registro')#Fecha de registro
     # TODO: Define fields here
 
     class Meta:

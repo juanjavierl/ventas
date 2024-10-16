@@ -64,6 +64,12 @@
                   data-bs-toggle="modal" data-bs-target="#exampleModal">Actualizar</a>
                   <a class="dropdown-item" href="#eliminar" onclick="deleteProduct('/{{p.id}}/deleteProduct/')" 
                   data-bs-toggle="modal" data-bs-target="#exampleModal">Eliminar</a>
+    
+                  {% if not p.is_service %}
+                  <a class="dropdown-item" href="#inventario" onclick="updateStock('/{{p.id}}/updateStock/')" 
+                  data-bs-toggle="modal" data-bs-target="#exampleModal">Stock</a>
+                  {% endif %}
+                    
                 </div>
                 {% endif %}
               </div>
@@ -131,6 +137,16 @@ function updateProduct(urls){
     });
   }
   function deleteProduct(urls){
+    $.ajax({
+      type: 'GET',
+      url: urls,
+      success: function (resp) {
+        // $("#exampleModalLabel").html(name_prod);
+        $(".modal-content").fadeIn(1000).html(resp);
+      }
+    });
+  }
+  function updateStock(urls){
     $.ajax({
       type: 'GET',
       url: urls,

@@ -15,7 +15,7 @@ from app.catalog.forms import *
 def CatalogView(request, id_company):
     template_name = "sitio.html"
     if request.method == 'GET':
-        productos = Product.objects.filter(stock__gt=0, company_id=int(id_company)).order_by('-id')
+        productos = Product.objects.filter(company_id=int(id_company)).order_by('-id')
         page = request.GET.get('page',1)
         try: 
             paginator = Paginator(productos, 10)
@@ -61,7 +61,7 @@ def get_company(id_company):
     return company
 
 def optenerProducto(request, id_producto, id_company):
-    productos = Product.objects.filter(stock__gt=0, company_id = int(id_company))
+    productos = Product.objects.filter(company_id = int(id_company))
     p = get_object_or_404(Product,id = id_producto)
     datos = {}
     dic = {}
@@ -69,9 +69,9 @@ def optenerProducto(request, id_producto, id_company):
     if request.method == 'POST':
         if not request.POST['cantidad'].isdigit():
             return JsonResponse({'error': "La cantidad debe ser numerico."})
-        if int(request.POST['cantidad']) > p.stock:
-            menj = "La cantidad disponible en tienda es: ",p.stock
-            return JsonResponse({'error': menj})
+        #if int(request.POST['cantidad']) > p.stock:
+        if p.stock_actual() <= 0:
+            return JsonResponse({'error': 'Producto Agotado...!'})
         datos['id_producto'] = int(p.id)
         datos['name'] = p.name.title()
         datos['cantidad'] = int(request.POST['cantidad'])
@@ -232,6 +232,13 @@ def confirmar_compra(request, id_company):
                 pedido.price = float(productos['precio_uni'])
                 pedido.total = float(int(productos['cantidad']) * float(productos['precio_uni']))
                 pedido.save()
+
+                if not getProducto(int(productos['id_producto'])).is_service:
+                    print("No es servicio")
+                    cantProductos = getProducto(int(productos['id_producto'])).salida
+                    print("Cant productos: ",cantProductos)
+                    Product.objects.filter(id=int(productos['id_producto'])).update(salida=int(cantProductos)+int(productos['cantidad']))
+            
             lista_product = request.session['compra']
             request.session['compra'] = []#cuando al cliente confirma su pedido se resetea al carrito a 0
             return JsonResponse(
@@ -264,6 +271,11 @@ def confirmar_compra(request, id_company):
                     pedido.price = float(productos['precio_uni'])
                     pedido.total = float(int(productos['cantidad']) * float(productos['precio_uni']))
                     pedido.save()
+                    
+                    if not getProducto(int(productos['id_producto'])).is_service:
+                        cantProductos = getProducto(int(productos['id_producto'])).salida
+                        Product.objects.filter(id=int(productos['id_producto'])).update(salida=int(cantProductos)+int(productos['cantidad']))
+
                 lista_product = request.session['compra']
                 request.session['compra'] = []#cuando al cliente confirma su pedido se resetea al carrito a 0
                 return JsonResponse(
@@ -294,6 +306,10 @@ def confirmar_compra(request, id_company):
         'aviso':optener_avisos_by_company(id_company)
     }
     return render(request,'catalog/confirmar_compra.html',dic)
+
+def getProducto(id_producto):
+    producto = Product.objects.get(id = id_producto)
+    return producto
 
 def productosMasVistos(id_company):
     productos = Product.objects.filter(stock__gt=0, company_id=id_company)
@@ -367,12 +383,12 @@ def newCategory(request):
 def updateProduct(request, id_product):
     product = Product.objects.get(id=id_product)
     if request.method=='POST':
-        form=formProducto(request.POST, request.FILES,instance=product)
+        form=formUpdateProducto(request.POST, request.FILES,instance=product)
         if form.is_valid():
             form.save()
             return JsonResponse({'id_company':product.company.id})
     else:
-        form=formProducto(instance=product)
+        form=formUpdateProducto(instance=product)
         return render(request, 'catalog/updateProduct.html',{'form':form,'product':product})
 
 def deleteProduct(request, id_product):
@@ -381,3 +397,21 @@ def deleteProduct(request, id_product):
         product.delete()
         return JsonResponse({'id_company':product.company.id})
     return render(request,'catalog/deleteProduct.html',{'product':product})
+
+def updateStock(request, id_product):
+    product = get_object_or_404(Product, id=int(id_product))
+    if request.method=='POST':
+        if int(request.POST['incremento']) > 0 and int(request.POST['decremento']) == 0:
+            cant = int(request.POST['incremento'])
+
+            Product.objects.filter(id=id_product).update(stock = int(product.stock) + cant)
+            return JsonResponse({'success':'Bien Stock Actualizado'})
+        elif int(request.POST['incremento']) == 0 and int(request.POST['decremento']) > 0:
+            cant = int(request.POST['decremento'])
+            Product.objects.filter(id=id_product).update(salida = int(product.salida) - cant)
+
+            return JsonResponse({'success':'Bien Stock Actualizado'})
+        else:
+            return JsonResponse({'error':'Los datos estan en 0, ingrese una cantidad.'})
+    else:
+        return render(request, 'catalog/updateStock.html',{'p':product})

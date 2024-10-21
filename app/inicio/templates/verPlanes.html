@@ -18,8 +18,9 @@
             <div class="text-section">
               <!--  <h5 class="card-title text-wrap text-primary fw-bolder">{{p.planes|capfirst}}</h5> -->
               <p class="card-text text-break text-wrap">{{p.description|default:" - - - "|capfirst}}</p>
-              <small class="text-section">Contrato.- {{p.contracts_min}}  Precio.- {{p.price_min}} Bs.</small><br>
-              <small  class="text-section">contrato.- {{p.contracts_max}}  Precio.- {{p.price_max}} Bs.</small>
+              <small class="text-section"><i class="bi bi-check"></i>Tiempo mínimo.- {{p.contracts_min}}  Precio.- {{p.price_min}} Bs.</small><br>
+              <small  class="text-section"><i class="bi bi-check"></i>contrato en oferta.- {{p.contracts_max}}  Precio.- {{p.price_max}} Bs.</small><br>
+              <small class="text-section"><i class="bi bi-check"></i>{{p.cantidad}} Items de almacenamiento</small>
             </div>
             <div class="cta_c-sectiformPlaneson">
   
@@ -38,16 +39,27 @@
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="bi bi-arrow-left-circle"></i> Cancelar</button>
+      
+      {% if company %}
+      <button type="button" class="btn btn-success btn-sm" id="btn_solicitarPlanActulizar"><i class="bi bi-check-lg"></i>
+        Solicitar plan & confirmar al whatsapp</button>
+      {% else %}
       <button type="button" class="btn btn-success btn-sm" id="btn_solicitarPlan"><i class="bi bi-check-lg"></i>
         Solicitar plan & confirmar al whatsapp</button>
+      {% endif %}
     </div>
   </div>
 
   <script>
     $("#btn_solicitarPlan").on('click', function(){
         let name = $('input:radio[name=plan]:checked').val();
-        let ruta = "https://api.whatsapp.com/send?text=_Hola Visite el sistema www.{{request.get_host}}_  %0A _Solicito comprar el Plan_: *"+ name.toUpperCase() +"* %0A _muchas gracias_.%0A &phone={{celular.mobile}}";
+        let ruta = "https://api.whatsapp.com/send?text=_Hola me interesa el sistema www.{{request.get_host}}_  %0A _Solicito comprar el_ *_PLAN:"+ name.toUpperCase() +"_* %0A _muchas gracias_.%0A &phone={{celular.mobile}}";
         window.open(ruta, '_blank')
     })
 
+    $("#btn_solicitarPlanActulizar").on('click', function(){
+        let name = $('input:radio[name=plan]:checked').val();
+        let ruta = "https://api.whatsapp.com/send?text=_Hola quiero actualizar mi plan:{{company.plan}} al_: *_Plan"+ name.toUpperCase() +"_* %0A _muchas gracias_.%0A &phone={{celular.mobile}}";
+        window.open(ruta, '_blank')
+    })
   </script>

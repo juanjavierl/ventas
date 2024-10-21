@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, request,HttpResponse
 from django.template.loader import render_to_string
 from django.core.paginator import Paginator
+from django.db.models import Count, Sum
 from ventas import settings
 #from weasyprint import HTML, CSS
 from datetime import datetime, date
@@ -193,6 +194,11 @@ def add_huvicacion(request, id_company):
             return JsonResponse({'error':'Error intente nuevamente.'})
 
 def configuraciones_company(request, id_company):
+    pedidos = Orden.objects.filter(company_id=int(id_company)).values('client_id').order_by('-id').distinct()
+    ped = []
+    for p in pedidos:
+        if not p in ped:
+            ped.append(p)
 
     productos = Product.objects.filter(stock__gt=0, company_id=int(id_company)).order_by('-id')
     dic = {
@@ -206,8 +212,10 @@ def configuraciones_company(request, id_company):
         'precios':Precio_envio.objects.filter(company_id=int(id_company))[:1],
         'avisos':Aviso.objects.filter(company_id = int(id_company))[:1],
         'banco':Banco.objects.filter(company_id = int(id_company))[:1],
-        #'precio_env':determinarPrecioEnvio(id_company),
-        'clientes':Orden.objects.filter(company_id=int(id_company)).order_by('-id').distinct()
+        #'precio_env':determinarPrecioEnvio(id_company),distinct()
+        #'ordens':Orden.objects.filter(company_id=int(id_company)).values('client_id').order_by('-id').distinct(),
+        'ordens':ped,
+        'clientes':Client.objects.all().order_by('-id')
     }
     return render(request,'configuraciones_company.html', dic)
 

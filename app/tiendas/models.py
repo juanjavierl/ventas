@@ -56,6 +56,7 @@ class Plataforma(models.Model):
     icono = models.CharField(max_length=100, verbose_name="Icono de Bootstrap", default="bi bi-clipboard2-check")
     qr_img = models.ImageField(upload_to='img_qr', verbose_name='Img QR de pago', help_text="Imagen que tenga validacion de un año")
 
+    cantidad = models.IntegerField(verbose_name="Cantidad de registros permitidos")
     class Meta:
         """Meta definition for Cuidad."""
 

@@ -340,6 +340,9 @@ profecional = 100
 empresarial = 250
 
 def newProducto(request, id_company):
+    company = get_object_or_404(Company,id = int(id_company))
+    aviso = False
+    cantProductos = cantProductosByCompany(id_company)
     if request.method == 'POST':
         new = request.POST.get('is_new', False) == 'on'
         if new == 'on':
@@ -364,13 +367,22 @@ def newProducto(request, id_company):
         producto.is_service = service
         producto.is_new = new
         producto.is_promotion = promotion
-        producto.save()
-        return JsonResponse({'success':'Producto registrado exitosamente.'})
+        if  int(cantProductos) >= int(company.plan.cantidad):
+            aviso = True
+            return JsonResponse({'aviso':'Alcansaste el limite de registros para este plan.','aviso':aviso})
+        else:
+            producto.save()
+            return JsonResponse({'success':'Producto registrado exitosamente.','aviso':aviso})
     form = formProducto()
-    company = get_object_or_404(Company,id = int(id_company))
-    categorys = Category.objects.all().order_by('-id')
-    return render(request, 'catalog/newProducto.html',{'form':form,'company':company,'categorys':categorys})
 
+    if int(cantProductos) >= int(company.plan.cantidad):
+        aviso = True
+    categorys = Category.objects.all().order_by('-id')
+    return render(request, 'catalog/newProducto.html',{'form':form,'company':company,'categorys':categorys, 'aviso':aviso})
+
+def cantProductosByCompany(id_company):
+    cantidad = Product.objects.filter(company_id = int(id_company)).count()
+    return cantidad
 
 def newCategory(request):
     if request.method == 'POST':

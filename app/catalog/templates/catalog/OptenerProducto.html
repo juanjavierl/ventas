@@ -93,10 +93,10 @@
   <div class="row g-0 productos_por_categorias">
     <div class="col-md-4 detail">
       {% if p.image %}
-      <img src="/media/{{p.image}}" class="card-img-top" alt="..."
+      <img src="/media/{{p.image}}" class="card-img-top" style="margin-top: 8px;" alt="..."
         onclick="detailView('/{{p.id}}/{{company.id}}/detail_product')">
       {% else %}
-      <i class="bi bi-box-seam icon" alt="..." onclick="detailView('/{{p.id}}/{{company.id}}/detail_product')"></i>
+      <i class="bi bi-box-seam icon" style="margin-top: 20px;" alt="..." onclick="detailView('/{{p.id}}/{{company.id}}/detail_product')"></i>
       {% endif %}
       {% if p.is_new %}
       <span class="badge rounded-pill bg-primary sale-tag d-flex">Nuevo</span>

@@ -8,29 +8,36 @@
     <div class="accordion-body row d-flex no-gutters justify-content-center">
 
         <div class="col-lg-10 d-flex align-items-stretch">
-            {% if clientes %}
+            {% if ordens %}
             <table class="table table-bordered table-striped table-responsive table-sm">
                 <thead class="thead-dark">
                     <tr>
                         <th>Nombre completo</th>
                         <th>CI</th>
                         <th>Celular</th>
-                        <th>Email</th>
+                        <!-- <th>Email</th> -->
                         <th>Direccion</th>
-                        <th>Fecha. Reg.</th>
+                        <th>Fecha de Registro</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for c in clientes %}
-                    <tr>
-                        <td>{{c.client.names|title}}</td>
-                        <td>{{c.client.dni}}</td>
-                        <td>{{c.client.mobile}}</td>
-                        <td>{{c.client.email|default:" - - -"}}</td>
-                        <td>{{c.client.address|default:" - - -"}}</td>
-                        <td>{{c.client.date_joined}}</td>
-                    </tr>
+                    
+                    {% for o in ordens %}
+                        {% for c in clientes %}
+                            {% if o.client_id == c.id %}
+                            <tr>
+                                <td>{{c.names|title}}</td>
+                                <td>{{c.dni}}</td>
+                                <td>{{c.mobile}}</td>
+                             <!--    <td>{{c.email|default:" - - -"}}</td> -->
+                                <td>{{c.address|default:" - - -"}}</td>
+                                <td>{{c.date_joined}}</td>
+                            </tr>
+                            {% endif %}
+                        {% endfor %}
                     {% endfor %}
+                        
+                    
                 </tbody>
             </table>
             {% else %}

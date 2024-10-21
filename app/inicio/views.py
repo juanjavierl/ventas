@@ -35,10 +35,18 @@ def get_Dashboard():
     return dashboard
 
 def verPlanes(request):
-
+    idCompany = int(request.GET.get('id_company', 0))
+    if idCompany == 0:
+        planes = Plataforma.objects.all()
+        company = False
+    else:
+        company = Company.objects.get(id = idCompany)
+        planes = Plataforma.objects.exclude(id=company.plan.id)
+        company = company
     dic = {
         'celular':get_Dashboard(),
-        'planes':Plataforma.objects.all()
+        'planes':planes,
+        'company':company
     }
     return render(request, 'verPlanes.html',dic)
 

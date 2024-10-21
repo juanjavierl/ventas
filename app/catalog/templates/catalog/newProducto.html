@@ -85,10 +85,23 @@
           <a class="btn btn-secondary btn-sm" type="button" href="/{{company.id}}/catalogo"
             style="margin-right: 5px;"><i class="bi bi-arrow-left-circle"></i> Ir Catálogo</a>
 
-          <button type="submit" class="btn btn-success btn-sm"><i class="bi bi-save"></i> Registrar Producto</button>
+            
+            {% if aviso %}
+            <button type="submit" class="btn btn-success btn-sm" disabled><i class="bi bi-save"></i> Registrar Producto</button>
+            {% else %}
+            <button type="submit" class="btn btn-success btn-sm btn_product"><i class="bi bi-save"></i> Registrar Producto</button>
+            {% endif %}
         </div>
       </form>
       
+      {% if aviso %}
+      <div class="alert alert-warning aviso_plan text-center" style="margin-top: 5px;" role="alert">
+        Alcansaste el limite de registros para este plan {{company.plan}}
+        <a href="#" onclick="verPlanes('/ver_planes', '{{company.id}}')" data-bs-toggle="modal"
+        data-bs-target="#exampleModal"><strong>Solicitar Nuevo Plan</strong></a>
+      </div>
+      {% endif %}
+        
     </div>
   </div>
 </div>
@@ -110,11 +123,20 @@
       contentType: false,
       processData: false,
       success: function (resp) {
+        //Por realizar tareas
         $('.toast-body').addClass('alert alert-success');
         $('.toast-body').fadeIn(1000).html(resp.success);
         $('#form_producto')[0].reset();
+        $("#form_producto #id_category").select2("val", " ");
         const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
         toastBootstrap.show()
+        if(resp.aviso){
+          $('.toast-body').addClass('alert alert-warning');
+          $('.toast-body').fadeIn(1000).html("Alcanseste el limite de registros, Solicita un nuevo plan");
+          //$("#id_category").empty();
+          const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+          toastBootstrap.show()
+        }
       },
       error: function (xhr, ajaxOptions, thrownError) {
         alert("Error:" + thrownError);

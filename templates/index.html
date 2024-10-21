@@ -214,10 +214,11 @@
       }
     });
   }
-  function verPlanes(urls) {
+  function verPlanes(urls, id_company) {
     $.ajax({
       type: 'GET',
       url: urls,
+      data:{'id_company':id_company},
       success: function (resp) {
         $(".modal-content").html(resp);
         $(".navbar-mobile i").click();

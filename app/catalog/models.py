@@ -94,7 +94,7 @@ class Client(models.Model):
     mobile = models.CharField(max_length=10, verbose_name='Celular*')
     email = models.CharField(max_length=50, null=True, blank=True, verbose_name='Email')
     date_joined = models.DateField(default=datetime.now, verbose_name='Fecha de registro')
-    address = models.CharField(max_length=500, null=True, blank=True, verbose_name='Dirección*', help_text="Ingrese:Calle,Nro,Zona")
+    address = models.CharField(max_length=500, null=True, blank=True, verbose_name='Dirección*', help_text="Ingrese:Zona,Calle,Nro,")
 
     def __str__(self):
         return self.get_full_name()

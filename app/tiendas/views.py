@@ -9,7 +9,7 @@ from django.template.loader import render_to_string
 from django.core.paginator import Paginator
 from django.db.models import Count, Sum
 from ventas import settings
-#from weasyprint import HTML, CSS
+from weasyprint import HTML, CSS
 from datetime import datetime, date
 import os
 import json

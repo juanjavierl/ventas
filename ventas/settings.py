@@ -130,7 +130,7 @@ DATABASES = {
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
 LANGUAGE_CODE = 'es-BO'
-TIME_ZONE = 'America/La_paz'
+TIME_ZONE = 'America/La_Paz'
 
 
 USE_I18N = True

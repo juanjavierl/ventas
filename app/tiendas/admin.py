@@ -21,12 +21,14 @@ class CompanyAdmin(ImportExportModelAdmin):
     list_display = (
         'name',
         'category',
+        'date_joined',
+        'plan',
+        'status',
+        'expiration_date',
         'ruc',
         'address',
         'mobile',
-        'cuidad',
-        'date_joined',
-        'plan',
+        'cuidad'
     )
     search_fields = ('name','ruc',)
     list_filter = ('plan',)

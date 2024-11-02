@@ -11,6 +11,7 @@ from django.db.models import Q
 from app.tiendas.models import *
 from app.catalog.models import *
 from app.catalog.forms import *
+from app.inicio.views import get_Dashboard
 # Create your views here.
 def CatalogView(request, id_company):
     template_name = "sitio.html"
@@ -35,7 +36,9 @@ def CatalogView(request, id_company):
             'total_compra':len(request.session['compra']),
             't_pago':calcular_pago(request),
             'company':get_company(id_company),
-            'aviso':optener_avisos_by_company(id_company)
+            'aviso':optener_avisos_by_company(id_company),
+            'dashboard':get_Dashboard(),
+            'date_now':datetime.now()
         }
         return render(request,template_name, dic)
 

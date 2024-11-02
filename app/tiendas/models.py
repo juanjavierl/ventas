@@ -83,6 +83,8 @@ class Company(models.Model):
     image = models.ImageField(null=True, blank=True, upload_to='company/%Y/%m/%d', verbose_name='Logotipo de la empresa (Opcional)')    
     date_joined = models.DateField(default=datetime.now, verbose_name='Fecha de registro')
     plan = models.ForeignKey(Plataforma, on_delete=models.CASCADE, verbose_name="Seleccione un plan")
+    expiration_date = models.DateField(verbose_name='Fecha de expiracion (dd/mm/AAAA)')
+    status = models.BooleanField(default=True, verbose_name="Estado")
 
     def __str__(self):
         return self.name

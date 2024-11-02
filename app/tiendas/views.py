@@ -23,9 +23,9 @@ from app.catalog.views import *
 # Create your views here.
 def getTypes(request, id_type):
     if request.user.is_authenticated:
-        companys = Company.objects.filter(user_id = int(request.user.id))
+        companys = Company.objects.filter(user_id = int(request.user.id), status=True)
     else:
-        companys = Company.objects.filter(category=int(id_type))
+        companys = Company.objects.filter(category=int(id_type), status=True)
     count_productos = {}
     for c in companys:
         count_productos[c.name] = Product.objects.filter(company_id = int(c.id)).count()
@@ -78,11 +78,8 @@ def login_user(request):
     if request.method == "POST":
         form = AuthenticationForm(data=request.POST)
         if form.is_valid():
-            print(request.POST['username'])
-            print(request.POST['password'])
             user = authenticate(username=request.POST['username'],password=request.POST['password'])
             if user is not None:
-                print("TE AUTENTICASTE EN EL SISTEMA")
                 login(request, user)
                 return JsonResponse({'user_id':int(user.id)})
             else:
@@ -193,6 +190,7 @@ def add_huvicacion(request, id_company):
         else:
             return JsonResponse({'error':'Error intente nuevamente.'})
 
+@login_required(login_url='/')
 def configuraciones_company(request, id_company):
     pedidos = Orden.objects.filter(company_id=int(id_company)).values('client_id').order_by('-id').distinct()
     ped = []

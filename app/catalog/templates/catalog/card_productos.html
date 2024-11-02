@@ -1,132 +1,154 @@
-
+{% load tz %}
 <div class="row">
   <div class="col-12">
-      <div class="section-title">
-          <h2>Agrega tus productos al carrito</h2>
-          <p>Los mejores productos o servicios los encuentras en: <strong>{{company.name|title}}</strong></p>
-      </div>
+    <div class="section-title">
+      <h2>Agrega tus productos al carrito</h2>
+      <p>Los mejores productos o servicios los encuentras en: <strong>{{company.name|title}}</strong></p>
+        {% if user.is_authenticated and date_now|date:"d/m/Y" > company.expiration_date|date:"d/m/Y" %}
+          <div class="alert alert-warning" role="alert">
+          Up.! expiro la fecha de su contrato hace: {{company.expiration_date|timesince}}<strong>
+            <a href="https://api.whatsapp.com/send?text=ID cliente: {{company.id}}%0A Hola, fecha de expiracion caducado, renovare mi contrato muchas gracias. &phone={{dashboard.mobile}}" target="_blank">Contactese con el administrador aqui</a></strong><br>
+            <small class="text-muted ">Aviso: Debe renovar su contrato en los siguientes 15 dias, caso contrario su página estara inactivo, muchas gracias por su comprención.</small>
+          </div>
+        {% endif %}
+      
+        {% if user.is_authenticated and company.status == False %}
+          <div class="alert alert-warning" role="alert">
+            Up.! su catálogo está inactivo: <strong>
+              <a href="https://api.whatsapp.com/send?text=ID cliente: {{company.id}}%0A Hola, mi catálogo está inactivo renovare mi contrato muchas gracias. &phone={{dashboard.mobile}}" target="_blank">Contactese con el administrador aqui</a></strong><br>
+              <small class="text-muted ">Aviso: Cuando un cátalogo esta inactivo, quiere decir que las personas no podran ver su página en los buscadores, además en los proximos 15 dias se eliminaran todos los registros de su cátalogo</small>
+            </div>
+        {% endif %}
+    </div>
   </div>
 </div>
 <div class="row col-12 justify-content-center" style="margin-left: 1px;">
-  
-{% for p in productos %}
-<div class="card dark card_p single-product">
-  
-  {% if p.image %}
-  <div class="col-lg-4 col-md-6 portfolio-item">
-    <div class="portfolio-wrap">
-      <img src="/media/{{p.image}}" style="max-height: 150px; width: 100%;" class="img-fluid object-fit-cover" alt="">
-      <div class="portfolio-info">
-        <div class="portfolio-links">
-          <a href="/media/{{p.image}}" data-gallery="portfolioGallery" class="portfolio-lightbox" title="{{p.name|capfirst}}"><i class="bx bx-plus"></i></a>
-          <a href="/{{p.id}}/{{company.id}}/detail_product" title="Mas detalles"><i class="bx bx-link"></i></a>
+
+  {% for p in productos %}
+  <div class="card dark card_p single-product">
+
+    {% if p.image %}
+    <div class="col-lg-4 col-md-6 portfolio-item">
+      <div class="portfolio-wrap">
+        <img src="/media/{{p.image}}" style="max-height: 150px; width: 100%;" class="img-fluid object-fit-cover" alt="">
+        <div class="portfolio-info">
+          <div class="portfolio-links">
+            <a href="/media/{{p.image}}" data-gallery="portfolioGallery" class="portfolio-lightbox"
+              title="{{p.name|capfirst}}"><i class="bx bx-plus"></i></a>
+            <a href="/{{p.id}}/{{company.id}}/detail_product" title="Mas detalles"><i class="bx bx-link"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <i class="bi bi-box-seam card-img-top icon" alt="..."
+      onclick="detailView('/{{p.id}}/{{company.id}}/detail_product')"></i>
+    {% endif %}
+    {% if p.is_new %}
+    <span class="badge rounded-pill bg-primary sale-tag d-flex">Nuevo</span>
+    {% endif %}
+    <div class="card-body" style="padding: 0px;">
+      <div class="text-section">
+        <h5 class="card-title text-wrap text-primary fw-bolder">{{p.name|capfirst}}</h5>
+        <p class="card-text text-break text-wrap">{{p.description|default:" - - - "|capfirst|truncatewords:5}}
+          <a href="/{{p.id}}/{{company.id}}/detail_product" style="font-size: 14px;">Ver más</a>
+        </p>
+        <p class="card-text">Categoria: <small class="text-muted">{{p.category|title}}</small>
+
+        </p>
+      </div>
+      <div class="cta-section">
+        <div>
+          <p style="margin-bottom: 0px;">Bs. {{p.price|default:" 0 "}}</p>
+          {% if p.price_before %}
+          <p class="text-decoration-line-through text-danger" style="font-size: 14px; margin-bottom: 0px;">Antes:
+            {{p.price_before}}</p>
+          <p><span class="badge text-bg-warning text-white desc">Desc. {{p.porcentage}}%</span></p>
+          {% endif %}
+          {% if p.is_service %}
+          <p><span class="badge text-bg-info text-white" style="color: white;">Servicio</span></p>
+          {% endif %}
+
+
+
+          <div class="dropdown">
+            <button type="submit" id="id_{{p.id}}"
+              onclick="add_item('/{{p.id}}/{{company.id}}/detail_product','{{p.id}}')"
+              class="btn btn-primary btn-sm">Agregar</button>
+            {% if user.is_authenticated %}
+            <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="dropdown" aria-expanded="false"
+              aria-haspopup="true">
+              <span class="bi bi-three-dots-vertical"></span>
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <a class="dropdown-item" href="#actualizar" onclick="updateProduct('/{{p.id}}/updateProduct/')"
+                data-bs-toggle="modal" data-bs-target="#exampleModal">Actualizar</a>
+              <a class="dropdown-item" href="#eliminar" onclick="deleteProduct('/{{p.id}}/deleteProduct/')"
+                data-bs-toggle="modal" data-bs-target="#exampleModal">Eliminar</a>
+
+              {% if not p.is_service %}
+              <a class="dropdown-item" href="#inventario" onclick="updateStock('/{{p.id}}/updateStock/')"
+                data-bs-toggle="modal" data-bs-target="#exampleModal">Stock</a>
+              {% endif %}
+
+            </div>
+            {% endif %}
+          </div>
+
         </div>
       </div>
     </div>
   </div>
-    {% else %}
-    <i class="bi bi-box-seam card-img-top icon" alt="..." onclick="detailView('/{{p.id}}/{{company.id}}/detail_product')"></i>
-  {% endif %}
-    {% if p.is_new %}
-          <span class="badge rounded-pill bg-primary sale-tag d-flex">Nuevo</span>
-    {% endif %}
-  <div class="card-body" style="padding: 0px;">
-      <div class="text-section">
-          <h5 class="card-title text-wrap text-primary fw-bolder">{{p.name|capfirst}}</h5>
-          <p class="card-text text-break text-wrap">{{p.description|default:" - - - "|capfirst|truncatewords:5}}
-            <a href="/{{p.id}}/{{company.id}}/detail_product" style="font-size: 14px;">Ver más</a>
-          </p>
-          <p class="card-text">Categoria: <small class="text-muted">{{p.category|title}}</small>
-           
-          </p>
-      </div>
-      <div class="cta-section">
-          <div>
-            <p style="margin-bottom: 0px;">Bs. {{p.price|default:" 0 "}}</p>
-            {% if p.price_before %}
-            <p class="text-decoration-line-through text-danger" style="font-size: 14px; margin-bottom: 0px;">Antes: {{p.price_before}}</p>
-            <p><span class="badge text-bg-warning text-white desc">Desc. {{p.porcentage}}%</span></p>
-            {% endif %}
-            {% if p.is_service %}
-              <p><span class="badge text-bg-info text-white" style="color: white;">Servicio</span></p>
-            {% endif %} 
-          
-            
-            
-              <div class="dropdown">
-                <button type="submit" id="id_{{p.id}}" onclick="add_item('/{{p.id}}/{{company.id}}/detail_product','{{p.id}}')" class="btn btn-primary btn-sm">Agregar</button>
-                {% if user.is_authenticated %}
-                <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
-                  <span class="bi bi-three-dots-vertical"></span>
-                </button>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                  <a class="dropdown-item" href="#actualizar" onclick="updateProduct('/{{p.id}}/updateProduct/')" 
-                  data-bs-toggle="modal" data-bs-target="#exampleModal">Actualizar</a>
-                  <a class="dropdown-item" href="#eliminar" onclick="deleteProduct('/{{p.id}}/deleteProduct/')" 
-                  data-bs-toggle="modal" data-bs-target="#exampleModal">Eliminar</a>
-    
-                  {% if not p.is_service %}
-                  <a class="dropdown-item" href="#inventario" onclick="updateStock('/{{p.id}}/updateStock/')" 
-                  data-bs-toggle="modal" data-bs-target="#exampleModal">Stock</a>
-                  {% endif %}
-                    
-                </div>
-                {% endif %}
-              </div>
-            
-          </div>
-      </div>
-  </div>
-</div>
-    {% empty %}
-    <div class="alert alert-warning" role="alert" style="text-align: center;">No se encontraron resultados. <a href="/{{company.id}}/catalogo">Ir al Inicio</a></div>
-    {% endfor %}     
+  {% empty %}
+  <div class="alert alert-warning" role="alert" style="text-align: center;">No se encontraron resultados. <a
+      href="/{{company.id}}/catalogo">Ir al Inicio</a></div>
+  {% endfor %}
 </div>
 
 <script>
-function datos(urls){//optener producto
-$.ajax({
-        type:'GET',
-        url:urls,
-        success:function(resp){
-           // $("#exampleModalLabel").html(name_prod);
-            $("#optenerProducto").fadeIn(1000).html(resp);
+  function datos(urls) {//optener producto
+    $.ajax({
+      type: 'GET',
+      url: urls,
+      success: function (resp) {
+        // $("#exampleModalLabel").html(name_prod);
+        $("#optenerProducto").fadeIn(1000).html(resp);
+      }
+    });
+  }
+  function add_item(urls, id_producto) {
+    let b = $(this).attr("id_" + id_producto);
+    b.innerHTML = "Agregar +";
+    $.ajax({
+      type: 'POST',
+      url: urls,
+      data: { csrfmiddlewaretoken: '{{ csrf_token }}', 'cantidad': 1, 'id_producto': id_producto },
+      success: function (resp) {
+        if (resp.error) {
+
+          $('.toast-body').addClass('alert alert-danger');
+          $('.toast-body').fadeIn(1000).html(resp.error);
+          const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+          toastBootstrap.show();
         }
+        else {
+          $('.toast-body').addClass('alert alert-success');
+          $('.toast-body').fadeIn(1000).html(resp.success);
+          const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+          toastBootstrap.show();
+
+          $("#cont_compras").html(resp.total_compra);
+        }
+        setTimeout(function () {
+          $(".tamanio").fadeIn().html(resp.success).hide();
+        }, 4000);
+      }
     });
-}
-function add_item(urls, id_producto){
-let b = $(this).attr("id_"+id_producto);
-b.innerHTML = "Agregar +";
-$.ajax({
-type:'POST',
-url:urls,
-data:{csrfmiddlewaretoken: '{{ csrf_token }}','cantidad':1, 'id_producto':id_producto},
-success:function(resp){
-  if(resp.error){
-
-      $('.toast-body').addClass('alert alert-danger');
-      $('.toast-body').fadeIn(1000).html(resp.error);
-      const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
-      toastBootstrap.show();
-    }
-    else{
-      $('.toast-body').addClass('alert alert-success');
-      $('.toast-body').fadeIn(1000).html(resp.success);
-      const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
-      toastBootstrap.show();
-
-      $("#cont_compras").html(resp.total_compra);
-    }
-    setTimeout(function(){
-        $(".tamanio").fadeIn().html(resp.success).hide();
-      },4000);
-}
-});
-}
-function detailView(urls){
-window.location.href = urls;
-}
-function updateProduct(urls){
+  }
+  function detailView(urls) {
+    window.location.href = urls;
+  }
+  function updateProduct(urls) {
     $.ajax({
       type: 'GET',
       url: urls,
@@ -136,7 +158,7 @@ function updateProduct(urls){
       }
     });
   }
-  function deleteProduct(urls){
+  function deleteProduct(urls) {
     $.ajax({
       type: 'GET',
       url: urls,
@@ -146,7 +168,7 @@ function updateProduct(urls){
       }
     });
   }
-  function updateStock(urls){
+  function updateStock(urls) {
     $.ajax({
       type: 'GET',
       url: urls,

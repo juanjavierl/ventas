@@ -18,15 +18,16 @@ class formCompany(forms.ModelForm):
         self.fields['name'].widget.attrs['autofocus'] = True
     class Meta:
         model = Company
-        exclude = ('user','website','date_joined','image','plan')
+        exclude = ('user','website','date_joined','image','plan', 'status', 'expiration_date')
     
+#clase para actualizar la companias de los clientes
 class formCompanyImage(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['name'].widget.attrs['autofocus'] = True
     class Meta:
         model = Company
-        exclude = ('user','date_joined','plan')
+        exclude = ('user','date_joined','plan', 'status','expiration_date')
 
 class FormHuvicacion(forms.ModelForm):
     class Meta:

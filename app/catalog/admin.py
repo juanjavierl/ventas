@@ -27,4 +27,4 @@ class OrdenAdmin(admin.ModelAdmin):
         'total',
         'date_joined',
     )
-    search_fields = ('date_joined',)
+    search_fields = ('date_joined','id',)

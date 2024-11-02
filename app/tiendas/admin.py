@@ -19,8 +19,8 @@ class CompanyResource(resources.ModelResource):
 class CompanyAdmin(ImportExportModelAdmin):
     resource_class = CompanyResource
     list_display = (
+        'id',
         'name',
-        'category',
         'date_joined',
         'plan',
         'status',
@@ -30,5 +30,5 @@ class CompanyAdmin(ImportExportModelAdmin):
         'mobile',
         'cuidad'
     )
-    search_fields = ('name','ruc',)
+    search_fields = ('name','ruc','id',)
     list_filter = ('plan',)

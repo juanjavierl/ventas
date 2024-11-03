@@ -190,8 +190,8 @@ def mostrar_por_categoria(request, id_company, id_categoria):
     productos = Product.objects.filter(stock__gt=0, category_id = id_categoria, company_id= id_company).order_by('-id')
     return render(request, 'catalog/card_productos.html', {'productos':productos,'company':get_company(id_company)})
 
-import calendar, locale
-locale.setlocale(locale.LC_ALL, 'es')
+#import locale
+#locale.setlocale(locale.LC_ALL, 'es')
 def confirmar_compra(request, id_company):
     company = get_object_or_404(Company, id = id_company)
     t_pago = calcular_pago(request)#total a pagar de todo el carrito
@@ -203,8 +203,6 @@ def confirmar_compra(request, id_company):
         forms=ClientFormOrder(request.POST)
 
         if request.POST['tipo_envio'] == 'tienda':
-            print(request.POST['date_time'])
-            print(type(request.POST['date_time']))
 
             valor = request.POST['date_time'].split("T")
             valor = " ".join(valor)#'2024,06,23 13:58'
@@ -213,8 +211,9 @@ def confirmar_compra(request, id_company):
             if d < datetime.now():
                 return JsonResponse({'error':"Error: La fecha debe ser mayor o igual a hoy"})
             else:
-                fecha = datetime.strftime(d,'%A %d/%m/%y hora: %H:%M %p')
-                print(type(d))
+                dias={0:'Lunes',1:'Martes',2:'Miercoles',3:'Jueves',4:'Viernes',5:'Sabado',6:'Domingo'}
+                dia = dias[d.weekday()]
+                fecha = datetime.strftime(d, dia + ' %d/%m/%y hora: %H:%M %p')
                 lugar = {'fecha':fecha,'date':'date'}
         elif request.POST['tipo_envio'] == 'domicilio':
             lugar = {'direccion':request.POST['address'],'dir':'dir'}

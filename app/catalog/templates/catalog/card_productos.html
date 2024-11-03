@@ -13,7 +13,7 @@
         {% endif %}
       
         {% if user.is_authenticated and company.status == False %}
-          <div class="alert alert-warning" role="alert">
+          <div class="alert alert-danger" role="alert">
             Up.! su catálogo está inactivo: <strong>
               <a href="https://api.whatsapp.com/send?text=ID cliente: {{company.id}}%0A Hola, mi catálogo está inactivo renovare mi contrato muchas gracias. &phone={{dashboard.mobile}}" target="_blank">Contactese con el administrador aqui</a></strong><br>
               <small class="text-muted ">Aviso: Cuando un cátalogo esta inactivo, quiere decir que las personas no podran ver su página en los buscadores, además en los proximos 15 dias se eliminaran todos los registros de su cátalogo</small>

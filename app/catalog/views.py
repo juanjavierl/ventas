@@ -190,7 +190,9 @@ def mostrar_por_categoria(request, id_company, id_categoria):
     productos = Product.objects.filter(stock__gt=0, category_id = id_categoria, company_id= id_company).order_by('-id')
     return render(request, 'catalog/card_productos.html', {'productos':productos,'company':get_company(id_company)})
 
-
+import locale
+locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')  # En sistemas Unix
+# locale.setlocale(locale.LC_TIME, 'Spanish_Spain.1252')  # En sistemas Windows
 def confirmar_compra(request, id_company):
     company = get_object_or_404(Company, id = id_company)
     t_pago = calcular_pago(request)#total a pagar de todo el carrito

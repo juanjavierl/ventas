@@ -3,7 +3,10 @@ from django.contrib import admin
 # Register your models here.
 from app.catalog.models import *
 
-admin.site.register([Category,Product, Pedido, Like])
+from import_export import resources
+from import_export.admin import ImportExportModelAdmin
+
+admin.site.register([Category, Pedido, Like])
 
 @admin.register(Client)
 class ClientAdmin(admin.ModelAdmin):
@@ -16,6 +19,25 @@ class ClientAdmin(admin.ModelAdmin):
     )
     search_fields = ('names','dni',)
 
+class ProductResource(resources.ModelResource):
+
+    class Meta:
+        model = Product
+
+@admin.register(Product)
+class ProductAdmin(ImportExportModelAdmin):
+    resource_class = ProductResource
+    list_display = (
+        'name',
+        'code',
+        'category',
+        'company',
+        'price',
+        'stock',
+        'date_joined',
+    )
+    search_fields = ('name','code',)
+    list_filter = ('company',)
 
 @admin.register(Orden)
 class OrdenAdmin(admin.ModelAdmin):

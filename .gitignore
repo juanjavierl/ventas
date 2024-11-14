@@ -16,6 +16,7 @@ media/user
 media/img_qr
 **/migrations/*
 staticfiles/*
+staticfiles/
 logs/*
 .idea/*
 

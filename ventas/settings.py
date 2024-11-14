@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-f*5x^8-9#li5-vj4d4#zy51%h%7hh#1&9)@8@6a#-+ye1@d-!7
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["www.amceb.online", "amceb.online", "24.199.83.137"]
 
 
 # Application definition
@@ -87,24 +87,24 @@ WSGI_APPLICATION = 'ventas.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
+"""
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
-""" DATABASES = {
+"""
+DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'ecomerce',
+        'NAME': 'amceb',
         'USER': 'postgres',
         'PASSWORD': '12345',
         'HOST': 'localhost',
         'PORT': '5432',
     }
-} """
+}
 
 
 # Password validation
@@ -141,7 +141,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -149,7 +149,6 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATICFILES_DIRS = (os.path.join(BASE_DIR,'static'),)
-STATIC_URL = 'static/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 MEDIA_URL = '/media/'

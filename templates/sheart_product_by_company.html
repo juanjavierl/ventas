@@ -1,64 +1,4 @@
-{% if dashboard %}
-<style>
-  .menus{
-    font-weight: bold;
-    position: absolute;
-    margin-top: 70px;
-    top: 0;
-    padding: 5px 10px;
-    
-    z-index: 22;
-  }
-</style>
-
-<div class="menus">
-    <nav class="navbar navbar-light bg-light" data-mdb-input-init>
-        <form action="/shear_companys/" class="form-outline" id="shear_pro" method="POST">
-          {% csrf_token %}
-          <div class="input-group">
-            <input type="search" name="search" id="shear_text" autocomplete="off" class="form-control" placeholder="Busca una tienda" aria-label="buscar" aria-describedby="basic-addon1" required>
-                <button type="submit" class="btn btn-primary" id="button-addon1">
-                  <i class="bi bi-search"></i>
-                  Buscar
-                </button>
-          </div>
-        </form>
-    </nav>
-</div>
-<script>
-  $(function(){
-    $('.menus').hide();
-    $("#shear_pro").on('keypress', function(){
-        $.ajax({
-              type:'GET',
-              url:$(this).attr("action"),
-              data:$("#shear_text").serialize(),
-              success:resultado,
-              error:errores
-          });
-      });
-    $("#shear_pro").submit(function(e){
-      e.preventDefault();
-      $.ajax({
-        type:"POST",
-        url:$(this).attr("action"),
-        data:$(this).serialize(),
-        success:resultado,
-        error:errores
-      });
-
-    });
-
-      function resultado(data){
-            $(".productos_por_categorias").fadeIn(1000).html(data);
-          }
-          function errores(){
-            $(".productos_por_categorias").fadeIn(1000).html("Ocurio un error al intentar buscar.");
-            //console.log("Error: revise si esta conectado a internet.");
-          }
-  });
-</script>
-{% else %}
+<!-- AQUI AVIA UN CODIGO SIMILAR A BUSCAR COMPANYS -->
 <style>
   .menus{
     font-weight: bold;
@@ -118,4 +58,3 @@
           }
   });
 </script>
-{% endif %}

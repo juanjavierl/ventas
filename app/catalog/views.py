@@ -23,12 +23,15 @@ def CatalogView(request, id_company):
             productos = paginator.page(page)
         except:
             raise Http404
-
         try:
             request.session['compra']
         except:
             request.session['compra'] = []
         categorys = categorys_from_productos(productos)
+
+        date_expiration = False
+        if(get_company(id_company).expiration_date < datetime.now().date()):
+            date_expiration = True
         dic = {
             'categorias':categorys,
             'productos':productos,
@@ -38,7 +41,7 @@ def CatalogView(request, id_company):
             'company':get_company(id_company),
             'aviso':optener_avisos_by_company(id_company),
             'dashboard':get_Dashboard(),
-            'date_now':datetime.now()
+            'date_expiration':date_expiration
         }
         return render(request,template_name, dic)
 

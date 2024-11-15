@@ -2,7 +2,7 @@ from django.db import models
 
 # Create your models here.
 class Dashboard(models.Model):
-    name = models.CharField(max_length=50, unique=True, verbose_name='Nombre del Plan')
+    name = models.CharField(max_length=50, unique=True, verbose_name='Nombre del Sistema')
     description = models.TextField(verbose_name='Descripcion', help_text='Escriba una descripción de que trata.?')
     icon = models.CharField(max_length=100, verbose_name='Icono FontAwesome', default="bi bi-shop-window")
     image = models.ImageField(upload_to='dashboard/%Y/%m/%d', null=True, blank=True, verbose_name='Logo')

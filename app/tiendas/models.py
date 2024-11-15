@@ -69,7 +69,7 @@ class Plataforma(models.Model):
 
 class Company(models.Model):
     name = models.CharField(max_length=50, verbose_name='Nombre/Razón social')
-    description = models.CharField(max_length=500, null=True, blank=True, verbose_name='Descripción de su catalogo (Opcional)')
+    description = models.TextField(verbose_name='Descripción de su catalogo (Opcional)', null=True, blank=True, help_text='Escriba una descripción de que trata.?')
     ruc = models.CharField(max_length=15, blank=True, null=True, verbose_name='Número de NIT (Opcional)')
     address = models.CharField(max_length=200, verbose_name='Dirección (Zona, Calle, #)')
     mobile = models.CharField(max_length=10, verbose_name='Celular (WhatsApp)')

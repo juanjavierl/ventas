@@ -65,7 +65,16 @@ h6 {
   visibility: visible;
   opacity: 1;
 }
-
+/*--------------------------------------------------------------
+# button confirmar pedido
+--------------------------------------------------------------*/
+.efecto_button{
+  animation: 3.5s ease 0s infinite efecto_button;
+}
+@keyframes efecto_button {
+  0%, 50%, 100% { transform: scale(1, 1); }
+  30%, 80% { transform: scale(0.94, 0.98); }
+}
 /*--------------------------------------------------------------
 # button whasapp contact
 --------------------------------------------------------------*/

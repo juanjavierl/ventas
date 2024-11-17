@@ -5,12 +5,12 @@
   <li><a class="nav-link scrollto active" href="#" onclick="verPlanes('/ver_planes')" data-bs-toggle="modal"
         data-bs-target="#exampleModal">Solicitar Planes</a></li>
 
-  <li class="dropdown"><a href="#team"><span>Categorias</span> <i class="bi bi-chevron-down"></i></a>
+  <li class="dropdown"><a href="#team"><span>Categorías</span> <i class="bi bi-chevron-down"></i></a>
     <ul>
       {% for c in type_company %}
       <li style="cursor: pointer;" class="nav-link scrollto"><a href="/{{c.id}}/type">{{c.name|title}}</a></li>
       {% empty %}
-      <li class="nav-link scrollto"><a href="">No hay Categorias</a></li>
+      <li class="nav-link scrollto"><a href="">No hay Categorías</a></li>
       {% endfor %}
     </ul>
   </li>

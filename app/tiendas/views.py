@@ -10,6 +10,7 @@ from django.core.paginator import Paginator
 from django.db.models import Count, Sum
 from ventas import settings
 from weasyprint import HTML, CSS
+from weasyprint.text.fonts import FontConfiguration
 from datetime import datetime, date
 import os
 import json
@@ -336,12 +337,9 @@ def report_pdf(request, id_company, id_orden):
 
     dic = {'precio_envio':precio_envio, 'company':company, 'orden':orden, 'pedidos':pedidos}
     html = render_to_string("reportes/report_order_pdf.html", dic)
-
-    
     response = HttpResponse(content_type="application/pdf")
     response["Content-Disposition"] = "inline; reporte_orden.pdf"
-    
-    #font_config = FontConfiguration()
+    font_config = FontConfiguration()
     HTML(string=html).write_pdf(response)
     return response
 

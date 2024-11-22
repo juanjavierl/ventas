@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-f*5x^8-9#li5-vj4d4#zy51%h%7hh#1&9)@8@6a#-+ye1@d-!7
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ["www.amceb.online", "amceb.online", "24.199.83.137"]
+ALLOWED_HOSTS = ["www.amceb.online", "amceb.online"]
 
 
 # Application definition
@@ -125,7 +125,7 @@ DATABASES = {
     },
 ]
  """
-
+#SECURE_SSL_REDIRECT = True
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 

@@ -53,7 +53,7 @@
   <script>
     $("#btn_solicitarPlan").on('click', function(){
         let name = $('input:radio[name=plan]:checked').val();
-        let ruta = "https://api.whatsapp.com/send?text=_Hola me interesa el sistema www.{{request.get_host}}_  %0A _Solicito comprar el_ *_PLAN:"+ name.toUpperCase() +"_* %0A _muchas gracias_.%0A &phone={{celular.mobile}}";
+        let ruta = "https://api.whatsapp.com/send?text=_Hola me interesa un catálogo digital en {{request.get_host}}_  %0A _deseo comprar el_ *_PLAN:"+ name.toUpperCase() +"_* %0A _muchas gracias_.%0A &phone={{celular.mobile}}";
         window.open(ruta, '_blank')
     })
 

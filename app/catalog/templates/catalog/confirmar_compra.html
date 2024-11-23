@@ -222,7 +222,7 @@
 
           var to_p = parseFloat(resp.t_pago) + parseFloat(resp.precio_envio);
           total = "- *total: Bs. " + to_p + "* %0A%0A"
-          web = "_Muchas gracias por su pedido, regresa muy pronto! denos tu puntuacion para mostrar un sitio recomendable: www.{{ request.get_host }}/" + resp.company_object.id +"/"+ resp.orden + "/" + resp.cliente_object.id + "/like_ %0A"//corregir ir a la orden
+          web = "_Muchas gracias por su pedido, regresa muy pronto! denos tu puntuación para mostrar un sitio recomendable: {{ request.get_host }}/" + resp.company_object.id +"/"+ resp.orden + "/" + resp.cliente_object.id + "/like_ %0A"//corregir ir a la orden
           //href="https://api.whatsapp.com/send?text=Mas informacion sobre este producto: {{p.description|default:' '}}, gracias. &phone={{company.mobile}}/?u={{request.build_absolute_uri}}"
           var ruta = "https://api.whatsapp.com/send?phone=+591" + resp.cel_company + "&text=" + datos + pedido  + sub_total + Envio + total + lugar + web;
           window.open(ruta, '_blank');

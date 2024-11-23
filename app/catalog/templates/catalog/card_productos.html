@@ -7,7 +7,7 @@
         {% if user.is_authenticated and date_expiration %}
           <div class="alert alert-warning" role="alert">
           Up.! su contrato expiro hace: {{company.expiration_date|timesince}}<strong>
-            <a href="https://api.whatsapp.com/send?text=ID cliente: {{company.id}}%0A Hola, fecha de expiracion caducado, renovare mi contrato muchas gracias. &phone={{dashboard.mobile}}" target="_blank">Contactese con el administrador aqui</a></strong><br>
+            <a href="https://api.whatsapp.com/send?text=ID cliente: {{company.id}}%0A Hola, fecha de expiración caducado, renovare mi contrato muchas gracias. &phone={{dashboard.mobile}}" target="_blank">Contactese con el administrador aqui</a></strong><br>
             <small class="text-muted ">Aviso: Debe renovar su contrato en los siguientes 15 dias, caso contrario su página estara inactivo, muchas gracias por su comprención.</small>
           </div>
         {% endif %}

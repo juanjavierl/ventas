@@ -183,13 +183,30 @@ def deleteCompany(request, id_company):
 
 def add_huvicacion(request, id_company):
     company = Company.objects.get(id=id_company)
+    try:  
+        if request.method == 'POST':
+            form = FormHuvicacion(request.POST, instance=company)
+            ubicacion = Sucursal()
+            ubicacion.company_id = int(id_company)
+            ubicacion.address = request.POST['address']
+            ubicacion.latitud = request.POST['latitud']
+            ubicacion.longitud = request.POST['longitud']
+            ubicacion.save()
+            return JsonResponse({'success':'Registro exitoso.'})
+    except:
+        return JsonResponse({'error':'Ys existe el registro.'})
+
+def info_address_company(request, id_company):
+    address = Sucursal.objects.get(company_id = int(id_company))
+    return render(request,'notificaciones/info_address_company.html',{'address':address})
+
+def del_address_comp(request, id_address):
+    address = get_object_or_404(Sucursal, id = int(id_address))
+    id_company = address.company_id
     if request.method == 'POST':
-        form = FormHuvicacion(request.POST)
-        if form.is_valid():
-            form.save()
-            return JsonResponse({'success':'Datos actualizados correctamente.'})
-        else:
-            return JsonResponse({'error':'Error intente nuevamente.'})
+        address.delete()
+        return JsonResponse({'success':"Se Borro el registro.",'id_company':id_company})
+    return render(request, 'notificaciones/del_addres_company.html', {'address':address})
 
 @login_required(login_url='/')
 def configuraciones_company(request, id_company):
@@ -214,7 +231,8 @@ def configuraciones_company(request, id_company):
         #'precio_env':determinarPrecioEnvio(id_company),distinct()
         #'ordens':Orden.objects.filter(company_id=int(id_company)).values('client_id').order_by('-id').distinct(),
         'ordens':ped,
-        'clientes':Client.objects.all().order_by('-id')
+        'clientes':Client.objects.all().order_by('-id'),
+        'address':get_address(id_company)
     }
     return render(request,'configuraciones_company.html', dic)
 

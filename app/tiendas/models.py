@@ -71,7 +71,7 @@ class Company(models.Model):
     name = models.CharField(max_length=50, verbose_name='Nombre/Razón social')
     description = models.TextField(verbose_name='Descripción de su catalogo (Opcional)', null=True, blank=True, help_text='Escriba una descripción de que trata.?')
     ruc = models.CharField(max_length=15, blank=True, null=True, verbose_name='Número de NIT (Opcional)')
-    address = models.CharField(max_length=200, verbose_name='Dirección (Zona, Calle, #)')
+    #address = models.CharField(max_length=200, verbose_name='Dirección (Zona, Calle, #)')
     mobile = models.CharField(max_length=10, verbose_name='Celular (WhatsApp)')
     category = models.ForeignKey(Tipo_company, on_delete=models.CASCADE, verbose_name='Tipo de Compañia')
     cuidad = models.ForeignKey(Ciudad, on_delete=models.CASCADE, verbose_name='Ciudad')
@@ -153,7 +153,8 @@ class Banco(models.Model):
         return item
 
 class Sucursal(models.Model):
-    company=models.ForeignKey(Company, on_delete=models.CASCADE, verbose_name='Negocio')
+    company=models.OneToOneField(Company, on_delete=models.CASCADE, verbose_name='Negocio')
+    address = models.TextField(max_length=200, verbose_name='Dirección de todas sus sucursales')
     latitud=models.CharField(max_length=50, verbose_name='Latitud')
     longitud=models.CharField(max_length=50, verbose_name='Longitud')
     date_joined = models.DateTimeField(auto_now_add=True)

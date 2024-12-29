@@ -71,15 +71,11 @@
                         }
 
                     });
-                    /* for (var a in resp.avisos){
-                        $('.info_avisos').append("<li>" + a + ": tiene " + resp.avisos[a] + " </li><br>");
-                    } */
-                    console.log(resp);
                 }
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 $('.toast-body').addClass('alert alert-danger');
-                $('.toast-body').fadeIn(1000).html(thrownError);
+                $('.toast-body').fadeIn(1000).html("Ya tiene avisos registros");
                 mostrar_notificacion();
             }
         });

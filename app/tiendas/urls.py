@@ -29,4 +29,6 @@ urlpatterns = [
     path('<int:id_company>/<int:id_orden>/<int:id_cliente>/like', views.like_company, name='like'),
     path('<int:id_company>/report_by_date', views.reportByRange, name='reportByRange'),
     path('<int:id_company>/inventario_productos', views.inventarioProductos, name='inventario_productos'),
+    path('<int:id_company>/info_address_company', views.info_address_company, name='info_address_company'),
+    path('<int:id_address>/del_address_comp', views.del_address_comp, name='del_address_comp'),
 ]

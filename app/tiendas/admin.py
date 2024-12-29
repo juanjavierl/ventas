@@ -41,7 +41,6 @@ class CompanyAdmin(ImportExportModelAdmin):
         'status',
         'expiration_date',
         'ruc',
-        'address',
         'mobile',
         'cuidad'
     )

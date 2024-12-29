@@ -41,9 +41,17 @@ def CatalogView(request, id_company):
             'company':get_company(id_company),
             'aviso':optener_avisos_by_company(id_company),
             'dashboard':get_Dashboard(),
-            'date_expiration':date_expiration
+            'date_expiration':date_expiration,
+            'address':get_address(id_company)
         }
         return render(request,template_name, dic)
+
+def get_address(id_company):
+    try:
+        address = Sucursal.objects.get(company_id=int(id_company))
+    except:
+        address = False
+    return address
 
 def optener_avisos_by_company(id_company):
     try:

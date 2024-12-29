@@ -17,8 +17,10 @@
                 </form>
             </div>
         </div>
-        <div class="col-lg-5 align-items-stretch" id="map">
+        <div class="col-lg-5 align-items-stretch">
+            <div class="info" id="map" style="margin-top: 20px; width: 100%; height: 440px;">
 
+            </div>
         </div>
         {% else %}
         <div class="alert alert-success info_map_registro" role="alert">
@@ -81,7 +83,6 @@
     }
     $('#form_add_mapa').on('submit', function (e) {
         e.preventDefault();
-        console.log($(this).serialize());
         $.ajax({
             type: 'POST',
             url: $(this).attr('action'),

@@ -126,7 +126,8 @@ def optenerProducto(request, id_producto, id_company):
                     'company':get_company(id_company),
                     'categorias':categorys_from_productos(productos),
                     'aviso':optener_avisos_by_company(id_company),
-                    'productos':productosMasVistos(id_company)
+                    'productos':productosMasVistos(id_company),
+                    'address':get_address(id_company)
                 }
     return render(request,'catalog/OptenerProducto.html',context)
 
@@ -201,8 +202,6 @@ def mostrar_por_categoria(request, id_company, id_categoria):
     productos = Product.objects.filter(stock__gt=0, category_id = id_categoria, company_id= id_company).order_by('-id')
     return render(request, 'catalog/card_productos.html', {'productos':productos,'company':get_company(id_company)})
 
-#import locale
-#locale.setlocale(locale.LC_ALL, 'es')
 def confirmar_compra(request, id_company):
     company = get_object_or_404(Company, id = id_company)
     t_pago = calcular_pago(request)#total a pagar de todo el carrito
@@ -317,7 +316,8 @@ def confirmar_compra(request, id_company):
         't_pago':t_pago,
         'productos':productosMasVistos(id_company),
         'precio_envio':determinarPrecioEnvio(id_company),
-        'aviso':optener_avisos_by_company(id_company)
+        'aviso':optener_avisos_by_company(id_company),
+        'address':get_address(id_company)
     }
     return render(request,'catalog/confirmar_compra.html',dic)
 

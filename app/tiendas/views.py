@@ -383,8 +383,9 @@ def like_company(request, id_company, id_orden, id_cliente):
                 'aviso':optener_avisos_by_company(id_company),
                 'id_orden':id_orden,
                 'id_cliente':id_cliente,
-                'like':'Muchas gracias por su preserencia',
-                'ruta:':ruta
+                'like':'Muchas gracias por su preferencia',
+                'ruta:':ruta,
+                'address':get_address(id_company)
             }
             return render(request, 'notificaciones/like_company.html', dic)
 
@@ -398,7 +399,8 @@ def like_company(request, id_company, id_orden, id_cliente):
                 'company':get_company(id_company),
                 'aviso':optener_avisos_by_company(id_company),
                 'id_orden':id_orden,
-                'id_cliente':id_cliente
+                'id_cliente':id_cliente,
+                'address':get_address(id_company)
             }
             return render(request, 'notificaciones/like_company.html', dic)
 

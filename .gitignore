@@ -12,6 +12,7 @@ db.sqlite3-journal
 media/company
 media/dashboard
 media/product
+media/img_products
 media/user
 media/img_qr
 **/migrations/*

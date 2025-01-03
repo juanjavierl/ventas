@@ -2,7 +2,16 @@
 <div class="row">
   <div class="col-12">
     <div class="section-title">
-      <h2>Agrega tus productos al carrito</h2>
+      {% if productos %}
+        {% if company.is_service %}
+        <h2>Reserva tus servicios</h2>
+        {% else %}
+        <h2>Agrega tus pedidos al carrito</h2>
+        {% endif %}
+      {% else %}
+        <h2>Up lo siento a un hay contenido disponible</h2>
+      {% endif %}
+
       <p>Los mejores productos o servicios los encuentras en: <strong>{{company.name|title}}</strong></p>
         {% if user.is_authenticated and date_expiration %}
           <div class="alert alert-warning" role="alert">

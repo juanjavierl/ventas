@@ -64,3 +64,8 @@ class FormLike(forms.ModelForm):
     class Meta:
         model = Like
         exclude = ('company','date_joined')
+
+class FormImgProducto(forms.ModelForm):
+    class Meta:
+        model = Imagen
+        exclude = ('items',)

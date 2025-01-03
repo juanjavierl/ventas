@@ -22,166 +22,217 @@
 {% block hero %} {% endblock hero %}
 
 {% block contenido %}
-<style>
-  .cantidades {
-    display: flex;
-  }
-
-  .cant input {
-    width: 60px;
-    text-align: center;
-  }
-
-  .valores {
-    text-align: center;
-    background-color: rgb(167, 182, 182);
-    padding: 4px 10px 5px 10px;
-    height: 30px;
-    font-family: cursive;
-  }
-
-  .valores:hover {
-    background-color: rgb(24, 24, 22);
-    color: white;
-    cursor: pointer;
-  }
-
-  .btn_add .btn_icon {
-    display: none;
-  }
-
-  .sale-tag {
-    border-radius: 2px;
-    font-size: 12px;
-    color: #fff;
-    font-weight: bold;
-    position: absolute;
-    top: 0;
-    padding: 5px 10px;
-    z-index: 5;
-    margin-top: 8px;
-  }
-
-  .opciones {
-    font-size: 12px;
-    color: #fff;
-    font-weight: bold;
-    position: absolute;
-    padding: 5px 10px;
-    z-index: 22;
-    right: 5px;
-  }
-
-  input[type=number]::-webkit-inner-spin-button,
-  input[type=number]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-
-  input[type=number] {
-    -moz-appearance: textfield;
-  }
-</style>
-<div class="aav" style="margin-top: 80px;">
+<!-- ======= Portfolio Details Section ======= -->
+<section id="portfolio-details" class="portfolio-details" data-aos="fade-up">
   {% if aviso %}
   {% include 'notificaciones/opciones_avisos.html' %}
   {% endif %}
-</div>
-<div class="card col-12 container" id="team_productos" data-aos="fade-up" style="margin-bottom: 10px;">
+  <style>
+    .cantidades {
+      display: flex;
+    }
 
-  <div class="row g-0 productos_por_categorias">
-    <div class="col-md-4 detail">
-      {% if p.image %}
-      <img src="/media/{{p.image}}" class="card-img-top" style="margin-top: 5px;" alt="..."
-        onclick="detailView('/{{p.id}}/{{company.id}}/detail_product')">
-      {% else %}
-      <i class="bi bi-box-seam icon" style="margin-top: 20px;" alt="..." onclick="detailView('/{{p.id}}/{{company.id}}/detail_product')"></i>
-      {% endif %}
-      {% if p.is_new %}
-      <span class="badge rounded-pill bg-primary sale-tag d-flex">Nuevo</span>
-      {% endif %}
-    </div>
-    <div class="col-md-8">
-      <div class="card-body">
-        <span class="badge opciones">
-          <div class="dropdown btn-sm">
-            <button class="btn btn-secondary btn-sm dropdown-toggle btn btn-light text-success" type="button" id="dropdownMenuButton1"
-              data-bs-toggle="dropdown" aria-expanded="false">
-              Consultar
-            </button>
-            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-              <!-- <li><a class="dropdown-item text-primary" style="cursor: pointer;" href="javascript: void(0);" onclick="window.open('http://www.facebook.com/sharer.php?u={{request.build_absolute_uri}}','ventanacompartir', 'toolbar=0, status=0, width=650, height=450');">En Facebook</a></li>
-              <li><a class="dropdown-item text-success" href="javascript: void(0);" onclick="window.open('whatsapp://send?text=Puedes ver: {{p.description}}/?u={{request.build_absolute_uri}}','ventanacompartir', 'toolbar=0, status=0, width=650, height=450');">En whatsapp</a></li> -->
-              <li id="status"><a class="dropdown-item" id="compartir" href="#">Compartir en más lugares</a></li>
-              <li><a class="dropdown-item text-success"
-                  href="https://api.whatsapp.com/send?text=Más información sobre el Item: *{{p.name|title|default:' '}} cod: {{p.id}}*, muchas gracias.%0A{{request.build_absolute_uri}} &phone={{company.mobile}}"
-                  target="_blank">Consultar sobre el producto <i class="bi bi-whatsapp"></i></a></li>
-            </ul>
-          </div>
-        </span>
-        <h5 class="card-title text-primary text-wrap fw-bold">{{p.name|capfirst}}</h5>
-        <p class="card-text tex text-break">{{p.description|default:" - - -"|capfirst}}</p>
-        <p class="card-text">
-          Categoria: <small class="text-muted">{{p.category|capfirst}}</small>
-          <small class="text-muted" style="padding-left: 30px;">Cod. {{p.code|default:" - - -"}}</small>
-        </p>
-        <p class="card-text">
-          <strong>Precio Bs. {{p.price|default:" 0 "}}</strong>
-          {% if p.price_before %}
-          <strong class="text-decoration-line-through text-danger" style="font-size: 12px; padding-left: 30px;">Antes:
-            Bs. {{p.price_before}}</strong>
-          {% endif %}
-        </p>
+    .cant input {
+      width: 60px;
+      text-align: center;
+    }
 
-        <p>
-          {% if p.price_before %}
-          <span style="font-size: 14px;" class="badge text-bg-warning text-white">Desc. {{p.porcentage}}%</span>
-          {% endif %}
-          {% if p.is_service %}
-          <span class="badge text-bg-info" style="color: white;">Servicio</span>
-          {% endif %}
-          
-          {% if p.stock > p.salida %}
-          <span id="passwordHelpBlock" class="form-text text-success">
-            Producto disponible <i class="bi bi-check-lg"></i>
-          </span>
-          {% else %}
-          <span id="passwordHelpBlock" class="form-text text-danger">
-            Producto Agotado
-          </span>
-          {% endif %}
-        </p>
+    .valores {
+      text-align: center;
+      background-color: rgb(167, 182, 182);
+      padding: 4px 10px 5px 10px;
+      height: 30px;
+      font-family: cursive;
+    }
 
-        <div class="row">
-          <form action="/{{p.id}}/{{company.id}}/detail_product" id="form_pedido" method="post" class="form-row row">
-            {% csrf_token %}
+    .valores:hover {
+      background-color: rgb(24, 24, 22);
+      color: white;
+      cursor: pointer;
+    }
 
-            <div class="col-12 col-md-6 col-lg-4 cantidades form-group">
-              <label for="inputPassword6" class="col-form-label text-dark"
-                style="width: 165px; text-align: center;"><strong> Cantidad: </strong></label>
-              <div class="valores menos" style="border-radius: 15px 0px 0px 15px;"> - </div>
-              <div class="cant">
-                <input type="number" name="cantidad" placeholder="ejem. 1" value="1" min="1" max="{{p.stock}}"
-                  id="cantidad_id" class="form-control form-control-sm valor_numerico" required>
+    .btn_add .btn_icon {
+      display: none;
+    }
+
+    .sale-tag {
+      border-radius: 2px;
+      font-size: 12px;
+      color: #fff;
+      font-weight: bold;
+      position: absolute;
+      top: 0;
+      padding: 5px 10px;
+      z-index: 5;
+      margin-top: 8px;
+    }
+
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
+    @media (min-width: 1024px){/*cuando la pantalla es > a 750*/
+    .detail .ims_detail img{
+      max-width: 561px; max-height: 450px;
+      width: 561px; height: 450px;
+    }
+    .detail .ims_detail{
+      text-align: center;
+    }
+  }
+  </style>
+  <div class="container" id="team_productos">
+
+    <div class="row gy-4 productos_por_categorias">
+
+      <div class="col-lg-8">
+        <div class="portfolio-details-slider swiper">
+          <div class="swiper-wrapper align-items-center detail">
+
+            {% if images_product %}
+              <div class="swiper-slide ims_detail">
+                <img src="/media/{{p.image}}" class="img-fluid rounded object-fit-cover" alt="">
               </div>
-              <div class="valores mas" style="border-radius: 0px 15px 15px 0px;"> + </div>
-            </div>
-            <div class="col-auto btn_add align-items-center" style="height: 30px;">
-              <button type="submit" class="btn btn-success btn-sm tb_text"> + <i class="bi bi-cart-fill"></i>
-                Agregar</button>
-              <!-- &nbsp;
-                  <button type="submit" class="btn btn-success btn-sm btn_icon">+<i class="bi bi-cart-fill"></i></button> -->
+              {% for img_pro in images_product %}
+              <div class="swiper-slide ims_detail">
+                <img src="/media/{{img_pro.img}}" class="img-fluid rounded object-fit-cover" alt="">
+              </div>
+              {% endfor %}
+            {% else %}
+              {% if p.image %}
+              <div class="swiper-slide" style="text-align: center;">
+                <img src="/media/{{p.image}}" alt="" class="img-fluid rounded object-fit-cover">
+              </div>
+              {% else %}
+              <i class="bi bi-image icon" style="margin-top: 20px;" alt="..."></i>
+            {% endif %}
 
-              <a href="/{{company.id}}/catalogo" class="btn btn-secondary btn-sm tb_text" style="padding-top: 5px;"><i
-                  class="bi bi-arrow-left-circle"></i> Volver Atrás</a>
-
-            </div>
-          </form>
+            {% endif %}
+          </div>
+          {% if p.is_new %}
+          <span class="badge rounded-pill bg-primary sale-tag d-flex">Nuevo</span>
+          {% endif %}
+          <div class="swiper-pagination"></div>
         </div>
       </div>
+
+      <div class="col-lg-4">
+        <div class="portfolio-info">
+          <h3 class="text-primary text-wrap fw-bold">{{p.name|capfirst}}</h3>
+          <ul>
+            <li><strong>Categoria</strong>: {{p.category|capfirst}}</li>
+            <li><strong>Codido</strong>: {{p.code|default:" - - -"}}</li>
+            <li><strong>Precio</strong>: {{p.price|default:" 0 "}} Bs.
+              {% if p.price_before %}
+              <span class="text-decoration-line-through text-danger" style="font-size: 14px; padding-left: 30px;">Antes:
+                {{p.price_before}} Bs.</span>
+              {% endif %}
+            </li>
+            <li>
+              <strong>
+                {% if p.price_before %}
+                <span style="font-size: 14px;" class="badge text-bg-warning text-white">Desc. {{p.porcentage}}%</span>
+                {% endif %}
+              </strong>
+              {% if p.is_service %}
+              <span class="badge text-bg-info" style="color: white;">Servicio</span>
+              {% endif %}
+            </li>
+            <li><strong>Producto</strong>:
+              {% if p.stock > p.salida %}
+              <span id="passwordHelpBlock" class="form-text text-success">
+                Disponible <i class="bi bi-check-lg"></i>
+              </span>
+              {% else %}
+              <span id="passwordHelpBlock" class="form-text text-danger">
+                Agotado
+              </span>
+              {% endif %}
+            </li>
+
+            <div class="align-items-start">
+              <form action="/{{p.id}}/{{company.id}}/detail_product" id="form_pedido" method="post"
+                class="form-row row">
+                {% csrf_token %}
+                <div class="col cantidades form-group">
+                  <label for="inputPassword6" class="col-form-label text-dark" style="width: 165px;"><strong> Cantidad:
+                    </strong>
+                  </label>
+                  <div class="valores menos" style="border-radius: 15px 0px 0px 15px;"> - </div>
+                  <div class="cant">
+                    <input type="number" name="cantidad" placeholder="ejem. 1" value="1" min="1" max="{{p.stock}}"
+                      id="cantidad_id" class="form-control form-control-sm valor_numerico" required>
+                  </div>
+                  <div class="valores mas" style="border-radius: 0px 15px 15px 0px;"> + </div>
+                </div>
+
+                <div class="row btn_add align-items-center" style="height: 30px;">
+                  <button type="col submit" class="btn btn-success btn-sm tb_text">
+                    <i class="bi bi-cart-fill"> + </i>
+                    Agregar items
+                  </button><br><br>
+                  <a href="/{{company.id}}/catalogo" class="col btn btn-secondary btn-sm tb_text"
+                    style="padding-top: 5px;">
+                    <i class="bi bi-arrow-left-circle"> Volver Atrás</i>
+                  </a>
+
+
+                  <div class="dropdown btn-sm d-flex col">
+                    <button class="btn btn-secondary btn-sm dropdown-toggle btn btn-light text-success" type="button"
+                      id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                      Mas opciones
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                      <!-- <li><a class="dropdown-item text-primary" style="cursor: pointer;" href="javascript: void(0);" onclick="window.open('http://www.facebook.com/sharer.php?u={{request.build_absolute_uri}}','ventanacompartir', 'toolbar=0, status=0, width=650, height=450');">En Facebook</a></li>
+                        <li><a class="dropdown-item text-success" href="javascript: void(0);" onclick="window.open('whatsapp://send?text=Puedes ver: {{p.description}}/?u={{request.build_absolute_uri}}','ventanacompartir', 'toolbar=0, status=0, width=650, height=450');">En whatsapp</a></li> -->
+                      <li>
+                        <a class="dropdown-item text-success"
+                          href="https://api.whatsapp.com/send?text=Más información sobre el Item: *{{p.name|title|default:' '}} cod: {{p.id}}*, muchas gracias.%0A{{request.build_absolute_uri}} &phone={{company.mobile}}"
+                          target="_blank">Consultar sobre el producto <i class="bi bi-whatsapp"></i></a>
+                      </li>
+                      <li id="status">
+                        <a class="dropdown-item" id="compartir" href="#">Compartir en más lugares</a>
+                      </li>
+                      {% if user.is_authenticated %}
+                      <li>
+                        <a class="dropdown-item" href="#" onclick="add_imagen('/{{p.id}}/imgs_products/')"
+                          data-bs-toggle="modal" data-bs-target="#exampleModal">Agregar más Imagenes</a>
+                      </li>
+                      
+                      {% if images_product %}
+                      <li>
+                        <a class="dropdown-item text-danger" href="#"
+                          onclick="remove_imagen('/{{p.id}}/remode_imgs_products/')" data-bs-toggle="modal"
+                          data-bs-target="#exampleModal">Eliminar Imágenes</a>
+                      </li>
+                      {% endif %}
+                        
+                      {% endif %}
+
+                    </ul>
+                  </div>
+                </div>
+              </form><br>
+            </div>
+          </ul>
+        </div>
+        <div class="portfolio-description">
+          <h2>Informacion</h2>
+          <p class="text-break">
+            {{p.description|default:" - - -"|capfirst}}
+          </p>
+        </div>
+      </div>
+
     </div>
+
   </div>
-</div>
+</section><!-- End Portfolio Details Section -->
 <script>
 
   if (navigator.share) {
@@ -245,7 +296,6 @@
   $(function () {
     //validaciones del input cantidad
     //$('#cantidad_id').focus();
-
     input = $(".valor_numerico");
     min = $(".valor_numerico").attr('min'),
       max = $(".valor_numerico").attr('max');
@@ -271,6 +321,32 @@
       $(".valor_numerico").trigger("change");
     });
   });
+
+  function add_imagen(urls) {
+    $.ajax({
+      type: 'GET',
+      url: urls,
+      success: function (resp) {
+        // $("#exampleModalLabel").html(name_prod);
+        $(".modal-content").fadeIn(1000).html(resp);
+      }
+    });
+  }
+
+  function remove_imagen(urls) {
+    $.ajax({
+      type: 'GET',
+      url: urls,
+      success: function (resp) {
+        // $("#exampleModalLabel").html(name_prod);
+        $(".modal-content").fadeIn(1000).html(resp);
+      }
+    });
+  }
+/* $('.dropdown').hover(function(){
+      $('.dropdown-menu').trigger('click')
+      console.log('hover');
+    }); */
 </script>
 {% endblock contenido %}
 

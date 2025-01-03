@@ -87,6 +87,28 @@ class Product(models.Model):
         verbose_name = 'Producto'
         verbose_name_plural = 'Productos'
 
+class Imagen(models.Model):
+    img = models.ImageField(upload_to='img_products', default="default.png", verbose_name='Imagen', help_text="Puede registrar hasta 2 imagenes como maximo")
+    items = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='producto')
+    
+    def __str__(self):
+        return f'{self.img} ({self.items.name})'
+    
+    class Meta:
+        verbose_name = 'Imagen'
+        verbose_name_plural = 'Imagenes'
+
+class Video(models.Model):
+    video = models.URLField(max_length=255, verbose_name='URL Video', help_text="Copie la url(link) del video")
+    items = models.OneToOneField(Product, on_delete=models.CASCADE, verbose_name='Producto')
+    
+    def __str__(self):
+        return f'{self.img} ({self.items.name})'
+    
+    class Meta:
+        verbose_name = 'video'
+        verbose_name_plural = 'videos'
+
 class Client(models.Model):
     names = models.CharField(max_length=150, verbose_name='Nombre completo')
     dni = models.CharField(max_length=13, unique=True, verbose_name='Nro. Carnet/Nit')

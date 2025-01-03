@@ -50,6 +50,8 @@
       <form action="/{{company.id}}/confirmar_compra/" method="post" class="" id="form_pedido" style="width: 100%;">
         {% csrf_token %}
         {{ form|crispy }}
+        
+        {% if not company.is_service %}
         <select class="form-select" id="tipo_envio" name="tipo_envio" aria-label="Small select example">
           <option value="tienda">Recoger en tienda</option>
           <option value="domicilio">Recibir en mi domicilio</option>
@@ -57,8 +59,22 @@
         </select>
         <small class="text-muted menj_valor_envio"></small>
         <br>
+        {% else %}
+        <select class="form-select" id="tipo_envio" name="tipo_envio" style="display: none;" aria-label="Small select example">
+          <option value="servicio">Recoger en tienda</option>
+          
+        </select>
+        <small class="text-muted menj_valor_envio"></small>
+        <br>
+        {% endif %}
+
         <div id="div_id_fecha">
-          <label for="">Fecha y Hora a Recoger</label>
+          {% if company.is_service %}
+          <label for="">Fecha y Hora a Reserver</label>
+          {% else %}
+            <label for="">Fecha y Hora a Recoger</label>
+          {% endif %}
+            
           <input type="datetime-local" id="date_time" name="date_time" value="{% now 'd-m-Y H:i:s' %}"
             min="{% now 'd-m-Y H:i:s' %}" max="" class="textinput form-control">
           <span id="passwordHelpBlock" class="form-text">
@@ -83,7 +99,7 @@
           <a href="/{{company.id}}/catalogo" class="btn btn-secondary btn-sm"
             style="margin-bottom: 20px; margin-right: 10px;"><i class="bi bi-arrow-left-circle"></i> Ir Atras</a>
           <button type="submit" class="btn btn-success btn-sm btn-block efecto_button" style="margin-bottom: 20px;"><i
-              class="bi bi-save"></i> Enviar mi Pedido & Confirmar por Whatsapp</button>
+              class="bi bi-save"></i> Registrar solicitud & Confirmar por Whatsapp</button>
         </div>
       </form>
     </div>
@@ -195,7 +211,7 @@
           $('#form_pedido')[0].reset();
           $("#cont_compras").html(resp.products);
 
-          var datos = "***** *Mi Pedido Nro. " + resp.orden + "* ***** %0A";
+          var datos = "***** *Mi Reserva Nro. " + resp.orden + "* ***** %0A";
           datos = datos + "Nombre: " + resp.cliente_object.names + "%0A %0A";
           var pedido = "";
           for (let productos = 0; productos < resp.lista.length; productos++) {
@@ -204,7 +220,11 @@
           pedido = pedido + "%0A"
           var lugar = ""
           if (resp.lugar.date == "date") {
-            lugar = "Fecha y hora a recoger: %0A" + resp.lugar.fecha + "%0A %0A";
+            if(resp.company_object.is_service){
+              lugar = "Fecha y hora de mi reserva: %0A" + resp.lugar.fecha + "%0A %0A";
+            }else{
+              lugar = "Fecha y hora a recoger: %0A" + resp.lugar.fecha + "%0A %0A";
+            }
           }
           if (resp.lugar.dir == "dir") {
             lugar = "Dirección de envio: " + resp.lugar.direccion + "%0A";
@@ -215,16 +235,24 @@
 
           dir = "Dirección: " + resp.dir + "%0A";
           cuidad = "Ciudad:" + resp.cuidad + "%0A";
-
           var Envio = "- *Envio: Bs." + resp.precio_envio + "* %0A";
 
           var sub_total = "- *Sub total: Bs. " + parseFloat(resp.t_pago) + "* %0A";
 
           var to_p = parseFloat(resp.t_pago) + parseFloat(resp.precio_envio);
           total = "- *total: Bs. " + to_p + "* %0A%0A"
-          web = "_Muchas gracias por su pedido, regresa muy pronto! denos tu puntuación para mostrar un sitio recomendable: {{ request.get_host }}/" + resp.company_object.id +"/"+ resp.orden + "/" + resp.cliente_object.id + "/like_ %0A"//corregir ir a la orden
+          if(resp.company_object.is_service){
+            web = "_Muchas gracias por su reserva, regresa muy pronto! denos tu puntuación para mostrar un sitio recomendable: {{ request.get_host }}/" + resp.company_object.id +"/"+ resp.orden + "/" + resp.cliente_object.id + "/like_ %0A"//corregir ir a la orden
+          }else{
+            web = "_Muchas gracias por su pedido, regresa muy pronto! denos tu puntuación para mostrar un sitio recomendable: {{ request.get_host }}/" + resp.company_object.id +"/"+ resp.orden + "/" + resp.cliente_object.id + "/like_ %0A"//corregir ir a la orden
+          }
+          
           //href="https://api.whatsapp.com/send?text=Mas informacion sobre este producto: {{p.description|default:' '}}, gracias. &phone={{company.mobile}}/?u={{request.build_absolute_uri}}"
-          var ruta = "https://api.whatsapp.com/send?phone=+591" + resp.cel_company + "&text=" + datos + pedido  + sub_total + Envio + total + lugar + web;
+          if(resp.company_object.is_service){
+            var ruta = "https://api.whatsapp.com/send?phone=+591" + resp.cel_company + "&text=" + datos + pedido  + sub_total + total + lugar + web;
+          }else{
+            var ruta = "https://api.whatsapp.com/send?phone=+591" + resp.cel_company + "&text=" + datos + pedido  + sub_total + Envio + total + lugar + web;
+          }
           window.open(ruta, '_blank');
           //location.reload();
         }

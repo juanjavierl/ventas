@@ -6,7 +6,7 @@ from app.catalog.models import *
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 
-admin.site.register([Category, Pedido, Like])
+admin.site.register([Category, Pedido, Like, Imagen, Video])
 
 @admin.register(Client)
 class ClientAdmin(admin.ModelAdmin):

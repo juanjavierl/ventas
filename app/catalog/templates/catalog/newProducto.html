@@ -52,7 +52,12 @@
         </div>
         <div class="row">
           <div class="col-md-6 form-group"><br>
-            <label for="{{ form.price.id_for_label }}">Precio de Venta:*</label>
+            {% if company.is_service %}
+              <label for="{{ form.price.id_for_label }}">Precio del servicio:*</label>
+            {% else %}
+              <label for="{{ form.price.id_for_label }}">Precio de Venta:*</label>
+            {% endif %}
+              
             {{form.price}}
           </div>
           <div class="col-md-6 form-group mt-3 mt-md-0"><br>

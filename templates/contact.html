@@ -100,7 +100,11 @@
             marker = new google.maps.Marker({
                 position: ubicacionInicial,
                 map: map,
-                title: "{{address.company|upper}}"
+                title: "{{address.company|upper}}",
+                label: {
+                  'text': '{{address.company|upper}}',
+                  color: 'green'
+                }
             });
         }
     </script>

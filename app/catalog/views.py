@@ -127,7 +127,8 @@ def optenerProducto(request, id_producto, id_company):
                     'categorias':categorys_from_productos(productos),
                     'aviso':optener_avisos_by_company(id_company),
                     'productos':productosMasVistos(id_company),
-                    'address':get_address(id_company)
+                    'address':get_address(id_company),
+                    'images_product':Imagen.objects.filter(items_id = int(id_producto))
                 }
     return render(request,'catalog/OptenerProducto.html',context)
 
@@ -212,11 +213,9 @@ def confirmar_compra(request, id_company):
             return JsonResponse({'error': "El Nro de Celular debe ser numérico."})
         forms=ClientFormOrder(request.POST)
 
-        if request.POST['tipo_envio'] == 'tienda':
-
+        if request.POST['tipo_envio'] == 'tienda' or request.POST['tipo_envio'] == 'servicio':
             valor = request.POST['date_time'].split("T")
             valor = " ".join(valor)#'2024,06,23 13:58'
-
             d = datetime.strptime(request.POST['date_time']+":00", '%Y-%m-%dT%H:%M:%S')
             if d < datetime.now():
                 return JsonResponse({'error':"Error: La fecha debe ser mayor o igual a hoy"})
@@ -445,3 +444,30 @@ def updateStock(request, id_product):
             return JsonResponse({'error':'Los datos estan en 0, ingrese una cantidad.'})
     else:
         return render(request, 'catalog/updateStock.html',{'p':product})
+
+def imgs_products(request, id_producto):
+    product = Product.objects.get(id=id_producto)
+    if request.method=='POST':
+        form=FormImgProducto(request.POST, request.FILES)
+        if form.is_valid():
+            imgsProducto = form.save(commit=False)
+            imgsProducto.items_id = (int(id_producto))
+            if Imagen.objects.filter(items_id = int(id_producto)).count() >= 2:
+                return JsonResponse({'error':'Ya tiene registrado sus imagenes'})
+            else:
+                imgsProducto.save()
+                return JsonResponse({'success':'Registro exitoso'})
+        else:
+            return JsonResponse({'error':'Error intente nuevamente'})
+    else:
+        form=FormImgProducto()
+    return render(request, 'catalog/imgs_products.html',{'form':form,'product':product})
+
+def remode_imgs_products(request, id_producto):
+    imagenes = Imagen.objects.filter(items_id = int(id_producto))
+    return render(request, 'catalog/remode_imgs_products.html',{'imagenes':imagenes})
+
+def deleteImgProduct(request, id_img):
+    image = get_object_or_404(Imagen, id=int(id_img))
+    image.delete()
+    return JsonResponse({'success':'Se Elimino la Imagen'})

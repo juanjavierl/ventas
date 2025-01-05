@@ -213,7 +213,7 @@ def confirmar_compra(request, id_company):
             return JsonResponse({'error': "El Nro de Celular debe ser numérico."})
         forms=ClientFormOrder(request.POST)
 
-        if request.POST['tipo_envio'] == 'tienda' or request.POST['tipo_envio'] == 'servicio':
+        if request.POST['tipo_envio'] == 'tienda':
             valor = request.POST['date_time'].split("T")
             valor = " ".join(valor)#'2024,06,23 13:58'
             d = datetime.strptime(request.POST['date_time']+":00", '%Y-%m-%dT%H:%M:%S')
@@ -233,7 +233,6 @@ def confirmar_compra(request, id_company):
             return JsonResponse({'error': "Por favor complete sus datos."})
         #try:#si ya existe ese cliente
         if Client.objects.filter(dni = int(request.POST['dni'])).exists():
-            print("ya existe ese cliente")
             cliente = Client.objects.get(dni = int(request.POST['dni']))
             orden = crear_orden(request, cliente.id, id_company)#se crea una orden
             for productos in request.session['compra']:#[{'id_producto':12,'cantidad':1},{'id_producto':10,'cantidad':2}]
@@ -270,7 +269,6 @@ def confirmar_compra(request, id_company):
                     )
         #except Client.DoesNotExist:
         else:
-            print("NO existe ese cliente")
             if forms.is_valid():
                 cliente = forms.save(commit=False)
                 cliente.save()
@@ -319,6 +317,73 @@ def confirmar_compra(request, id_company):
         'address':get_address(id_company)
     }
     return render(request,'catalog/confirmar_compra.html',dic)
+
+def confirmarCita(request, id_company, id_producto):
+    p = get_object_or_404(Product,id = id_producto)
+    company = get_object_or_404(Company, id = id_company)
+    datos={}
+    data_cli = []
+    datos['id_producto'] = int(p.id)
+    datos['name'] = p.name.title()
+    datos['cantidad'] = 1
+    datos['precio_uni'] = 0.0
+    datos['total'] = 0.0
+    data_cli.append(datos)
+
+    if request.method == 'POST':
+        if not request.POST['dni'].isdigit():
+            return JsonResponse({'error': "El Nro de Nit/CI debe ser numérico."})
+        if not request.POST['mobile'].isdigit():
+            return JsonResponse({'error': "El Nro de Celular debe ser numérico."})
+
+        d = datetime.strptime(request.POST['date_time']+":00", '%Y-%m-%dT%H:%M:%S')
+        if d < datetime.now():
+            return JsonResponse({'error':"Error: La fecha debe ser mayor o igual a hoy"})
+        else:
+            dias={0:'Lunes',1:'Martes',2:'Miercoles',3:'Jueves',4:'Viernes',5:'Sabado',6:'Domingo'}
+            dia = dias[d.weekday()]
+            fecha = datetime.strftime(d, dia + ' %d/%m/%y hora: %H:%M %p')
+            lugar = {'fecha':fecha,'date':'date'}
+        forms=ClientFormOrder(request.POST)
+        if Client.objects.filter(dni = int(request.POST['dni'])).exists():
+            cliente = Client.objects.get(dni = int(request.POST['dni']))
+            orden = crear_orden(request, cliente.id, id_company)
+
+            pedido = Pedido.objects.create(orden_id = int(orden.id),product_id=int(datos['id_producto']),cant=int(datos['cantidad']),price=float(datos['precio_uni']),total=float(int(datos['cantidad']) * float(datos['precio_uni'])))
+            pedido.save()
+        else:
+            if forms.is_valid():
+                cliente = forms.save(commit=False)
+                cliente.save()
+                orden = crear_orden(request, cliente.id, id_company)
+                pedido = Pedido.objects.create(orden_id = int(orden.id),product_id=int(datos['id_producto']),cant=int(datos['cantidad']),price=float(datos['precio_uni']),total=float(int(datos['cantidad']) * float(datos['precio_uni'])))
+                pedido.save()
+
+        return JsonResponse(
+                            {
+                                'company':company.name,
+                                'company_object':company.toJSON(),
+                                'cel_company':company.mobile,
+                                'cliente_object':cliente.toJSON(),
+                                'orden':orden.id,
+                                'lista':data_cli,
+                                'lugar':get_address(id_company).toJSON(),
+                                'success':"Tu cita se completo exitosamente gracias."
+                            }
+                        )
+    print(get_address(id_company).toJSON())
+    dic = {
+        'form':ClientFormOrder(),
+        'company':get_company(id_company),
+        'categorias':categorys_from_productos(productosMasVistos(id_company)),
+        'datos':data_cli,
+        'productos':productosMasVistos(id_company),
+        'precio_envio':determinarPrecioEnvio(id_company),
+        'aviso':optener_avisos_by_company(id_company),
+        'address':get_address(id_company),
+        'producto':p
+    }
+    return render(request,'catalog/confirmar_cita.html',dic)
 
 def getProducto(id_producto):
     producto = Product.objects.get(id = id_producto)

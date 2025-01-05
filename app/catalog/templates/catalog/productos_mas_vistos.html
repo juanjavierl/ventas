@@ -36,7 +36,12 @@
 <div class="row" data-aos="fade-up">
     <div class="col-12">
         <div class="section-title">
+            
+            {% if company.is_service %}
+            <h2>Servicios más solicitados del mes</h2>
+            {% else %}
             <h2>Productos más vendidos del mes</h2>
+            {% endif %}
         </div>
     </div>
 </div>
@@ -54,6 +59,12 @@
                         <div class="card-body" style="padding: 10px;">
                             <div class="text-section">
                                 <h5 class="card-title text-wrap text-primary fw-bolder">{{p.name|capfirst}}</h5>
+                                
+                                {% if company.is_service %}
+                                <span id="passwordHelpBlock" class="form-text text-success">
+                                    Disponible <i class="bi bi-check-lg"></i>
+                                  </span>
+                                {% else %}
                                 <small class="">Prec: {{p.price}} </small>
                                 <small class="text-decoration-line-through text-danger">
                                     {% if p.price_before %}
@@ -70,11 +81,19 @@
                                         hace {{p.num_aleatorio}} dias</small>
                                     
                                 </p>
-                                <button type="submit" id="id_{{p.id}}"
-                                        onclick="add_item('/{{p.id}}/{{p.company.id}}/detail_product','{{p.id}}')"
-                                        class="btn btn-primary btn-sm">Agregar</button>
-                                    <button type="submit" onclick="detailView('/{{p.id}}/{{company.id}}/detail_product')"
-                                        class="btn btn-warning btn-sm text-white">Ver datalles</button>
+                                {% endif %}
+                                
+                                {% if company.is_service %}
+                                <p class="text-center">
+                                    <a href="/{{company.id}}/{{p.id}}/confirmar_cita" type="button" class="btn btn-success btn-sm"> <i class="bi bi-check-lg"></i> Reservar una Cita</a>
+                                  </p>
+                                  {% else %}
+                                  <button type="submit" id="id_{{p.id}}"
+                                    onclick="add_item('/{{p.id}}/{{p.company.id}}/detail_product','{{p.id}}')"
+                                    class="btn btn-primary btn-sm">Agregar</button>
+                                <button type="submit" onclick="detailView('/{{p.id}}/{{company.id}}/detail_product')"
+                                    class="btn btn-warning btn-sm text-white">Ver datalles</button>
+                                {% endif %}
                             </div>
                           </div>
                       </div>

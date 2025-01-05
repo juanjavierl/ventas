@@ -13,6 +13,7 @@ urlpatterns = [
     path('<int:id_company>/shear_product/',views.shear_product, name='shear_product'),
     path('<int:id_company>/<int:id_categoria>/mostrar_por_categoria', views.mostrar_por_categoria, name='mostrar_por_categoria'),
     path('<int:id_company>/confirmar_compra/', views.confirmar_compra, name='confirmar_compra'),
+    path('<int:id_company>/<int:id_producto>/confirmar_cita/', views.confirmarCita, name='confirmarCita'),
     path('<int:id_company>/new_producto/', views.newProducto, name='new_producto'),
     path('new_category/', views.newCategory, name='new_category'),
 

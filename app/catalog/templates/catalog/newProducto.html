@@ -8,7 +8,7 @@
 </style>
 <div class="container">
   <div class="section-title" data-aos="fade-up">
-    <h2>Registrar nuevo Producto</h2>
+    <h2>Registrar nuevo items</h2>
   </div>
   <div class="row mt-5 justify-content-center" data-aos="fade-up">
     <div class="col-lg-10">
@@ -16,7 +16,12 @@
         {% csrf_token %}
         <div class="row">
           <div class="col-md-6 form-group">
-            <label for="{{ form.name.id_for_label }}">Nombre:*</label>
+            
+            {% if company.is_service %}
+            <label for="{{ form.name.id_for_label }}">Nombre del servicio:*</label>
+            {% else %}
+            <label for="{{ form.name.id_for_label }}">Nombre del producto:*</label>
+            {% endif %}
             {{form.name}}
           </div>
           <div class="col-md-6 form-group mt-3 mt-md-0">

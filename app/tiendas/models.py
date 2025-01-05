@@ -163,6 +163,15 @@ class Sucursal(models.Model):
 
     def __str__(self):
         return self.company.name
+    
+    def toJSON(self):
+        item = model_to_dict(self)
+        item['company'] = self.company.name
+        item['address'] = self.address
+        item['latitud'] = self.latitud
+        item['longitud'] = self.longitud
+        item['date_joined'] = self.date_joined.strftime('%Y-%m-%d')
+        return item
 
 class Precio_envio(models.Model):
     company = models.OneToOneField(Company, on_delete=models.CASCADE, verbose_name='Negocio')

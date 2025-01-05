@@ -5,9 +5,19 @@
 {% endblock titulo %}
 
 {% block company %}
-  <a href="/{{company.id}}/catalogo">
-    <marquee behavior="" direction="">{{company.name|title}}</marquee>
-  </a>
+  
+  {% if company.is_service %}
+    <a href="/{{company.id}}/catalogo" id="destock">
+      Bienvenido
+    </a>
+    <a href="/{{company.id}}/catalogo" id="mobile">
+      <img src="/media/{{company.image}}" style="width: 45px; height: 40px; border-radius: 2px;">
+    </a>
+    {% else %}
+    <a href="/{{company.id}}/catalogo">
+      <marquee behavior="" direction="">{{company.name|title}}</marquee>
+    </a>
+  {% endif %}
 {% endblock company %}
 
 {% block carrito %}
@@ -18,7 +28,91 @@
     {% include 'menu_from_user.html' %}
 {% endblock menus %}
 
-{% block hero %}  {% endblock hero %}
+{% block hero %}  
+  
+  {% if company.is_service %}
+    <style>
+      .portada_service{
+        background: linear-gradient(to bottom right,rgb(206, 207, 209) ,rgb(25, 31, 36));
+        height: 700px;
+        margin-top: 60px;
+        margin-bottom: -80px;
+      }
+      .portada_service .padre img{
+        width: 250px;
+        height: 290px;
+        border-radius: 6%;
+      }
+      .portada_service .padre div{
+        margin-top: 20px;
+      }
+      .name_service{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      @media (max-width: 624px){/*cuando la pantalla es < a 524*/
+        .portada_service{
+          height: 560px;
+        }
+        .padre #img_logo_mobile{
+          display: block;
+        }
+        .portada_service .padre .logotip{
+          display: none;
+        }
+        .portada_service .padre .description_service{
+          display: none;
+        }
+        #mobile{
+          display: block;
+        }
+        #destock{
+          display: none;
+        }
+      }
+      @media (min-width: 625px){/*cuando la pantalla es > a 525*/
+        #mobile{
+          display: none;
+        }
+      }
+      #img_logo_mobile{
+        display: none;
+      }
+    </style>
+    <div class="container-fluid text-center text-md-left portada_service">
+     
+      <div class="padre row" data-aos="fade-donw">
+        <div class="col-lg-6 col-md-6 col-sm-12 logotip">
+          <img src="/media/{{company.image}}" alt="">
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-12 name_service text-center text-md-left">
+          <h2 >
+            <p class="text-white fs-1 fw-bolder" style="font-family: 'Dancing Script', cursive; ">{{company.name|upper}}</p>
+            <p class="text-white fs-4">
+              Encuentra la mejor atención personalizada
+            </p>
+          </h2>
+        </div>
+      </div>
+      <div class="padre row" data-aos="fade-donw">
+        <div class="col-lg-6 col-md-6 col-sm-12 description_service">
+          <p class="ticle text-center text-wrap fst-italic fw-bold" style="color: rgba(222, 248, 242, 0.945);">
+            {{company.description}}
+          </p>
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-12">
+          
+          <p>
+            <a href="#team_productos" class="btn-get-started_service btn btn-success efecto_button"> NUESTROS SERVICIOS </a>
+          </p>
+          <p id="img_logo_mobile"><img src="/media/{{company.image}}" alt=""></p>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+    
+{% endblock hero %}
   
 {% block contenido %}
     <section id="team_productos" class="portfolio section-bg" style="margin-top: 80px;" >

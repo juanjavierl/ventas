@@ -358,7 +358,10 @@ def confirmarCita(request, id_company, id_producto):
                 orden = crear_orden(request, cliente.id, id_company)
                 pedido = Pedido.objects.create(orden_id = int(orden.id),product_id=int(datos['id_producto']),cant=int(datos['cantidad']),price=float(datos['precio_uni']),total=float(int(datos['cantidad']) * float(datos['precio_uni'])))
                 pedido.save()
-
+        try:
+            lugar = get_address(id_company).toJSON()
+        except:
+            lugar = False
         return JsonResponse(
                             {
                                 'company':company.name,
@@ -367,11 +370,10 @@ def confirmarCita(request, id_company, id_producto):
                                 'cliente_object':cliente.toJSON(),
                                 'orden':orden.id,
                                 'lista':data_cli,
-                                'lugar':get_address(id_company).toJSON(),
+                                'lugar':lugar,
                                 'success':"Tu cita se completo exitosamente gracias."
                             }
                         )
-    print(get_address(id_company).toJSON())
     dic = {
         'form':ClientFormOrder(),
         'company':get_company(id_company),

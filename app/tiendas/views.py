@@ -222,12 +222,14 @@ def configuraciones_company(request, id_company):
         'form_ban':FormBanco(),
         'form_precio':PrecioForm(),
         'form_avisos':Form_avisos(),
+        'form_regla':Form_condiciones(),
         'categorias':categorys_from_productos(productos),
         'company':get_company(id_company),
         'total_compra':len(request.session['compra']),
         'precios':Precio_envio.objects.filter(company_id=int(id_company))[:1],
         'avisos':Aviso.objects.filter(company_id = int(id_company))[:1],
         'banco':Banco.objects.filter(company_id = int(id_company))[:1],
+        'reglas':Condicion.objects.filter(company_id = int(id_company))[:1],
         #'precio_env':determinarPrecioEnvio(id_company),distinct()
         #'ordens':Orden.objects.filter(company_id=int(id_company)).values('client_id').order_by('-id').distinct(),
         'ordens':ped,
@@ -342,6 +344,7 @@ def eliminar_opciones(request, id_aviso):
 
 def report_pdf(request, id_company, id_orden):
     precio_envio=determinarPrecioEnvio(id_company)
+    sucursal = get_address(id_company)
     company = None
 
     pedidos = None
@@ -353,7 +356,7 @@ def report_pdf(request, id_company, id_orden):
     else:
         orden = None
 
-    dic = {'precio_envio':precio_envio, 'company':company, 'orden':orden, 'pedidos':pedidos}
+    dic = {'precio_envio':precio_envio, 'company':company, 'orden':orden, 'pedidos':pedidos, 'sucursal':sucursal}
     html = render_to_string("reportes/report_order_pdf.html", dic)
     response = HttpResponse(content_type="application/pdf")
     response["Content-Disposition"] = "inline; reporte_orden.pdf"
@@ -414,3 +417,30 @@ def productosDeCatalogo(request ,id_company):
     except:
         raise Http404
     return productos
+
+def add_condiciones(request, id_company):
+    company = get_object_or_404(Company, id = int(id_company))
+    try:  
+        if request.method == 'POST':
+            form = Form_condiciones(request.POST, instance=company)
+            c = Condicion()
+            c.company_id = int(id_company)
+            c.regla = request.POST['regla']
+            c.save()
+            return JsonResponse({'success':'Registro exitoso.'})
+    except:
+        return JsonResponse({'error':'Ys existe el registro.'})
+
+def get_condiciones(request, id_company):
+    try:
+        reglas = Condicion.objects.filter(company_id = int(id_company))
+    except:
+        reglas = False
+    return render(request, 'notificaciones/get_condiciones.html', {'reglas':reglas})
+
+def delete_regla(request, id_regla):
+    regla = get_object_or_404(Condicion, id = int(id_regla))
+    if request.method == 'POST':
+        regla.delete()
+        return JsonResponse({'success':"Se Borro el registro. "})
+    return render(request, 'notificaciones/delete_reglas.html', {'regla':regla})

@@ -206,3 +206,31 @@ class Aviso(models.Model):
         item['pedidos'] = self.pedidos
         item['pide_ahora'] = self.pide_ahora
         return item
+
+
+class Condicion(models.Model):
+    company = models.OneToOneField(Company, on_delete=models.CASCADE, verbose_name='Negocio')
+    regla = models.TextField(verbose_name='Terminos y condiciones', max_length=255, help_text="Escriba las reglas y condiciones para sus ventas")
+
+    def __str__(self):
+        return self.company.name
+
+    def toJSON(self):
+        item = model_to_dict(self)
+        item['company'] = self.company.name
+        item['regla'] = self.regla
+        return item
+
+class RRSS(models.Model):
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, verbose_name='Negocio')
+    icono = models.CharField(verbose_name='Icono', max_length=50)
+    rrss = models.CharField(verbose_name='redes sociales', max_length=255)
+
+    def __str__(self):
+        return self.company.name
+
+    def toJSON(self):
+        item = model_to_dict(self)
+        item['company'] = self.company.name
+        item['rrss'] = self.rrss
+        return item

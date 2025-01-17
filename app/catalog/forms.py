@@ -9,7 +9,7 @@ class ClientFormOrder(forms.ModelForm):
 
     class Meta:
         model = Client
-        exclude = ('gender','date_joined','email',)
+        exclude = ('gender','date_joined',)
         #fields = '__all__'
 
 class formUpdateProducto(forms.ModelForm):

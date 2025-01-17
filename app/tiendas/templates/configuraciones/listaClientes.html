@@ -15,7 +15,7 @@
                         <th>Nombre completo</th>
                         <th>CI</th>
                         <th>Celular</th>
-                        <!-- <th>Email</th> -->
+                        <th>Email</th>
                         <th>Direccion</th>
                         <th>Fecha de Registro</th>
                     </tr>
@@ -27,9 +27,9 @@
                             {% if o.client_id == c.id %}
                             <tr>
                                 <td>{{c.names|title}}</td>
-                                <td>{{c.dni}}</td>
+                                <td>{{c.dni|default:" - - -"}}</td>
                                 <td>{{c.mobile}}</td>
-                             <!--    <td>{{c.email|default:" - - -"}}</td> -->
+                                <td>{{c.email|default:" - - -"}}</td>
                                 <td>{{c.address|default:" - - -"}}</td>
                                 <td>{{c.date_joined}}</td>
                             </tr>

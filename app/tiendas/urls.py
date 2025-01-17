@@ -31,4 +31,7 @@ urlpatterns = [
     path('<int:id_company>/inventario_productos', views.inventarioProductos, name='inventario_productos'),
     path('<int:id_company>/info_address_company', views.info_address_company, name='info_address_company'),
     path('<int:id_address>/del_address_comp', views.del_address_comp, name='del_address_comp'),
+    path('<int:id_company>/add_condiciones', views.add_condiciones, name='add_condiciones'),
+    path('<int:id_company>/get_condiciones', views.get_condiciones, name='get_condiciones'),
+    path('<int:id_regla>/delete_regla', views.delete_regla, name='delete_regla'),
 ]

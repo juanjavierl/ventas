@@ -6,7 +6,7 @@ from app.tiendas.models import *
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 
-admin.site.register([Banco,Ciudad,Tipo_company,Plataforma, Sucursal,Precio_envio, Aviso])
+admin.site.register([Banco,Ciudad,Tipo_company,Plataforma, Sucursal,Precio_envio, Aviso, Condicion, RRSS])
 
 """ class companias_expirados(admin.SimpleListFilter):
     #queryset = queryset.filter(expiration_date__lt=date.today())

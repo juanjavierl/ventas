@@ -26,36 +26,34 @@
     <div class="container-fluid productos_por_categorias" data-aos="fade-up">
 
         <div class="accordion" id="accordionExample">
-            {% if not company.is_service %}
             <div class="accordion-item">
                 {% include 'configuraciones/reportePedidos.html' %}
             </div>
-            
-            
+        
             <div class="accordion-item">
                 {% include 'configuraciones/precioEnvios.html' %}
             </div>
-            {% endif %}
                 
             <div class="accordion-item">
                 {% include 'configuraciones/registroBanco.html' %}
             </div>
-            {% if not company.is_service %}
+
             <div class="accordion-item">
                 {% include 'configuraciones/avisoCatalogo.html' %}
             </div>
             <div class="accordion-item">
                 {% include 'configuraciones/inventarioProductos.html' %}
             </div>
-            {% endif %}
-            
-            
             <div class="accordion-item">
                 {% include 'configuraciones/listaClientes.html' %}
             </div>
 
             <div class="accordion-item">
                 {% include 'configuraciones/add_mapa.html' %}
+            </div>
+
+            <div class="accordion-item">
+                {% include 'configuraciones/add_condicion.html' %}
             </div>
 
         </div>
@@ -98,3 +96,7 @@
 </section>
 <!-- End Contact Section -->
 {% endblock contact %}
+
+{% block footer_catalog %}
+  {% include 'footer_tienda.html' %}
+{% endblock footer_catalog %}

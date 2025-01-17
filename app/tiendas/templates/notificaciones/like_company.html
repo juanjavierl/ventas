@@ -1,26 +1,4 @@
-{% extends 'index.html' %}
 
-{% block titulo %}
-{{company.name|title|truncatechars:17|cut:" "}}
-{% endblock titulo %}
-
-{% block company %}
-<a href="/{{company.id}}/catalogo">
-  <marquee behavior="" direction="">{{company.name|title|cut:" "}}</marquee>
-</a>
-{% endblock company %}
-
-{% block carrito %}
-{% include 'catalog/carrito.html' with total_compra=total_compra %}
-{% endblock carrito %}
-
-{% block menus %}
-{% include 'menu_from_user.html' %}
-{% endblock menus %}
-
-{% block hero %} {% endblock hero %}
-
-{% block contenido %}
 <style>
   .card-horizontal {
     display: flex;
@@ -28,25 +6,26 @@
     max-width: 600px;
   }
 </style>
-<section id="team_productos" class="portfolio section-bg justify-content-center" style="margin-top: 30px;">
-  <div class="container productos_por_categorias " data-aos="fade-up">
-    <div class="mt-5">
+  <div class="container productos_por_categorias " data-aos="fade-up" style="text-align: -webkit-center;">
+    <div class="section-title" data-aos="fade-up">
+      <h2>Realizaste tu pedido con exito!!</h2>
+    </div>
+    <div>
       <div class="card card-horizontal">
 
         <div class="card-body">
 
           {% if like %}
           <div class="alert-success">
-            <h5 class="card-title fst-italic">{{company.name|title}} te dice</h5>
+            <h5 class="card-title fst-italic text-primary">{{company.name|title}} te dice</h5>
             <p class="card-text text-start fst-italic">{{like}}<br>
               <a href="/{{company.id}}/catalogo">Ir al Catálogo</a>
             </p>
           </div>
           {% else %}
-          <h5 class="card-title fst-italic">{{company.name|title}} te dice ¡Califica nuestra página!</h5>
-          <p class="card-text text-start fst-italic">Registra una opción para evaluar nuestra sistema, asi para llegar a
-            más personas, muchas gracias por su participación.</p>
-
+          <h5 class="card-title fst-italic text-primary">{{company.name|title}} te dice ¡Muchas Gracias Por Confiar en Nosotros!</h5>
+          <p class="card-text text-start fst-italic">Elige una opción para evaluar nuestro sistema, asi podremos llegar a
+            más personas, hasta pronto!.</p>
           <form action="/{{company.id}}/{{id_orden}}/{{id_cliente}}/like" method="post" id="form_like">
             {% csrf_token %}
             <div class="input-group">
@@ -67,7 +46,6 @@
       </div>
     </div>
   </div>
-</section>
 <script>
   $('#form_like').on('submit', function (e) {
     e.preventDefault();
@@ -99,17 +77,3 @@
     });
   });
 </script>
-{% endblock contenido %}
-
-{% block button_whatsap %}
-{% include 'button_whatsap.html' %}
-{% endblock button_whatsap %}
-{% block contact %}
-<!-- ======= Contact Section ======= -->
-<section id="contact" class="contact">
-  <div class="container">
-    {% include 'contact.html' with company=company %}
-  </div>
-</section>
-<!-- End Contact Section -->
-{% endblock contact %}

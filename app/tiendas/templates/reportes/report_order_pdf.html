@@ -40,7 +40,6 @@
         <div class="row d-flex">
           <div class="col">
             <h1 class="titulo_company">{{company.name|title}}</h1>
-            <small class="text-muted" style="font-size: 11px;">{{company.description|default:' '}}</small>
           </div>
           <div class="col">
             <img src="https://www.amceb.online/media/{{company.image}}" alt="" class="img-fluid img_logo">
@@ -53,7 +52,7 @@
             <tr>
                 <td colspan="2">
                     <small>Celular:  {{company.mobile}}</small><br>
-                    <small>Dir:  {{company.address}}</small><br>
+                    <small>Dir:  {{sucursal.address|default:'Tienda online'}}</small><br>
                     <small>{{company.cuidad}} - Bolivia </small>
                 </td>
                 <td colspan="3">

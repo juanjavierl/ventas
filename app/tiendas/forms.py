@@ -51,3 +51,8 @@ class Form_avisos(forms.ModelForm):
     class Meta:
         model = Aviso
         exclude = ('company',)
+
+class Form_condiciones(forms.ModelForm):
+    class Meta:
+        model = Condicion
+        exclude = ('company',)

@@ -54,43 +54,20 @@
           <div class="portfolio-links">
             <a href="/media/{{p.image}}" data-gallery="portfolioGallery" class="portfolio-lightbox"
               title="{{p.name|capfirst}}"><i class="bx bx-plus"></i></a>
-            
-            {% if not company.is_service %}
+
             <a href="/{{p.id}}/{{company.id}}/detail_product" title="Mas detalles"><i class="bx bx-link"></i></a>
-            {% endif %}
               
           </div>
         </div>
       </div>
     </div>
     {% else %}
-    
-    {% if company.is_service %}
-    <i class="bi bi-box-seam card-img-top icon" alt="..."> </i>
-    {% else %}
-    <i class="bi bi-box-seam card-img-top icon" 
-      alt="..."
-      onclick="detailView('/{{p.id}}/{{company.id}}/detail_product')">
-    </i>
-    {% endif %}
-      
+     <i class="bi bi-box-seam card-img-top icon" alt="..." onclick="detailView('/{{p.id}}/{{company.id}}/detail_product')"></i>
     {% endif %}
     {% if p.is_new %}
     <span class="badge rounded-pill bg-primary sale-tag d-flex">Nuevo</span>
     {% endif %}
     <div class="card-body" style="padding: 0px;">
-
-
-      {% if company.is_service %}
-      <div class="row" style="margin-left: 1px;">
-        <h5 class="card-title text-wrap text-primary fw-bolder">{{p.name|capfirst}}</h5>
-        <p class="card-text">Categoria: <small class="text-muted">{{p.category|title}}</small></p>
-        <p class="text-center">
-          <a href="/{{company.id}}/{{p.id}}/confirmar_cita" type="button" class="btn btn-success btn-sm"> <i class="bi bi-check-lg"></i> AGENDA TU CITA AHORA</a>
-        </p>
-      </div>
-
-      {% else %}
       <div class="text-section">
         <h5 class="card-title text-wrap text-primary fw-bolder">{{p.name|capfirst}}</h5>
         <p class="card-text text-break text-wrap">{{p.description|default:" - - - "|capfirst|truncatewords:5}}
@@ -106,11 +83,6 @@
             {{p.price_before}}</p>
           <p><span class="badge text-bg-warning text-white desc">Desc. {{p.porcentage}}%</span></p>
           {% endif %}
-          {% if p.is_service %}
-          <p><span class="badge text-bg-info text-white" style="color: white;">Servicio</span></p>
-          {% endif %}
-
-
 
           <div class="dropdown">
             <button type="submit" id="id_{{p.id}}"
@@ -127,10 +99,8 @@
               <a class="dropdown-item" href="#eliminar" onclick="deleteProduct('/{{p.id}}/deleteProduct/')"
                 data-bs-toggle="modal" data-bs-target="#exampleModal">Eliminar</a>
 
-              {% if not p.is_service %}
               <a class="dropdown-item" href="#inventario" onclick="updateStock('/{{p.id}}/updateStock/')"
                 data-bs-toggle="modal" data-bs-target="#exampleModal">Stock</a>
-              {% endif %}
 
             </div>
             {% endif %}
@@ -138,7 +108,6 @@
 
         </div>
       </div>
-      {% endif %}
     </div>
   </div>
   {% empty %}

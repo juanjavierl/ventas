@@ -53,6 +53,13 @@ def get_address(id_company):
         address = False
     return address
 
+def get_rule_condicion(id_company):
+    try:
+        reglas = Condicion.objects.get(company_id=int(id_company))
+    except:
+        reglas = False
+    return reglas
+
 def optener_avisos_by_company(id_company):
     try:
         aviso = Aviso.objects.get(company_id=int(id_company))
@@ -207,8 +214,8 @@ def confirmar_compra(request, id_company):
     company = get_object_or_404(Company, id = id_company)
     t_pago = calcular_pago(request)#total a pagar de todo el carrito
     if request.method == 'POST':
-        if not request.POST['dni'].isdigit():
-            return JsonResponse({'error': "El Nro de Nit/CI debe ser numérico."})
+        if request.POST['email'] == " ":
+            return JsonResponse({'error': "Por favor ingrese su email."})
         if not request.POST['mobile'].isdigit():
             return JsonResponse({'error': "El Nro de Celular debe ser numérico."})
         forms=ClientFormOrder(request.POST)
@@ -232,8 +239,8 @@ def confirmar_compra(request, id_company):
         else:
             return JsonResponse({'error': "Por favor complete sus datos."})
         #try:#si ya existe ese cliente
-        if Client.objects.filter(dni = int(request.POST['dni'])).exists():
-            cliente = Client.objects.get(dni = int(request.POST['dni']))
+        if Client.objects.filter(email = request.POST['email']).exists():
+            cliente = Client.objects.get(email = request.POST['email'])
             orden = crear_orden(request, cliente.id, id_company)#se crea una orden
             for productos in request.session['compra']:#[{'id_producto':12,'cantidad':1},{'id_producto':10,'cantidad':2}]
                 pedido = Pedido()
@@ -303,7 +310,7 @@ def confirmar_compra(request, id_company):
                                 'precio_envio':determinarPrecioEnvio(id_company)
                             }
                         )
-    
+
     dic = {
         'form':ClientFormOrder(),
         'total_compra':len(request.session['compra']),
@@ -314,7 +321,8 @@ def confirmar_compra(request, id_company):
         'productos':productosMasVistos(id_company),
         'precio_envio':determinarPrecioEnvio(id_company),
         'aviso':optener_avisos_by_company(id_company),
-        'address':get_address(id_company)
+        'address':get_address(id_company),
+        'regla':get_rule_condicion(id_company)
     }
     return render(request,'catalog/confirmar_compra.html',dic)
 
@@ -405,8 +413,6 @@ def determinarPrecioEnvio(id_company):
 
 def crear_orden(request, id_cliente, id_company):
     pr_envio = determinarPrecioEnvio(id_company)
-    print(pr_envio)
-
     orden = Orden()
     orden.client_id = int(id_cliente)
     orden.company_id = int(id_company)

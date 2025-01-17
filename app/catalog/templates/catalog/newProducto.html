@@ -72,8 +72,13 @@
         </div>
         <div class="row">
           <div class="col-md-6 form-group">
-            <label for="{{ form.stock.id_for_label }}">Stock:</label>
+            <label for="{{ form.stock.id_for_label }}">Stock:
+              <span id="passwordHelpBlock" class="form-text">
+                Si es de tipo servicio dejar por defecto en 1
+              </span>
+            </label>
             {{form.stock}}
+            
           </div>
           <div class="col-md-6 form-group mt-3 mt-md-0"><br>
             <input type="checkbox" name="is_new" class="checkboxinput form-check-input" id="id_is_new">
@@ -83,7 +88,9 @@
           <div class="col-md-6 form-group mt-md-0">
             <input type="checkbox" name="is_service" class="checkboxinput form-check-input" id="id_is_service">
             <label for="{{ form.is_service.id_for_label }}">¿Es Servicio?:</label>
-
+            <span id="passwordHelpBlock" class="form-text">
+              Solo aplica a los items que se comercializa en aqui y no en otras ciudades
+            </span>
           </div>
           <div class="col-md-6 form-group mt-3 mt-md-0">
             <input type="checkbox" name="is_promotion" class="checkboxinput form-check-input" id="id_is_promotion">

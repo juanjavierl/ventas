@@ -140,7 +140,7 @@
                 {% endif %}
               </strong>
               {% if p.is_service %}
-              <span class="badge text-bg-info" style="color: white;">Servicio</span>
+              <span class="badge text-bg-info text-white" style="font-size: 14px;">Servicio</span>
               {% endif %}
             </li>
             <li><strong>Producto</strong>:
@@ -222,7 +222,7 @@
           </ul>
         </div>
         <div class="portfolio-description">
-          <h2>Informacion</h2>
+          <h2>Información</h2>
           <p class="text-break">
             {{p.description|default:" - - -"|capfirst}}
           </p>
@@ -372,7 +372,9 @@
 </section>
 <!-- End Contact Section -->
 {% endblock contact %}
-
+{% block footer_catalog %}
+  {% include 'footer_tienda.html' %}
+{% endblock footer_catalog %}
 {% block js %}
 <script src="{% static 'js/funcionesFromUser.js' %}"></script>
 {% endblock js %}

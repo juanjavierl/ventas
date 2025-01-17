@@ -5,14 +5,6 @@
 </h1>
 
 
-{% if company.is_service %}
-<h1>
-    <a href="https://api.whatsapp.com/send?text=Nuestras Especialidades: {% now 'M-Y' %} %0A %0A *{{company.name|upper|default:' '}}* %0A{{request.build_absolute_uri}}" target="_blank" style="font-size: 25px;">
-        <i class="bi bi-share-fill"></i>
-    </a>
-</h1>
-{% endif %}
-{% if not company.is_service %}
 <h1>
     <a href="https://api.whatsapp.com/send?text=Catalogo:{% now 'M-Y' %} %0A %0A *{{company.name|upper|default:' '}}* %0A{{request.build_absolute_uri}}" target="_blank" style="font-size: 25px;">
         <i class="bi bi-share-fill"></i>
@@ -29,5 +21,5 @@
     </button>
     </a>
 </h1>
-{% endif %}
+
     

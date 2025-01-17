@@ -43,7 +43,7 @@
   <div class="row d-flex no-gutters justify-content-center info productos_por_categorias" data-aos="fade-up"
     id="data_dable">
     <div class="section-title" data-aos="fade-up">
-      <h2>Para una mejor atención complete sus datos</h2>
+      <h2>Ingrese sus datos para generar su orden</h2>
     </div>
     <div class="col-lg-5 d-flex align-items-stretch form_msj">
 
@@ -54,7 +54,10 @@
         <select class="form-select" id="tipo_envio" name="tipo_envio" aria-label="Small select example">
           <option value="tienda">Recoger en tienda</option>
           <option value="domicilio">Recibir en mi domicilio</option>
+          
+          {% if not company.is_service %}
           <option value="ciudad">Enviarme a otra Ciudad</option>
+          {% endif %}
         </select>
         <small class="text-muted menj_valor_envio"></small>
         <br>
@@ -80,7 +83,12 @@
           <option value="Pando">Pando</option>
         </select>
         <br>
-
+        
+        {% if regla %}
+        <div class="alert alert-info text-center" role="alert" style="padding: 0px;">
+          <i class="bi bi-check-lg"></i> <small>{{regla.regla}}</small>
+        </div>
+        {% endif %}
         <div class="modal-footer">
           <a href="/{{company.id}}/catalogo" class="btn btn-secondary btn-sm"
             style="margin-bottom: 20px; margin-right: 10px;"><i class="bi bi-arrow-left-circle"></i> Ir Atras</a>
@@ -165,7 +173,7 @@
       }
     });
 
-    if ({{ total_compra }} == 0){
+    if ("{{ total_compra }}" == "0"){
     $(".form_msj").hide();
     $(".col-6 h2").fadeIn(1000).html("No hay productos");
     setTimeout(function () {
@@ -176,67 +184,75 @@
 
   $('#form_pedido').submit(function (e) {
     e.preventDefault();
-    $.ajax({
-      type: 'POST',
-      url: $(this).attr("action"),
-      data: $(this).serialize(),
-      success: function (resp) {
-        if (resp.error) {
-          $('.toast-body').addClass('alert alert-danger');
-          $('.toast-body').fadeIn(1000).html(resp.error);
-          const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
-          toastBootstrap.show();
-        }
-        else {
-          $("#confirmacion").hide();
-
-          $('.toast-body').addClass('alert alert-success');
-          $('.toast-body').fadeIn(1000).html(resp.success);
-          const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
-          toastBootstrap.show();
-          $('#form_pedido')[0].reset();
-          $("#cont_compras").html(resp.products);
-
-          var datos = "***** *Mi Reserva Nro. " + resp.orden + "* ***** %0A";
-          datos = datos + "Nombre: " + resp.cliente_object.names + "%0A %0A";
-          var pedido = "";
-          for (let productos = 0; productos < resp.lista.length; productos++) {
-            pedido = pedido + resp.lista[productos]['name'] + " " + resp.lista[productos]['cantidad'] + "x" + resp.lista[productos]['precio_uni'] + "=" + resp.lista[productos]['total'] + "%0A";
+    if (validateEmail($("#id_email").val())){
+      $.ajax({
+        type: 'POST',
+        url: $(this).attr("action"),
+        data: $(this).serialize(),
+        success: function (resp) {
+          if (resp.error) {
+            $('.toast-body').addClass('alert alert-danger');
+            $('.toast-body').fadeIn(1000).html(resp.error);
+            const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+            toastBootstrap.show();
           }
-          pedido = pedido + "%0A"
-          var lugar = ""
-          if (resp.lugar.date == "date") {
+          else {
+            $('.toast-body').addClass('alert alert-success');
+            $('.toast-body').fadeIn(1000).html(resp.success);
+            const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+            toastBootstrap.show();
+            $('#form_pedido')[0].reset();
+            $("#cont_compras").html(resp.products);
+
+            var datos = "***** *Confirmo mi Pedido Nro. " + resp.orden + "* ***** %0A";
+            datos = datos + "A nombre de: " + resp.cliente_object.names + "%0A %0A";
+            var pedido = "";
+            for (let productos = 0; productos < resp.lista.length; productos++) {
+              pedido = pedido + resp.lista[productos]['name'] + " " + resp.lista[productos]['cantidad'] + "x" + resp.lista[productos]['precio_uni'] + "=" + resp.lista[productos]['total'] + "%0A";
+            }
+            pedido = pedido + "%0A"
+            let lugar = "";
+            let Envio = "";
+            let sub_total = "- *Sub total: Bs. " + parseFloat(resp.t_pago) + "* %0A";
+            let total = "- *Total a pagar Bs: " + resp.t_pago+ "* %0A";
+            if (resp.lugar.date == "date") {
+              lugar = "Fecha y hora a recoger: %0A" + resp.lugar.fecha + "%0A %0A";
+            }
+            if (resp.lugar.dir == "dir") {
+              lugar = "Dirección de envio: " + resp.lugar.direccion + "%0A";
+              let to_p = parseFloat(resp.t_pago) + parseFloat(resp.precio_envio);
+              Envio = "- *Costo de envio: Bs." + resp.precio_envio + "* %0A";
+              total = "- *total a pagar: Bs. " + to_p + "* %0A%0A";
+            }
+            if (resp.lugar.cuidad == "cuidad") {
+              lugar = "Ciudad de envio: " + resp.lugar.destino + "%0A";
+              Envio = "Envio: a coordinar"+ "%0A";
+            }
+            dir = "Dirección: " + resp.dir + "%0A";
+            cuidad = "Ciudad:" + resp.cuidad + "%0A";
             
-            lugar = "Fecha y hora a recoger: %0A" + resp.lugar.fecha + "%0A %0A";
+            //href="https://api.whatsapp.com/send?text=Mas informacion sobre este producto: {{p.description|default:' '}}, gracias. &phone={{company.mobile}}/?u={{request.build_absolute_uri}}"
             
+            var ruta = "https://api.whatsapp.com/send?phone=+591" + resp.cel_company + "&text=" + datos + pedido  + sub_total + Envio + total + lugar;
+            
+            window.open(ruta, '_blank');
+            //location.reload();
+            $.ajax({
+              type: 'GET',
+              url: "/"+resp.company_object.id+"/"+ resp.orden + "/" + resp.cliente_object.id +"/like",
+              success: function (resp) {
+                $("#team_productos").html(resp);
+              }
+            });
           }
-          if (resp.lugar.dir == "dir") {
-            lugar = "Dirección de envio: " + resp.lugar.direccion + "%0A";
-          }
-          if (resp.lugar.cuidad == "cuidad") {
-            lugar = "Ciudad de envio: " + resp.lugar.destino + "%0A";
-          }
-
-          dir = "Dirección: " + resp.dir + "%0A";
-          cuidad = "Ciudad:" + resp.cuidad + "%0A";
-          var Envio = "- *Envio: Bs." + resp.precio_envio + "* %0A";
-
-          var sub_total = "- *Sub total: Bs. " + parseFloat(resp.t_pago) + "* %0A";
-
-          var to_p = parseFloat(resp.t_pago) + parseFloat(resp.precio_envio);
-          total = "- *total: Bs. " + to_p + "* %0A%0A"
-          
-          web = "_Muchas gracias por su pedido, regresa muy pronto! denos tu puntuación para mostrar un sitio recomendable: {{ request.get_host }}/" + resp.company_object.id +"/"+ resp.orden + "/" + resp.cliente_object.id + "/like_ %0A"//corregir ir a la orden
-          
-          //href="https://api.whatsapp.com/send?text=Mas informacion sobre este producto: {{p.description|default:' '}}, gracias. &phone={{company.mobile}}/?u={{request.build_absolute_uri}}"
-          
-          var ruta = "https://api.whatsapp.com/send?phone=+591" + resp.cel_company + "&text=" + datos + pedido  + sub_total + Envio + total + lugar + web;
-          
-          window.open(ruta, '_blank');
-          //location.reload();
         }
-      }
-    });
+      });
+    }
+    else{
+      alet("Su email no es valido");
+      $('#id_email').focus();
+    }
+    
   });
 
   function eliminarProducto(urls) {
@@ -253,6 +269,10 @@
     return false;
   }
 
+  function validateEmail(email) {
+    const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{0,9}$/;
+    return regex.test(email);
+  }
 </script>
 {% endblock contenido %}
 
@@ -277,3 +297,7 @@
   </div>
 </section>
 {% endblock contact %}
+
+{% block footer_catalog %}
+{% include 'footer_tienda.html' %}
+{% endblock footer_catalog %}

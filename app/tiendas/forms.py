@@ -38,9 +38,6 @@ class PrecioForm(forms.ModelForm):
     class Meta:
         model = Precio_envio
         exclude = ('date_joined','company')
-        widgets = {
-            'precio': forms.TextInput(attrs={'class': 'form-control', 'placeholder':'Ejemplo 10 bs.'})
-        }
 
 class FormBanco(forms.ModelForm):
     class Meta:

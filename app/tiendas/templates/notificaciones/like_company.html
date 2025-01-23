@@ -31,10 +31,9 @@
             <div class="input-group">
               <select class="form-select" id="inputGroupSelect04" name="like"
                 aria-label="Example select with button addon" required>
-                <option selected>Elige un opcion</option>
-                <option value="0">Malo</option>
-                <option value="1">Bueno</option>
                 <option value="2">Muy bueno</option>
+                <option value="1">Bueno</option>
+                <option value="0">Malo</option>
               </select>
               <button class="btn btn-outline-success" type="submit">Enviar</button>
             </div>
@@ -55,12 +54,12 @@
       data: $(this).serialize(),
       success: function (resp) {
         if (resp.error) {
-          $('.toast-body').addClass('alert alert-danger');
+          $('.toast-body').removeClass('alert-success').addClass('alert-success');
           $('.toast-body').fadeIn(1000).html('<strong>' + resp.error + '</strong>');
           mostrar_notificacion();
         }
         else {
-          $('.toast-body').addClass('alert alert-success');
+          $('.toast-body').removeClass('alert-danger').addClass('alert-success');
           $('.toast-body').fadeIn(1000).html(resp.success);
           $('#form_like')[0].reset();
 

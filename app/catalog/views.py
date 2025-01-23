@@ -221,6 +221,8 @@ def confirmar_compra(request, id_company):
         forms=ClientFormOrder(request.POST)
 
         if request.POST['tipo_envio'] == 'tienda':
+            precio_envio = 0
+            ref = 'tienda'
             valor = request.POST['date_time'].split("T")
             valor = " ".join(valor)#'2024,06,23 13:58'
             d = datetime.strptime(request.POST['date_time']+":00", '%Y-%m-%dT%H:%M:%S')
@@ -233,15 +235,19 @@ def confirmar_compra(request, id_company):
                 lugar = {'fecha':fecha,'date':'date'}
         elif request.POST['tipo_envio'] == 'domicilio':
             lugar = {'direccion':request.POST['address'],'dir':'dir'}
+            precio_envio = determinarPrecioEnvio(id_company)
+            ref = 'domicilio'
 
         elif request.POST['tipo_envio'] == 'ciudad':
             lugar = {'destino':request.POST['destino'],'cuidad':'cuidad'}
+            precio_envio = determinarPrecioEnvioCiudad(id_company)
+            ref = 'ciudad'
         else:
             return JsonResponse({'error': "Por favor complete sus datos."})
         #try:#si ya existe ese cliente
         if Client.objects.filter(email = request.POST['email']).exists():
             cliente = Client.objects.get(email = request.POST['email'])
-            orden = crear_orden(request, cliente.id, id_company)#se crea una orden
+            orden = crear_orden(request, cliente.id, id_company, ref)#se crea una orden
             for productos in request.session['compra']:#[{'id_producto':12,'cantidad':1},{'id_producto':10,'cantidad':2}]
                 pedido = Pedido()
                 pedido.orden_id = int(orden.id)
@@ -261,17 +267,16 @@ def confirmar_compra(request, id_company):
             request.session['compra'] = []#cuando al cliente confirma su pedido se resetea al carrito a 0
             return JsonResponse(
                         {
-                            'company':company.name,
                             'cliente_object':cliente.toJSON(),
                             'company_object':company.toJSON(),
-                            'orden':orden.id,
+                            'orden':orden.toJSON(),
                             'lugar':lugar,
-                            'cel_company':company.mobile,
                             'products':len(request.session['compra']),
                             'success':"Bien, tu pedido a sido registrado.",
                             'lista':lista_product,#envio lasession en la variable lista_product
                             't_pago':t_pago,
-                            'precio_envio':determinarPrecioEnvio(id_company)
+                            'precio_envio':determinarPrecioEnvio(id_company),
+                            'precio_envio_ciudad':determinarPrecioEnvioCiudad(id_company)
                         }
                     )
         #except Client.DoesNotExist:
@@ -279,7 +284,7 @@ def confirmar_compra(request, id_company):
             if forms.is_valid():
                 cliente = forms.save(commit=False)
                 cliente.save()
-                orden = crear_orden(request, cliente.id, id_company)
+                orden = crear_orden(request, cliente.id, id_company, ref)
                 for productos in request.session['compra']:#[{'id_producto':12,'cantidad':1},{'id_producto':10,'cantidad':2}]
                     pedido = Pedido()
                     pedido.orden_id = int(orden.id)
@@ -297,17 +302,16 @@ def confirmar_compra(request, id_company):
                 request.session['compra'] = []#cuando al cliente confirma su pedido se resetea al carrito a 0
                 return JsonResponse(
                             {
-                                'company':company.name,
                                 'company_object':company.toJSON(),
-                                'cel_company':company.mobile,
                                 'cliente_object':cliente.toJSON(),
-                                'orden':orden.id,
+                                'orden':orden.toJSON(),
                                 'lugar':lugar,
                                 'products':len(request.session['compra']),
                                 'success':"En hora buena realizaste tu pedido.",
                                 'lista':lista_product,
                                 't_pago':t_pago,
-                                'precio_envio':determinarPrecioEnvio(id_company)
+                                'precio_envio':determinarPrecioEnvio(id_company),
+                                'precio_envio_ciudad':determinarPrecioEnvioCiudad(id_company)
                             }
                         )
 
@@ -320,6 +324,7 @@ def confirmar_compra(request, id_company):
         't_pago':t_pago,
         'productos':productosMasVistos(id_company),
         'precio_envio':determinarPrecioEnvio(id_company),
+        'precio_envio_ciudad':determinarPrecioEnvioCiudad(id_company),
         'aviso':optener_avisos_by_company(id_company),
         'address':get_address(id_company),
         'regla':get_rule_condicion(id_company)
@@ -411,8 +416,23 @@ def determinarPrecioEnvio(id_company):
         p_envio = 0
         return p_envio#QUIERO ENVIAR SOLO EL PRECIO AL TEMPLATE
 
-def crear_orden(request, id_cliente, id_company):
-    pr_envio = determinarPrecioEnvio(id_company)
+def determinarPrecioEnvioCiudad(id_company):
+    try:
+        p_envio = Precio_envio.objects.get(company_id=int(id_company))
+        return p_envio.precio_ciudad
+    except:
+        p_envio = 0
+        return p_envio#QUIERO ENVIAR SOLO EL PRECIO AL TEMPLATE
+
+def crear_orden(request, id_cliente, id_company, ref = 'tienda'):
+    if ref == 'tienda':
+        pr_envio = 0
+    elif ref == 'domicilio':
+        pr_envio = determinarPrecioEnvio(id_company)
+    elif ref == 'ciudad':
+        pr_envio = determinarPrecioEnvioCiudad(id_company)
+    else:
+        pr_envio = 0
     orden = Orden()
     orden.client_id = int(id_cliente)
     orden.company_id = int(id_company)
@@ -510,7 +530,7 @@ def updateStock(request, id_product):
             return JsonResponse({'success':'Bien Stock Actualizado'})
         elif int(request.POST['incremento']) == 0 and int(request.POST['decremento']) > 0:
             cant = int(request.POST['decremento'])
-            Product.objects.filter(id=id_product).update(salida = int(product.salida) - cant)
+            Product.objects.filter(id=id_product).update(salida =  cant + int(abs(product.salida)))
 
             return JsonResponse({'success':'Bien Stock Actualizado'})
         else:

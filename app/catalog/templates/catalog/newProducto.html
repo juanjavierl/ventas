@@ -141,18 +141,16 @@
       processData: false,
       success: function (resp) {
         //Por realizar tareas
-        $('.toast-body').addClass('alert alert-success');
+        $('.toast-body').removeClass('alert-danger').addClass('alert-success');
         $('.toast-body').fadeIn(1000).html(resp.success);
         $('#form_producto')[0].reset();
         $("#form_producto #id_category").select2("val", " ");
-        const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
-        toastBootstrap.show()
+        mostrar_notificacion();
         if(resp.aviso){
-          $('.toast-body').addClass('alert alert-warning');
+          $('.toast-body').removeClass('alert-success').addClass('alert-warning');
           $('.toast-body').fadeIn(1000).html("Alcanseste el limite de registros, Solicita un nuevo plan");
           //$("#id_category").empty();
-          const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
-          toastBootstrap.show()
+          mostrar_notificacion();
         }
       },
       error: function (xhr, ajaxOptions, thrownError) {

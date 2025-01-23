@@ -175,7 +175,8 @@ class Sucursal(models.Model):
 
 class Precio_envio(models.Model):
     company = models.OneToOneField(Company, on_delete=models.CASCADE, verbose_name='Negocio')
-    precio = models.IntegerField(verbose_name='Precio de Envio')
+    precio = models.IntegerField(verbose_name='Precio de envio a domicilio')
+    precio_ciudad = models.IntegerField(verbose_name='Precio de envio a otra ciudad')
     date_joined = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -184,7 +185,9 @@ class Precio_envio(models.Model):
     def toJSON(self):
         item = model_to_dict(self)
         item['company'] = self.company.name
+        item['id'] = int(self.id)
         item['precio'] = self.precio
+        item['precio_ciudad'] = self.precio_ciudad
         item['date_joined'] = self.date_joined.strftime('%Y-%m-%d')
         return item
 

@@ -1,5 +1,5 @@
-<div class="modal-header  thead-light">
-    <h5 class="modal-title" id="exampleModalLabel">Mi Lista de Pedidos</h5>
+<div class="modal-header  thead-light" style="background-color: #58bba9;">
+    <h5 class="modal-title text-white" id="exampleModalLabel">Mi Lista de Pedidos</h5>
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <div class="modal-body table-responsive">
@@ -33,7 +33,7 @@
           
           {% if datos %}
           <tr>
-            <td colspan="6" style="text-align: right;"><strong data-value="{{t_pago}}" id="t_pago">Total a Pagar: Bs. {{t_pago}}</strong></td>
+            <td colspan="6" style="text-align: center;"><strong data-value="{{t_pago}}" id="t_pago">Total a Pagar: Bs. {{t_pago}}</strong></td>
           </tr>
           {% endif %}
         </tbody>

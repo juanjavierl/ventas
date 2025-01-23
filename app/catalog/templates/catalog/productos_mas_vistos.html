@@ -1,42 +1,7 @@
-<style>
-    .multiple-card-slider .carousel-inner {
-        padding: 1em;
-    }
-
-    .multiple-card-slider .card {
-        margin: 0 0.5em;
-        box-shadow: 2px 6px 8px 0 rgba(22, 22, 26, 0.18);
-        border: none;
-    }
-
-    .multiple-card-slider .carousel-control-prev,
-    .multiple-card-slider .carousel-control-next {
-        background-color: #e1e1e1;
-        width: 3em;
-        height: 3em;
-        border-radius: 50%;
-        top: 50%;
-        transform: translateY(-50%);
-    }
-
-    @media (min-width: 768px) {
-        .multiple-card-slider .carousel-item {
-            margin-right: 0;
-            flex: 0 0 calc(100% / 3);
-            display: block;
-            backface-visibility: visible;
-        }
-
-        .multiple-card-slider .carousel-inner {
-            display: flex;
-        }
-    }
-</style>
-
 <div class="row" data-aos="fade-up">
     <div class="col-12">
         <div class="section-title">
-            
+
             {% if company.is_service %}
             <h2>Servicios más solicitados del mes</h2>
             {% else %}
@@ -46,110 +11,56 @@
     </div>
 </div>
 
-<div class="multiple-card-slider carousel slide" data-bs-ride="carousel" data-aos="fade-up">
-    <div id="carouselExampleControls" class="carousel" data-bs-ride="true">
-        <div class="carousel-inner">
-            {% for p in productos %}
-                {% if p.image %}
-                <div class="carousel-item">
-                    
-                    <div class="card dark card_c single-product">
-                        <img src="/media/{{p.image}}" class="card-img-top" alt="...">
-                        
-                        <div class="card-body" style="padding: 10px;">
-                            <div class="text-section">
-                                <h5 class="card-title text-wrap text-primary fw-bolder">{{p.name|capfirst}}</h5>
-                                
-                                {% if company.is_service %}
-                                <span id="passwordHelpBlock" class="form-text text-success">
-                                    Disponible <i class="bi bi-check-lg"></i>
-                                  </span>
-                                {% else %}
-                                <small class="">Prec: {{p.price}} </small>
-                                <small class="text-decoration-line-through text-danger">
-                                    {% if p.price_before %}
-                                    Antes: {{p.price_before}}
-                                    {% endif %}
-                                </small>
-                                <small class="">
-                                    {% if p.price_before %}
-                                    Desc. {{p.porcentage}}%
-                                    {% endif %}
-                                </small>
-                                <p class="card-text"> 
-                                    <small class="text-success" style="font-size: 15px;">Última venta
-                                        hace {{p.num_aleatorio}} dias</small>
-                                    
-                                </p>
-                                {% endif %}
-                                
-                                {% if company.is_service %}
-                                <p class="text-center">
-                                    <a href="/{{company.id}}/{{p.id}}/confirmar_cita" type="button" class="btn btn-success btn-sm"> <i class="bi bi-check-lg"></i> Reservar una Cita</a>
-                                  </p>
-                                  {% else %}
-                                  <button type="submit" id="id_{{p.id}}"
-                                    onclick="add_item('/{{p.id}}/{{p.company.id}}/detail_product','{{p.id}}')"
-                                    class="btn btn-primary btn-sm">Agregar</button>
-                                <button type="submit" onclick="detailView('/{{p.id}}/{{company.id}}/detail_product')"
-                                    class="btn btn-warning btn-sm text-white">Ver datalles</button>
-                                {% endif %}
-                            </div>
-                          </div>
-                      </div>
+<div class="testimonials-slider swiper" data-aos="fade-left" data-aos-delay="100">
+    <div class="swiper-wrapper">
+        {% for p in productos %}
+        {% if p.image %}
+        <div class="swiper-slide">
+            <div class="testimonial-item">
+                <p>
 
+                <div class="card dark card_c single-product">
+                    <img src="/media/{{p.image}}" class="card-img-top" alt="...">
+
+                    <div class="card-body" style="padding: 10px;">
+                        <div class="text-section">
+                            <h5 class="card-title text-wrap text-primary fw-bolder">{{p.name|capfirst}}</h5>
+                            
+                            <small class="">Prec: {{p.price}} </small>
+                            <small class="text-decoration-line-through text-danger">
+                                {% if p.price_before %}
+                                Antes: {{p.price_before}}
+                                {% endif %}
+                            </small>
+                            <small class="">
+                                {% if p.price_before %}
+                                Desc. {{p.porcentage}}%
+                                {% endif %}
+                            </small>
+                            <p class="card-text">
+                                <small class="text-success text-muted" style="font-size: 15px;">Última venta
+                                    hace {{p.num_aleatorio}} dias</small>
+
+                            </p>
+                            <button type="submit" id="id_{{p.id}}"
+                                onclick="add_item('/{{p.id}}/{{p.company.id}}/detail_product','{{p.id}}')"
+                                class="btn btn-primary btn-sm">Agregar</button>
+                            <button type="submit" onclick="detailView('/{{p.id}}/{{company.id}}/detail_product')"
+                                class="btn btn-warning btn-sm text-white">Ver datalles</button>
+
+                        </div>
+                    </div>
                 </div>
-                {% endif %}
-            {% endfor %}
-        </div>
-        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls"
-            data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls"
-            data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
-        </button>
-    </div>
+                </p>
+            </div>
+        </div><!-- End testimonial item -->
+        {% endif %}
+        {% endfor %}
+    </div><br><br>
+    <div class="swiper-pagination"></div>
 </div>
 
 <script>
-    $('.multiple-card-slider .carousel').each(function () {
-        var currentCarouselId = '#' + $(this).attr('id');
-        const multipleItemCarousel = document.querySelector(currentCarouselId);
-
-        if (window.matchMedia("(min-width:576px)").matches) {
-            const carousel = new bootstrap.Carousel(multipleItemCarousel, {
-                interval: false,
-                wrap: false
-            })
-            var carouselWidth = $(currentCarouselId + ' .carousel-inner')[0].scrollWidth;
-            var cardWidth = $(currentCarouselId + ' .carousel-item').width();
-            var scrollPosition = 0;
-            $(currentCarouselId + ' .carousel-control-next').on('click', function () {
-                if (scrollPosition < (carouselWidth - (cardWidth * 4))) {
-                    console.log('next');
-                    scrollPosition = scrollPosition + cardWidth;
-                    $(currentCarouselId + ' .carousel-inner').animate({ scrollLeft: scrollPosition }, 600);
-                }
-            });
-            $(currentCarouselId + ' .carousel-control-prev').on('click', function () {
-                if (scrollPosition > 0) {
-                    console.log('prev');
-                    scrollPosition = scrollPosition - cardWidth;
-                    $(currentCarouselId + ' .carousel-inner').animate({ scrollLeft: scrollPosition }, 600);
-                }
-            });
-        } else {
-            $(multipleItemCarousel).addClass('slide');
-        }
-    });
-    $(function () {
-        $('.carousel-item:first-child').addClass('active');
-    });
-
     function add_item(urls, id_producto) {
         let b = $(this).attr("id_" + id_producto);
         b.innerHTML = "Agregar +";
@@ -159,16 +70,14 @@
             data: { csrfmiddlewaretoken: '{{ csrf_token }}', 'cantidad': 1, 'id_producto': id_producto },
             success: function (resp) {
                 if (resp.error) {
-                    $('.toast-body').addClass('alert alert-danger');
+                    $('.toast-body').removeClass('alert-success').addClass('alert-danger');
                     $('.toast-body').fadeIn(1000).html(resp.error);
-                    const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
-                    toastBootstrap.show();
+                    mostrar_notificacion();
                 }
                 else {
-                    $('.toast-body').addClass('alert alert-success');
+                    $('.toast-body').removeClass('alert-danger').addClass('alert-success');
                     $('.toast-body').fadeIn(1000).html(resp.success);
-                    const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
-                    toastBootstrap.show();
+                    mostrar_notificacion();
 
                     $("#cont_compras").html(resp.total_compra);
                     $.ajax({

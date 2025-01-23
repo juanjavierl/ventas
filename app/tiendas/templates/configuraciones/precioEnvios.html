@@ -1,3 +1,4 @@
+{% load crispy_forms_tags %}
 <h2 class="accordion-header">
     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
         data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
@@ -10,23 +11,26 @@
             <div class="input-group">
                 <form action="/{{company.id}}/precio_envio" method="post" id="form_precio_envio">
                     {% csrf_token %}
-                    <div class="input-group mb-3">
-                        {{form_precio.precio}}
-                        <button type="submit" class="btn btn-primary btn-sm"
-                            id="button-addon2">Regitrar</button>
-                    </div>
-
+                    {{form_precio|crispy}}
+                    <button type="submit" class="btn btn-primary btn-sm">Registrar</button>
                 </form>
             </div>
         </div>
-        <div class="precios_env col-lg-5 d-flex align-items-stretch" id="delete_precio">
-            {% for preci in precios %}
+        <div class="precios_env col-lg-5 align-items-stretch" id="delete_precio"> 
+            {% if precio %}
             <li>
-                Precio de envio registrado : <strong>{{preci.precio}} Bs.</strong> <a href="#"
-                    type="button" data-bs-toggle="modal" data-bs-target="#exampleModal"
-                    onclick="del_precio('/{{preci.id}}/del_precio')">Eliminar</a>
+                Precio de envio a ciudad local: <strong>{{precio.precio}} Bs.</strong>
             </li>
-            {% endfor %}
+            <br>
+            <li>
+                Precio de envio a otro departamento: <strong>{{precio.precio_ciudad}} Bs.</strong>  
+                <a href="#" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal"
+                    onclick="del_precio('/{{precio.id}}/del_precio')">Eliminar</a>
+            </li>
+            {% else %}
+                <p class="text-center text-danger">No hay registros</p>
+            {% endif %}
+                
         </div>
     </div>
 </div>
@@ -47,7 +51,7 @@
                     $('.toast-body').addClass('alert alert-success');
                     $('.toast-body').fadeIn(1000).html(resp.success);
                     mostrar_notificacion();
-                    $('.precios_env').html('<li>Precio de envio registrado :</li><strong>' + resp.precio + "</strong> <a href='#' type='button' data-bs-toggle='modal' data-bs-target='#exampleModal'" + "onclick='del_precio(" + "/" + resp.id_precio + "/del_precio')" + ">Eliminar</a>");
+                    $('.precios_env').html('<li>Precio de envio a ciudad local: <strong>' + resp.precio + ' Bs </strong></li> <li>Precio de envio a otro departamento: <strong>' + resp.precio_ciudad + ' Bs </strong></li> ');
                     $('#form_precio_envio')[0].reset();
                 }
             },

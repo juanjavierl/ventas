@@ -7,7 +7,7 @@
     <form action="/{{precio.id}}/del_precio" method="post" id="eliminar_precio_envio" enctype="multipart/form-data">
      {% csrf_token %}
      <div class="alert alert-danger" role="alert">
-        Esta seguro de Eliminar el precio {{precio.precio|title}}?.
+        Esta seguro de Eliminar los precios de envio? {{precio.precio}} y {{precio.precio_ciudad}}
       </div>
        <div class="modal-footer">
         <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="bi bi-arrow-left-circle"></i> Cancelar</button>

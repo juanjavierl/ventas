@@ -43,36 +43,27 @@
   <div class="row d-flex no-gutters justify-content-center info productos_por_categorias" data-aos="fade-up"
     id="data_dable">
     <div class="section-title" data-aos="fade-up">
-      <h2>Ingrese sus datos para generar su orden</h2>
+      <h2>Ingrese sus datos para confirmar su orden</h2>
     </div>
     <div class="col-lg-5 d-flex align-items-stretch form_msj">
 
       <form action="/{{company.id}}/confirmar_compra/" method="post" class="" id="form_pedido" style="width: 100%;">
         {% csrf_token %}
         {{ form|crispy }}
-
+        <label for="">Tipo de entrega* </label>
         <select class="form-select" id="tipo_envio" name="tipo_envio" aria-label="Small select example">
           <option value="tienda">Recoger en tienda</option>
           <option value="domicilio">Recibir en mi domicilio</option>
           
           {% if not company.is_service %}
-          <option value="ciudad">Enviarme a otra Ciudad</option>
+          <option value="ciudad">Envio a otra Ciudad</option>
           {% endif %}
         </select>
         <small class="text-muted menj_valor_envio"></small>
-        <br>
-
-        <div id="div_id_fecha">
-          <label for="">Fecha y Hora a Recoger</label>
-          <input type="datetime-local" id="date_time" name="date_time" value="{% now 'd-m-Y H:i:s' %}"
-            min="{% now 'd-m-Y H:i:s' %}" max="" class="textinput form-control">
-          <span id="passwordHelpBlock" class="form-text">
-            Ingrese una hora más tarde a su hora actual.
-          </span>
-        </div>
+        <br><br>
         <select class="form-select" id="destino" name="destino" aria-label="Small select example">
           <option value="">Seleccione su Ciudad</option>
-          <option value="Cochabamaba">Cochabamaba</option>
+          <option value="Cochabamaba">Cochabamba</option>
           <option value="La Paz">La Paz</option>
           <option value="Santa Cruz">Santa Cruz</option>
           <option value="Potosi">Potosi</option>
@@ -82,6 +73,14 @@
           <option value="Beni">Beni</option>
           <option value="Pando">Pando</option>
         </select>
+        <div id="div_id_fecha">
+          <label for="">Fecha y Hora a Recoger</label>
+          <input type="datetime-local" id="date_time" name="date_time" value="{% now 'd-m-Y H:i:s' %}"
+            min="{% now 'd-m-Y H:i:s' %}" max="" class="textinput form-control">
+          <span id="passwordHelpBlock" class="form-text">
+            Ingrese 1 hora más tarde a su hora actual.
+          </span>
+        </div>
         <br>
         
         {% if regla %}
@@ -128,7 +127,7 @@
           {% endfor %}
           {% if datos %}
           <tr>
-            <td colspan="5" style="text-align: right;"><strong id="t_p">Total a Pagar: Bs. {{t_pago}}</strong></td>
+            <td colspan="5" style="text-align: center;"><strong id="t_p">Total : Bs. {{t_pago}}</strong></td>
           </tr>
           {% endif %}
         </tbody>
@@ -158,7 +157,7 @@
         $("#div_id_address").show();
         $("#div_id_address input").focus();
         if ('{{precio_envio}}' != '0') {
-          $(".menj_valor_envio").text("Envio: Bs. " + '{{precio_envio}}').show();
+          $(".menj_valor_envio").text("Costo de envio a domicilio: Bs. " + '{{precio_envio}}').show();
         } else {
           $(".menj_valor_envio").text('Envio Gratis').show();
         }
@@ -169,7 +168,11 @@
         $("#div_id_fecha").hide();
         $("#destino").show();
         $("#destino").focus();
-        $(".menj_valor_envio").hide();
+        if ('{{precio_envio_ciudad}}' != '0') {
+          $(".menj_valor_envio").text("Costo de envio a otra ciudad: Bs. " + '{{precio_envio_ciudad}}').show();
+        } else {
+          $(".menj_valor_envio").text('Envio Gratis').show();
+        }
       }
     });
 
@@ -190,21 +193,20 @@
         url: $(this).attr("action"),
         data: $(this).serialize(),
         success: function (resp) {
+          console.log(resp);
           if (resp.error) {
-            $('.toast-body').addClass('alert alert-danger');
+            $('.toast-body').removeClass('alert-success').addClass('alert-danger');
             $('.toast-body').fadeIn(1000).html(resp.error);
-            const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
-            toastBootstrap.show();
+            mostrar_notificacion();
           }
           else {
-            $('.toast-body').addClass('alert alert-success');
+            $('.toast-body').removeClass('alert-danger').addClass('alert-success');
             $('.toast-body').fadeIn(1000).html(resp.success);
-            const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
-            toastBootstrap.show();
+            mostrar_notificacion();
             $('#form_pedido')[0].reset();
             $("#cont_compras").html(resp.products);
 
-            var datos = "***** *Confirmo mi Pedido Nro. " + resp.orden + "* ***** %0A";
+            var datos = "***** *Confirmo mi Pedido Nro. " + resp.orden.id + "* ***** %0A";
             datos = datos + "A nombre de: " + resp.cliente_object.names + "%0A %0A";
             var pedido = "";
             for (let productos = 0; productos < resp.lista.length; productos++) {
@@ -226,30 +228,39 @@
             }
             if (resp.lugar.cuidad == "cuidad") {
               lugar = "Ciudad de envio: " + resp.lugar.destino + "%0A";
-              Envio = "Envio: a coordinar"+ "%0A";
+              let to_p = parseFloat(resp.t_pago) + parseFloat(resp.precio_envio_ciudad);
+              Envio = "- *Costo de envio: Bs." + resp.precio_envio_ciudad + "* %0A";
+              total = "- *total a pagar: Bs. " + to_p + "* %0A%0A";
             }
             dir = "Dirección: " + resp.dir + "%0A";
             cuidad = "Ciudad:" + resp.cuidad + "%0A";
             
             //href="https://api.whatsapp.com/send?text=Mas informacion sobre este producto: {{p.description|default:' '}}, gracias. &phone={{company.mobile}}/?u={{request.build_absolute_uri}}"
             
-            var ruta = "https://api.whatsapp.com/send?phone=+591" + resp.cel_company + "&text=" + datos + pedido  + sub_total + Envio + total + lugar;
+            var ruta = "https://api.whatsapp.com/send?phone=+591" + resp.company_object.mobile + "&text=" + datos + pedido  + sub_total + Envio + total + lugar;
             
             window.open(ruta, '_blank');
             //location.reload();
             $.ajax({
               type: 'GET',
-              url: "/"+resp.company_object.id+"/"+ resp.orden + "/" + resp.cliente_object.id +"/like",
+              url: "/"+resp.company_object.id+"/"+ resp.orden.id + "/" + resp.cliente_object.id +"/like",
               success: function (resp) {
                 $("#team_productos").html(resp);
               }
             });
           }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+          $('.toast-body').removeClass('alert-success').addClass('alert-danger');
+          $('.toast-body').fadeIn(1000).html("Por favor complete sus datos");
+          mostrar_notificacion();
         }
       });
     }
     else{
-      alet("Su email no es valido");
+      $('.toast-body').removeClass('alert-success').addClass('alert-danger');
+      $('.toast-body').fadeIn(1000).html('<strong>Email Inválido </strong>');
+      mostrar_notificacion();
       $('#id_email').focus();
     }
     

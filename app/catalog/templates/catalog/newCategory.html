@@ -23,14 +23,14 @@
       data: $(this).serialize(),
       success: function (resp) {
         if (resp.error) {
-          $('.toast-body').addClass('alert alert-danger');
+          $('.toast-body').removeClass('alert-success').addClass('alert-danger');
           $('.toast-body').fadeIn(1000).html('<strong>'+resp.error+'</strong>');
           mostrar_notificacion();
         } else {
           var newOption = new Option(resp.category_name.toUpperCase(), resp.category_id, false, true);
           $('#form_producto #id_category').append(newOption).trigger('change');
 
-          $('.toast-body').addClass('alert alert-success');
+          $('.toast-body').removeClass('alert-danger').addClass('alert-success');
           $('.toast-body').fadeIn(1000).html('<strong>Categoria Registrado.</strong>');
           $('#category_forms')[0].reset();
 

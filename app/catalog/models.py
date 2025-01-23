@@ -80,7 +80,7 @@ class Product(models.Model):
         return num
     
     def stock_actual(self):
-        en_stock = int(self.stock) - int(self.salida)
+        en_stock = int(self.stock) - int(abs(self.salida))
         return en_stock
 
     class Meta:
@@ -159,6 +159,15 @@ class Orden(models.Model):
 
     def __str__(self):
         return self.client.names
+
+    def toJSON(self):
+        item = model_to_dict(self)
+        item['id'] = int(self.id)
+        item['company'] = self.company.name
+        item['client'] = self.client.names
+        item['sub_total'] = self.subtotal
+        item['total'] = self.total
+        return item
 
 class Pedido(models.Model):
     orden = models.ForeignKey(Orden, on_delete=models.CASCADE)

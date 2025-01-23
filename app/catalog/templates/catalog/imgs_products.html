@@ -42,12 +42,11 @@
       processData: false,
       success: function (resp) {
         if (resp.error) {
-          $('.toast-body').addClass('alert alert-danger');
+          $('.toast-body').removeClass('alert-success').addClass('alert-danger');
           $('.toast-body').fadeIn(1000).html('<strong>' + resp.error + '</strong>');
           mostrar_notificacion();
         } else {
-
-          $('.toast-body').addClass('alert alert-success');
+          $('.toast-body').removeClass('alert-danger').addClass('alert-success');
           $('.toast-body').fadeIn(1000).html('<strong>'+ resp.success +'</strong>');
           $('#FormImgProduct')[0].reset();
           mostrar_notificacion();

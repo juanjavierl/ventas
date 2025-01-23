@@ -226,7 +226,7 @@ def configuraciones_company(request, id_company):
         'categorias':categorys_from_productos(productos),
         'company':get_company(id_company),
         'total_compra':len(request.session['compra']),
-        'precios':Precio_envio.objects.filter(company_id=int(id_company))[:1],
+        'precio':get_precio_envios(id_company),
         'avisos':Aviso.objects.filter(company_id = int(id_company))[:1],
         'banco':Banco.objects.filter(company_id = int(id_company))[:1],
         'reglas':Condicion.objects.filter(company_id = int(id_company))[:1],
@@ -238,6 +238,13 @@ def configuraciones_company(request, id_company):
     }
     return render(request,'configuraciones_company.html', dic)
 
+def get_precio_envios(id_company):
+    try:
+        precio = Precio_envio.objects.get(company_id = int(id_company))
+    except:
+        precio = False
+    return precio
+
 def precio_envio(request, id_company):
     company = get_object_or_404(Company, id = int(id_company))
     if request.method == 'POST':
@@ -245,22 +252,23 @@ def precio_envio(request, id_company):
         if form_precio.is_valid():
             preci = Precio_envio()
             preci.precio = request.POST['precio']
+            preci.precio_ciudad = request.POST['precio_ciudad']
             preci.company_id = company.id
             preci.save()
-            return JsonResponse({'success':'Registro Exitoso.', 'precio':preci.precio, 'id_precio':preci.id})
+            return JsonResponse({'success':'Registro Exitoso.', 'precio':preci.precio,'precio_ciudad':preci.precio_ciudad, 'id_precio':preci.id})
         else:
-            return JsonResponse({'error':'Error intente nuevamente.'})
+            return JsonResponse({'error':'El dato no es válido.'})
 
 def buscar_orden(request, id_company):
-    precio_envio=determinarPrecioEnvio(id_company)
     if request.method == 'POST':
         pedidos = None
         cod = int(request.POST['codigo_orden'])
         if Orden.objects.filter(id=cod, company_id=int(id_company)).exists():
             orden = Orden.objects.get(id=cod)
             pedidos = Pedido.objects.filter(orden_id = orden.id)
+            precio_envio = int(orden.total)  - int(orden.subtotal)
         else:
-            orden = None
+            orden, precio_envio = None, None
         return render(request, 'reportes/buscar_orden.html', {'orden':orden, 'pedidos':pedidos, 'precio_envio':precio_envio})
 
 def reportByRange(request, id_company):
@@ -343,19 +351,17 @@ def eliminar_opciones(request, id_aviso):
 
 
 def report_pdf(request, id_company, id_orden):
-    precio_envio=determinarPrecioEnvio(id_company)
     sucursal = get_address(id_company)
     company = None
-
     pedidos = None
     cod = int(id_orden)
     if Orden.objects.filter(id=cod, company_id=int(id_company)).exists():
         orden = Orden.objects.get(id=cod)
         company = Company.objects.get(id = int(id_company))
         pedidos = Pedido.objects.filter(orden_id = orden.id)
+        precio_envio=int(orden.total) - int(orden.subtotal)
     else:
-        orden = None
-
+        precio_envio, orden = None, None
     dic = {'precio_envio':precio_envio, 'company':company, 'orden':orden, 'pedidos':pedidos, 'sucursal':sucursal}
     html = render_to_string("reportes/report_order_pdf.html", dic)
     response = HttpResponse(content_type="application/pdf")

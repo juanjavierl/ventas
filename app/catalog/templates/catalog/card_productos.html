@@ -136,18 +136,14 @@
       data: { csrfmiddlewaretoken: '{{ csrf_token }}', 'cantidad': 1, 'id_producto': id_producto },
       success: function (resp) {
         if (resp.error) {
-
-          $('.toast-body').addClass('alert alert-danger');
+          $('.toast-body').removeClass('alert-success').addClass('alert-danger');
           $('.toast-body').fadeIn(1000).html(resp.error);
-          const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
-          toastBootstrap.show();
+          mostrar_notificacion();
         }
         else {
-          $('.toast-body').addClass('alert alert-success');
+          $('.toast-body').removeClass('alert-danger').addClass('alert-success');
           $('.toast-body').fadeIn(1000).html(resp.success);
-          const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
-          toastBootstrap.show();
-
+          mostrar_notificacion();
           $("#cont_compras").html(resp.total_compra);
         }
         setTimeout(function () {

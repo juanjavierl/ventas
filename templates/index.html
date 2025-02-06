@@ -46,6 +46,11 @@
   <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+  {% block code_meta %}
+    <script>
+      {{dashboard.codigo|safe}}
+    </script>
+  {% endblock code_meta %}
 </head>
 
 <body>

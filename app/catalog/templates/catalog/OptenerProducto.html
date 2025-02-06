@@ -11,6 +11,14 @@
 </a>
 {% endblock company %}
 
+{% block code_meta %}
+    {% if code %}
+    <script>
+       {{code.codigo|safe}}
+    </script>
+    {% endif %}
+{% endblock code_meta %}
+
 {% block carrito %}
 {% include 'catalog/carrito.html' with total_compra=total_compra %}
 {% endblock carrito %}
@@ -172,7 +180,7 @@
                 </div>
 
                 <div class="row btn_add align-items-center" style="height: 30px;">
-                  <button type="col submit" class="btn btn-success btn-sm tb_text">
+                  <button type="col submit" class="btn btn-success btn-sm tb_text efecto_button">
                     <i class="bi bi-cart-fill"> + </i>
                     Agregar items
                   </button><br><br>
@@ -278,7 +286,7 @@
         }
         else {
           $('.toast-body').removeClass('alert-danger').addClass('alert-success');
-          $('.toast-body').fadeIn(1000).html(resp.success);
+          $('.toast-body').fadeIn(1000).html('<strong>'+ resp.success +'</strong>');
           mostrar_notificacion();
           $("#cont_compras").html(resp.total_compra);
         }

@@ -237,3 +237,16 @@ class RRSS(models.Model):
         item['company'] = self.company.name
         item['rrss'] = self.rrss
         return item
+
+class PixelMeta(models.Model):
+    company = models.OneToOneField(Company, on_delete=models.CASCADE, verbose_name='Negocio')
+    codigo = models.TextField(verbose_name='Código Pixel de Facebook', help_text='Copie aqui el código pixel de facebook')
+
+    def __str__(self):
+        return self.company.name
+
+    def toJSON(self):
+        item = model_to_dict(self)
+        item['company'] = self.company.name
+        item['codigo'] = self.codigo
+        return item

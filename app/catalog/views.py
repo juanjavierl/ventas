@@ -42,13 +42,21 @@ def CatalogView(request, id_company):
             'aviso':optener_avisos_by_company(id_company),
             'dashboard':get_Dashboard(),
             'date_expiration':date_expiration,
-            'address':get_address(id_company)
+            'address':get_address(id_company),
+            'code':get_code_meta(id_company)
         }
         return render(request,template_name, dic)
 
 def get_address(id_company):
     try:
         address = Sucursal.objects.get(company_id=int(id_company))
+    except:
+        address = False
+    return address
+
+def get_code_meta(id_company):
+    try:
+        address = PixelMeta.objects.get(company_id=int(id_company))
     except:
         address = False
     return address
@@ -110,7 +118,7 @@ def optenerProducto(request, id_producto, id_company):
                 'datos': request.session['compra'],
                 "t_pago":calcular_pago(request)
             }
-            dic['success'] = p.name.title(),", agregado al Carrito."
+            dic['success'] = p.name.title()," agregado al Carrito."
             return JsonResponse(dic)
         elif len(data_cli) > 0:
             for indice in range(len(data_cli)):   
@@ -119,13 +127,13 @@ def optenerProducto(request, id_producto, id_company):
                     data_cli[indice]['total'] = float(int(data_cli[indice]['cantidad']) * float(p.price))
                     data_cli[indice] = data_cli[indice]
                     request.session['compra'] = data_cli
-                    dic['success'] = p.name.title(),", agregado al Carrito."
+                    dic['success'] = p.name.title()," agregado al Carrito."
                     return JsonResponse(dic)
             if not datos in data_cli:
                 data_cli.append(datos)
                 request.session['compra'] = data_cli
                 dic['total_compra'] = len(request.session['compra'])
-                dic['success'] = p.name.title(),", agregado al Carrito."
+                dic['success'] = p.name.title()," agregado al Carrito."
                 return JsonResponse(dic)
     else:
         context = { 'p':p,
@@ -135,7 +143,8 @@ def optenerProducto(request, id_producto, id_company):
                     'aviso':optener_avisos_by_company(id_company),
                     'productos':productosMasVistos(id_company),
                     'address':get_address(id_company),
-                    'images_product':Imagen.objects.filter(items_id = int(id_producto))
+                    'images_product':Imagen.objects.filter(items_id = int(id_producto)),
+                    'code':get_code_meta(id_company)
                 }
     return render(request,'catalog/OptenerProducto.html',context)
 
@@ -327,7 +336,8 @@ def confirmar_compra(request, id_company):
         'precio_envio_ciudad':determinarPrecioEnvioCiudad(id_company),
         'aviso':optener_avisos_by_company(id_company),
         'address':get_address(id_company),
-        'regla':get_rule_condicion(id_company)
+        'regla':get_rule_condicion(id_company),
+        'code':get_code_meta(id_company)
     }
     return render(request,'catalog/confirmar_compra.html',dic)
 

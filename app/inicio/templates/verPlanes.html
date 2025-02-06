@@ -17,9 +17,9 @@
           <div class="card-body" style="padding: 10px;">
             <div class="text-section">
               <!--  <h5 class="card-title text-wrap text-primary fw-bolder">{{p.planes|capfirst}}</h5> -->
-              <p class="card-text text-break text-wrap">{{p.description|default:" - - - "|capfirst}}</p>
+              <p class="card-text text-break text-wrap fst-italic">{{p.description|default:" - - - "|capfirst}}</p>
               <small class="text-section"><i class="bi bi-check"></i>Tiempo mínimo.- {{p.contracts_min}}  Precio.- {{p.price_min}} Bs.</small><br>
-              <small  class="text-section"><i class="bi bi-check"></i>contrato en oferta.- {{p.contracts_max}}  Precio.- {{p.price_max}} Bs.</small><br>
+              <small  class="text-section text-success"><i class="bi bi-check"></i>contrato en oferta.- {{p.contracts_max}}  Precio.- {{p.price_max}} Bs.</small><br>
               <small class="text-section"><i class="bi bi-check"></i>{{p.cantidad}} Items de almacenamiento</small>
             </div>
             <div class="cta_c-sectiformPlaneson">

@@ -12,7 +12,7 @@ class UpdateUserForm(forms.ModelForm):
     #username = forms.CharField(max_length=140, label="Email / Usuario")
     class Meta:
         model = User
-        fields = ('first_name','last_name')
+        fields = ('first_name','last_name','email')
         #exclude = ('email', 'password1', 'password2')
 
 class ChangePasswordForm(forms.Form):

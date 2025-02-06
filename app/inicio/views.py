@@ -31,7 +31,7 @@ def get_Dashboard():
     try:
         dashboard = Dashboard.objects.get(id=1)
     except:
-        dashboard = {'name':"AMCEB",'mobile':79436914}
+        dashboard = {'name':"AMCEB",'mobile':79436914,'codigo':''}
     return dashboard
 
 def verPlanes(request):

@@ -10,6 +10,14 @@
 </a>
 {% endblock company %}
 
+{% block code_meta %}
+    {% if code %}
+    <script>
+       {{code.codigo|safe}}
+    </script>
+    {% endif %}
+{% endblock code_meta %}
+
 {% block carrito %}
 {% include 'catalog/carrito.html' with total_compra=total_compra %}
 {% endblock carrito %}

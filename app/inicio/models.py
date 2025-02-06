@@ -10,7 +10,8 @@ class Dashboard(models.Model):
     mobile = models.CharField(max_length=10, verbose_name='Celular*')
     email = models.CharField(max_length=50, null=True, blank=True, verbose_name='Email')
     address = models.CharField(max_length=500, null=True, blank=True, verbose_name='Dirección*', help_text="Ingrese:Calle,Nro,Zona")
-    codigo = models.TextField(verbose_name='Código Pixel de Facebook', null=True, blank=True, help_text='Copie aqui el código pixel de facebook')
+    codigo = models.TextField(verbose_name='Código script de Facebook', null=True, blank=True, help_text='Copie aqui el código script de facebook')
+    noscript = models.TextField(verbose_name='Código no script de Facebook', null=True, blank=True, help_text='Copie aqui el código no script de facebook')
 
     def __str__(self):
         return self.name

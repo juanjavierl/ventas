@@ -94,7 +94,10 @@ def optenerProducto(request, id_producto, id_company):
     p = get_object_or_404(Product,id = id_producto)
     datos = {}
     dic = {}
-    data_cli = request.session['compra']
+    try:
+        data_cli = request.session['compra']
+    except:
+        request.session['compra'] = []
     if request.method == 'POST':
         if not request.POST['cantidad'].isdigit():
             return JsonResponse({'error': "La cantidad debe ser numerico."})
@@ -222,6 +225,12 @@ def mostrar_por_categoria(request, id_company, id_categoria):
 def confirmar_compra(request, id_company):
     company = get_object_or_404(Company, id = id_company)
     t_pago = calcular_pago(request)#total a pagar de todo el carrito
+    try:
+        total_compra = len(request.session['compra'])
+        datos = request.session['compra']
+    except:
+        total_compra = 0
+        datos = []
     if request.method == 'POST':
         if request.POST['email'] == " ":
             return JsonResponse({'error': "Por favor ingrese su email."})
@@ -326,10 +335,10 @@ def confirmar_compra(request, id_company):
 
     dic = {
         'form':ClientFormOrder(),
-        'total_compra':len(request.session['compra']),
+        'total_compra':total_compra,
         'company':get_company(id_company),
         'categorias':categorys_from_productos(productosMasVistos(id_company)),
-        'datos':request.session['compra'],
+        'datos':datos,
         't_pago':t_pago,
         'productos':productosMasVistos(id_company),
         'precio_envio':determinarPrecioEnvio(id_company),

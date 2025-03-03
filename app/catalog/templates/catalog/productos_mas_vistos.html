@@ -1,12 +1,13 @@
 <div class="row" data-aos="fade-up">
     <div class="col-12">
         <div class="section-title">
-
-            {% if company.is_service %}
-            <h2>Servicios más solicitados del mes</h2>
-            {% else %}
-            <h2>Productos más vendidos del mes</h2>
-            {% endif %}
+            {% if productos %}
+                {% if company.is_service %}
+                    <h2>Servicios más solicitados del mes</h2>
+                    {% else %}
+                    <h2>Productos más vendidos del mes</h2>
+                {% endif %}
+            {% endif %}   
         </div>
     </div>
 </div>

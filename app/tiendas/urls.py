@@ -34,4 +34,5 @@ urlpatterns = [
     path('<int:id_company>/add_condiciones', views.add_condiciones, name='add_condiciones'),
     path('<int:id_company>/get_condiciones', views.get_condiciones, name='get_condiciones'),
     path('<int:id_regla>/delete_regla', views.delete_regla, name='delete_regla'),
+    path('<int:id_company>/suscribirse/',  views.suscribirse, name='suscribirse'),
 ]

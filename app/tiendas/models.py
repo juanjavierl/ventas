@@ -69,10 +69,10 @@ class Plataforma(models.Model):
 
 class Company(models.Model):
     name = models.CharField(max_length=50, verbose_name='Nombre/Razón social')
-    description = models.TextField(verbose_name='Descripción de su catalogo (Opcional)', null=True, blank=True, help_text='Escriba una descripción de que trata.?')
+    description = models.TextField(verbose_name='Descripción de su catalogo (Opcional)', null=True, blank=True, help_text='Escriba una descripción sobre de su negocio')
     ruc = models.CharField(max_length=15, blank=True, null=True, verbose_name='Número de NIT (Opcional)')
     #address = models.CharField(max_length=200, verbose_name='Dirección (Zona, Calle, #)')
-    mobile = models.CharField(max_length=10, verbose_name='Celular (WhatsApp)')
+    mobile = models.CharField(max_length=15, verbose_name='Celular (WhatsApp)', help_text="Solo su número Ej. 70556677")
     category = models.ForeignKey(Tipo_company, on_delete=models.CASCADE, verbose_name='Tipo de Compañia')
     cuidad = models.ForeignKey(Ciudad, on_delete=models.CASCADE, verbose_name='Ciudad')
     #phone = models.CharField(max_length=9, verbose_name='Teléfono convencional')
@@ -85,7 +85,7 @@ class Company(models.Model):
     plan = models.ForeignKey(Plataforma, on_delete=models.CASCADE, verbose_name="Seleccione un plan")
     expiration_date = models.DateField(verbose_name='Fecha de expiracion (dd/mm/AAAA)')
     status = models.BooleanField(default=True, verbose_name="Estado")
-    is_service = models.BooleanField(default=False, verbose_name='¿Es una tienda de servicio?')
+    is_service = models.BooleanField(default=False, verbose_name='¿Tus ventas sera solo en esta ciudad?', help_text="Ej. restauranes o productos consumibles que dificultan el envío a lugares alejados")
 
     def __str__(self):
         return self.name
@@ -249,4 +249,17 @@ class PixelMeta(models.Model):
         item = model_to_dict(self)
         item['company'] = self.company.name
         item['codigo'] = self.codigo
+        return item
+
+class Suscripcion(models.Model):
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, verbose_name='Negocio')
+    email = models.EmailField(max_length=255)
+
+    def __str__(self):
+        return self.company.name
+
+    def toJSON(self):
+        item = model_to_dict(self)
+        item['company'] = self.company.name
+        item['email'] = self.email
         return item

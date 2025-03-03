@@ -1,7 +1,7 @@
 {% load crispy_forms_tags %}
 
 <div class="modal-header  thead-light" style="background-color: #58bba9;">
-  <h5 class="modal-title text-white" id="exampleModalLabel">Crear mi cuenta (1/4)</h5>
+  <h5 class="modal-title text-white" id="exampleModalLabel">Paso(1/4) Crear mi cuenta de usuario</h5>
   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <div class="user">
@@ -10,17 +10,18 @@
       {% csrf_token %}
 
       {{form_user|crispy}}
-
+      <input type="checkbox" name="show_pass" id="id_show_pass">
+      <label for="">Ver contraseña</label>
     </form>
     <p class="text-danger validate_user"></p>
   </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i
         class="bi bi-arrow-left-circle"></i> Cancelar</button>
-    <button type="button" class="btn btn-success btn-sm" id="formUser"><i class="bi bi-users"></i> Siguiente</button>
+    <button type="button" class="btn btn-success btn-sm" id="formUser"><i class="bi bi-person-fill"></i> Siguiente</button>
   </div>
 </div>
-<div class="company">
+<div class="company fade-left">
   <div class="modal-body table-responsive">
     <form action="" method="post" class="row" id="form_Company" enctype="multipart/form-data">
       {% csrf_token %}
@@ -38,12 +39,13 @@
   </div>
 </div>
 
-<div class="planes">
+<div class="planes fade-left">
   <div class="modal-body table-responsive">
     <form action="" method="post">
       {% csrf_token %}
 
       {% for p in planes %}
+        {% if p.name|upper == 'GRATIS' %}
       <div class="card dark card_c single-product">
         <i class="{{p.icono}} card-img-top icon_img" alt="..."></i>
         <span class="badge rounded-pill bg-primary sale-tag d-flex">
@@ -52,7 +54,7 @@
         <div class="card-body" style="padding: 10px;">
           <div class="text-section">
             <!--  <h5 class="card-title text-wrap text-primary fw-bolder">{{p.planes|capfirst}}</h5> -->
-            <p class="card-text text-break text-wrap">
+            <p class="card-text text-break text-wrap fst-italic">
               {{p.description|default:" - - - "|capfirst}}
             </p>
           </div>
@@ -67,6 +69,7 @@
           </div>
         </div>
       </div>
+      {% endif %}
       {% endfor %}
 
     </form>
@@ -79,7 +82,7 @@
   </div>
 </div>
 
-<div class="img_qr">
+<div class="img_qr fade-left">
   <div class="modal-body table-responsive">
     <form action="" method="post" class="row" id="form_img">
       {% csrf_token %}
@@ -87,15 +90,42 @@
     </form>
     <p class="validate_img_qr"></p>
   </div>
+  <div class="alert alert-light" role="alert">
+    <small class="text-muted text-success"><i class="bi bi-check-lg"></i>
+      ¡Promocione y venda libremente en su tienda online uniendo a sus RRSS!: 
+    </small><br>
+    <small class="text-muted text-success"><i class="bi bi-check-lg"></i>
+      Personalice su catálogo online con una imagen de portada
+    </small><br>
+    <small class="text-muted text-success"><i class="bi bi-check-lg"></i>
+      Ud. es libre de registrar o actualizar sus items.
+    </small><br>
+    <small class="text-muted text-success"><i class="bi bi-check-lg"></i>
+      Seleccione su tienda virtual > perfil > configuraciones y disfrute las opciones que tenemos.
+    </small><br>
+    <small class="text-muted text-success"><i class="bi bi-check-lg"></i>
+      No se olvide sus credenciales para que vuelva a ingresar despues.
+    </small>
+  </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-secondary btn-sm anterior3"><i class="bi bi-arrow-left-circle"></i>
       Anterior</button>
     <a href="#next" type="button" class="btn btn-success btn-sm" id="form_Qrr" disabled="false"><i
-        class="bi bi-shop-window"></i> Registrar & continuar </a>
+        class="bi bi-shop-window"></i> Aceptar & Registrar </a>
   </div>
 </div>
 
 <script>
+  $('#id_show_pass').change(function () {
+      if (this.checked) {
+            $('.modal-body #userForm #id_password1').attr("type", 'text');
+            $('.modal-body #userForm #id_password2').attr("type", 'text');
+        }else{
+             $('.modal-body #userForm #id_password1').attr("type", 'password');
+             $('.modal-body #userForm #id_password2').attr("type", 'password');
+        }
+    });
+    
   $(function () {
     $("#div_id_username").hide();//compo username transparen
     $("#id_email").focus();
@@ -114,7 +144,7 @@
           if (resp.error) {
             $(".validate_user").html(resp.error);
            
-            $(".user").show();
+            $(".user").fadeIn('slow').show();
             $('.company').hide();
             $("#formUser").attr("disabled", "true");
           } else {
@@ -127,7 +157,7 @@
     });
 
     $(".anterior1").on("click", function () {
-      $(".user").show();
+      $(".user").fadeIn('slow').show();
       $('.company').hide();
       $(".planes").hide();
       $(".img_qr").hide();
@@ -135,25 +165,26 @@
 
     $(".anterior2").on("click", function () {
       $(".user").hide();
-      $('.company').show();
+      $('.company').fadeIn('slow').show();
       $(".planes").hide();
       $(".img_qr").hide();
     });
     $(".anterior3").on("click", function () {
       $(".user").hide();
       $('.company').hide();
-      $(".planes").show();
+      $(".planes").fadeIn('slow').show();
       $(".img_qr").hide();
     });
   });
   var datos_registro = {};
   $("#formUser").on("click", function () {
+    $("#id_mobile").attr("type", "number");
     if ($("#id_email").val() != "" && ($("#id_password1").val() != "" || $("#id_password2").val() != "")) {
       if (validateEmail($("#id_email").val())) {
         if (validatePasword($("#id_password1").val(), $("#id_password2").val())) {
-          $("#exampleModalLabel").text("Registrar mi tienda virtual (2/4)");
+          $("#exampleModalLabel").text("Paso(2/4) Registrar mi tienda virtual");
           $(".user").hide();
-          $('.company').show();
+          $('.company').fadeIn('slow').show();
           let user_data = {
             user: $("#id_username").val(),
             email: $("#id_email").val(),
@@ -164,7 +195,7 @@
         }
 
       } else {
-        $(".user").show();
+        $(".user").fadeIn('slow').show();
         $('.company').hide();
         $(".validate_user").text("El Correo Electrónico. no es válidos");
       }
@@ -176,7 +207,7 @@
   });
 
   $("#formCompany").on("click", function () {
-    $("#exampleModalLabel").text("Seleccione un plan (3/4)");
+    $("#exampleModalLabel").text("Paso (3/4) Seleccione un plan ");
     var datos = new FormData(document.getElementById("form_Company"));
     $.ajax({
       type: 'POST',
@@ -188,24 +219,27 @@
       success: function (resp) {
         if (resp.error) {
           $(".validate_company").text(resp.error);
-          $("#exampleModalLabel").text("Registrar mi tienda virtual (2/4)");
+          $("#exampleModalLabel").text("Paso(2/4) Registrar mi tienda virtual");
         } else {
           $(".user").hide();
           $('.company').hide();
-          $(".planes").show();
+          $(".planes").fadeIn('slow').show();
           $(".img_qr").hide();
           //datos_registro['company_data']=datos;
-          console.log(datos.get('image'));
-
+          console.log(datos.get('is_service'));
+          let service = "False"
+          if(datos.get('is_service') == "on"){
+            service = "True";
+          }
           let company_data = {
             name: datos.get('name'),
             description: datos.get('description'),
             ruc: datos.get('ruc'),
-            address: datos.get('address'),
             mobile: datos.get('mobile'),
             category: datos.get('category'),
-            cuidad: datos.get('cuidad')
+            cuidad: datos.get('cuidad'),
             //image:datos.get('image')
+            is_service:service
           };
           datos_registro['company_data'] = company_data;
 
@@ -216,19 +250,18 @@
     return false;
   });
   $("#formPlanes").on("click", function () {
-    $("#exampleModalLabel").text("Realize su respectivo pago (4/4)");
+    $("#exampleModalLabel").text("Paso(3/4) Bien, estas a punto de terminar");
     $(".user").hide();
     $('.company').hide();
     $(".planes").hide();
-    $(".img_qr").show();
-    //alert($('input:radio[name=plan]:checked').val());
+    $(".img_qr").fadeIn('slow').show();
     $.ajax({
       type: 'get',
       url: '/' + $('input:radio[name=plan]:checked').val() + '/get_img',
       data: { 'id_plan': $('input:radio[name=plan]:checked').val() },
       success: function (resp) {
         img = '/media/' + resp.split('"').join("");
-        $("#form_img img").fadeIn(1000).attr('src', img);
+        $("#form_img img").attr('src', img);
         let plan_data = {
           plan_name: $('input:radio[name=plan]:checked').val()
         };
@@ -240,8 +273,7 @@
     return false;
   });
   $("#form_Qrr").on('click', function () {
-    //let datoss = datos_registro['user_data']
-    console.log(datos_registro);
+    $("#form_Qrr").html("Iniciando Sesión...!");
     $.ajax({
       type: 'POST',
       url: '/register_data/',
@@ -250,8 +282,16 @@
       data: { valores: JSON.stringify(datos_registro) },//JSON.stringify(objteto) {user_data: {…}, company_data: {…}, plan_data: {…}}
 
       success: function (resp) {
-        console.log(resp.user_id);
-        window.location.href = "/" + resp.user_id + "/companys/";
+        //console.log(resp.user_id);
+        if(resp.error){
+          $(".validate_img_qr").html(resp.error)
+        }
+        else{
+          window.location.href = "/" + resp.user_id + "/companys/";
+        }
+      },
+      error: function (xhr, ajaxOptions, thrownError) {
+        $(".validate_img_qr").html(thrownError)
       }
     });
     return false;

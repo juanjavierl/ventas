@@ -5,16 +5,17 @@ from django.contrib.auth.forms import User
 from django.contrib.auth import authenticate,login, logout
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, request,HttpResponse
-from django.template.loader import render_to_string
+from django.template.loader import render_to_string, get_template
 from django.core.paginator import Paginator
 from django.db.models import Count, Sum
 from ventas import settings
+from django.core.mail import EmailMultiAlternatives
 from weasyprint import HTML, CSS
 from weasyprint.text.fonts import FontConfiguration
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 import os
 import json
-
+import threading
 import ast
 from app.tiendas.models import *
 from app.tiendas.forms import *
@@ -101,49 +102,79 @@ def get_img_plan(request, id_plan):
     #print(img.qr_img)retorna la ruta de la imagen como cadena
     return HttpResponse(json.dumps(str(img.qr_img)))
 
+def create_mail(user_mail, subject, template_name, context):
+    template = get_template(template_name)
+    content = template.render(context)
+
+    message = EmailMultiAlternatives(
+        subject=subject,
+        body='',
+        from_email=settings.EMAIL_HOST_USER,
+        to=[
+            user_mail
+        ],
+        cc=[]
+    )
+
+    message.attach_alternative(content, 'text/html')
+    return message
+
+def send_welcome_mail(user, password, url_tienda):
+    mail = create_mail(
+        user,
+        'Bienvenido a la plataforma AMCEB',
+        'notificaciones/welcome_user_email.html',
+        {
+            'username': user.username,
+            'password':password,
+            'ruta':url_tienda
+        }
+    )
+    mail.send(fail_silently=False)
 
 def datos_registro(request):
     if request.method == "POST":
         datos = request.POST['valores']
+        #print(datos)
         """ print(datos)#{user_data: {…}, company_data: {…}, plan_data: {…}}
         print(type(datos))#como string
         print("*"*50)"""
-
         datos = ast.literal_eval(datos)
         #print(datos)#como dict
         #print(type(datos))#como string
-        
         user = User()
-        user.username = datos['user_data']['user']
-        user.email = datos['user_data']['email']
-        
-        user.password1 = datos['user_data']['pass1']
-        user.password2 = datos['user_data']['pass2']
-
-        print("User:",datos['user_data']['user'])
-        print("email:",datos['user_data']['email'])
-        print("pass:", datos['user_data']['pass1'])
+        user.username = datos['user_data']['user'].strip()
+        user.email = datos['user_data']['email'].strip()
+        user.password1 = user.set_password(datos['user_data']['pass1'].strip())
+        user.password2 = user.set_password(datos['user_data']['pass2'].strip())
         user.save()
         
         company = Company()
         company.name = datos['company_data']['name']
         company.description = datos['company_data']['description']
         company.ruc = datos['company_data']['ruc']
-        company.address = datos['company_data']['address']
         company.mobile = datos['company_data']['mobile']
         company.category_id = datos['company_data']['category']
         company.cuidad_id = datos['company_data']['cuidad']
         company.user_id = int(user.id)
         #company.image =  datos['company_data']['image']#no se puedo guardar la imagen
+        company.is_service = datos['company_data']['is_service']
         company.plan_id = datos['plan_data']['plan_name']
+        company.expiration_date = datetime.now().date() + timedelta(days=7)
         company.save()
-        print(datos['user_data']['user'])
-        print(datos['user_data']['pass1'])
 
-        #user_login = authenticate(username=datos['user_data']['user'],password=datos['user_data']['pass1'])
-        login(request, user)
+        user = authenticate(username=datos['user_data']['user'].strip(),password=datos['user_data']['pass1'].strip())
+        if user:
+            login(request, user)
+            #url_tienda = 'www.amceb.online/',user.id,'/catalogo'
+            user = request.user
+            #print("Usuariooo:  ",user)
+            #thread = threading.Thread(target=send_welcome_mail, args=(user,datos['user_data']['pass1'].strip(),url_tienda,))
+            #thread.start()
 
-        return JsonResponse({'user_id':user.id})
+            return JsonResponse({'user_id':user.id})
+        else:
+            return JsonResponse({'error':"Up! ocurrio un problema, intentalo nuevamente gracias."})
         #else:
             #return JsonResponse({'error': 'Up. algo salio mal intentalo nuevamente gracias.'})
 
@@ -450,3 +481,15 @@ def delete_regla(request, id_regla):
         regla.delete()
         return JsonResponse({'success':"Se Borro el registro. "})
     return render(request, 'notificaciones/delete_reglas.html', {'regla':regla})
+
+def suscribirse(request, id_company):
+    company = get_object_or_404(Company, id = int(id_company))
+    try:  
+        if request.method == 'POST':
+            c = Suscripcion()
+            c.company_id = int(id_company)
+            c.email = request.POST['email']
+            c.save()
+            return JsonResponse({'success':'Registro exitoso.'})
+    except:
+        return JsonResponse({'error':'Ys existe el registro.'})

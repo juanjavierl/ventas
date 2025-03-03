@@ -424,7 +424,7 @@ def getProducto(id_producto):
     return producto
 
 def productosMasVistos(id_company):
-    productos = Product.objects.filter(stock__gt=0, company_id=id_company)
+    productos = Product.objects.filter(stock__gt=0, company_id=id_company, is_promotion=True)
     return productos
 
 def determinarPrecioEnvio(id_company):

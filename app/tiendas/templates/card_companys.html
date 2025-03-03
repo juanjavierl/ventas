@@ -26,7 +26,7 @@
             <div class="section-title">
                 
                 {% if user.is_authenticated %}
-                <h4 class="text-success">Hola: {{user.email}}, estos son tus catálogos</h4>
+                <h4 class="text-success">Usuario: {{user.username}}, estos son tus catálogos</h4>
                 <p class="text-muted">Actualiza tus Catálogos. y agrega más productos.</p>
                 {% else %}
                   <h2>Elige tu catálogo de {{category.name|title}}</h2>
@@ -75,7 +75,7 @@
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                   <a class="dropdown-item" href="#actualizar" onclick="updateCompany('/{{n.id}}/updateCompany/')" 
                   data-bs-toggle="modal" data-bs-target="#exampleModal">Actualizar</a>
-                  <a class="dropdown-item" href="#eliminar" onclick="deleteCompany('/{{n.id}}/deleteCompany/')" 
+                  <a class="dropdown-item text-danger" href="#eliminar" onclick="deleteCompany('/{{n.id}}/deleteCompany/')" 
                   data-bs-toggle="modal" data-bs-target="#exampleModal">Eliminar</a>
                 </div><br>
                 {% endif %}

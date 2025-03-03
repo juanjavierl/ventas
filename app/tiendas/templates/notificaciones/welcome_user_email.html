@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>¡Bienvenido a Nuestra Plataforma!</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: auto;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        p {
+            color: #666;
+            line-height: 1.5;
+        }
+        .benefits {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #28a745;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px auto;
+            display: block;
+            width: 200px;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #999;
+            text-align: center;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>¡Bienvenido al sistema, AMCEB!</h1>
+        <p>Estamos encantados de tenerte con nosotros. Aquí tienes algunas ventajas que disfrutarás en nuestra plataforma:</p>
+        <div class="benefits">
+            <ul>
+                <li>📦 Vende desde cualquier lugar y en cualquier horario.</li>
+                <li>💳 Métodos de pago flexibles.</li>
+                <li>🏷️ Ofrece ofertas y descuentos exclusivos para clientes.</li>
+                <li>🛍️ Gana mas clientes con una tienda online.</li>
+                <li>Realizar marketing o vicular su tienda con todos tus redes sociales</li>
+                <li>📞 Atención al cliente 24/7 para resolver todas tus dudas.</li>
+                <li>Multiples opciones de configuraciones para tu tienda</li>
+            </ul>
+        </div>
+        <p>Por seguridad guarde sus credenciales para ingresar la proxima vez: 
+            <h3>Usuario/email: {{context.username}}</h3> 
+            <h3>contraseña: {{context.password}}</h3>
+           
+        </p>
+        <p>Para comenzar a explorar y aprovechar todos nuestros beneficios, haz clic en el siguiente botón:</p>
+        <a href="{{context.ruta}}" class="button">Ir a mi Tienda Online</a>
+        <p>Si tienes alguna pregunta, no dudes en contactarnos. <a href="www.amceb.online">www.amceb.online</a></p>
+        
+    </div>
+    <div class="footer">Todos los derechos reservados</div> 
+</body>
+</html>

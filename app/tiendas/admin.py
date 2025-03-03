@@ -47,3 +47,19 @@ class CompanyAdmin(ImportExportModelAdmin):
     search_fields = ('name','ruc','id',)
     list_filter = ('plan',)
     #actions = [companias_expirados]
+
+class SuscripResource(resources.ModelResource):
+
+    class Meta:
+        model = Suscripcion
+
+@admin.register(Suscripcion)
+class ProductAdmin(ImportExportModelAdmin):
+    resource_class = SuscripResource
+    list_display = (
+        'id',
+        'company',
+        'email',
+    )
+    search_fields = ('email',)
+    list_filter = ('company',)

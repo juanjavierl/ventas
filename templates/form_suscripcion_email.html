@@ -1,0 +1,40 @@
+<section class="container" data-aos="fade-up">
+    <div class="alert alert-primary container row" role="alert">
+        <div class="container col-12 col-sm-6">
+            <strong>¡Suscribite a nuestra tienda!</strong>
+            Recibe ofertas y novedades en tu correo.
+        </div>
+        <div class="container col-12 col-sm-6" id="form_more_aviso">
+            <form action="/{{company.id}}/suscribirse/" method="post" id="id_suscripcion">
+                {% csrf_token %}
+                <div class="input-group mb-3">
+                    <input type="email" name="email" class="form-control" placeholder="Ingrese su email"  required>
+                    <button class="btn btn-outline-primary" type="submit" id="button-addon2">Suscribirme</button>
+                </div>
+            </form>
+        </div>
+      </div>
+</section>
+<script>
+    $('#id_suscripcion').on('submit', function (e) {
+    e.preventDefault();
+    $.ajax({
+      type: 'POST',
+      url: $(this).attr('action'),
+      data: $(this).serialize(),
+      success: function (resp) {
+        if (resp.error) {
+          $('.toast-body').removeClass('alert-success').addClass('alert-danger');
+          $('.toast-body').fadeIn(1000).html('<strong>'+resp.error+'</strong>');
+          mostrar_notificacion();
+        } else {
+          $('#form_more_aviso').fadeIn(1000).html('<strong>¡Gracias por suscribirte!</strong>');
+
+        }
+      },
+      error: function (xhr, ajaxOptions, thrownError) {
+        alert("Error:" + thrownError);
+      }
+    });
+  });
+</script>

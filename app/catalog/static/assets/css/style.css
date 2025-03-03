@@ -479,6 +479,12 @@ h6 {
   background: #1bac91;
 }
 
+@media (max-width: 767px) {
+  #hero .btn-get-started{
+    margin-bottom: 10px;
+  }
+}
+
 @media (min-width: 1024px) {
   #hero {
     background-attachment: fixed;

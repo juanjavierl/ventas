@@ -1,15 +1,15 @@
-<section class="container" data-aos="fade-up">
+<section class="container col-11" data-aos="fade-up">
     <div class="alert alert-primary container row" role="alert">
-        <div class="container col-12 col-sm-6">
+        <div class="container col-12 col-md-6">
             <strong>¡Suscribite a nuestra tienda!</strong>
             Recibe ofertas y novedades en tu correo.
         </div>
-        <div class="container col-12 col-sm-6" id="form_more_aviso">
+        <div class="container col-12 col-md-6" id="form_more_aviso">
             <form action="/{{company.id}}/suscribirse/" method="post" id="id_suscripcion">
                 {% csrf_token %}
                 <div class="input-group mb-3">
                     <input type="email" name="email" class="form-control" placeholder="Ingrese su email"  required>
-                    <button class="btn btn-outline-primary" type="submit" id="button-addon2">Suscribirme</button>
+                    <button class="btn btn-primary" type="submit" id="button-addon2">Suscribirme</button>
                 </div>
             </form>
         </div>

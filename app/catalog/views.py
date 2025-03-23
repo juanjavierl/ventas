@@ -467,6 +467,7 @@ empresarial = 250
 def newProducto(request, id_company):
     company = get_object_or_404(Company,id = int(id_company))
     aviso = False
+    date_expiration = False
     cantProductos = cantProductosByCompany(id_company)
     if request.method == 'POST':
         new = request.POST.get('is_new', False) == 'on'
@@ -492,18 +493,22 @@ def newProducto(request, id_company):
         producto.is_service = service
         producto.is_new = new
         producto.is_promotion = promotion
-        if  int(cantProductos) >= int(company.plan.cantidad):
+        if  int(cantProductos) >= int(company.plan.cantidad) or (get_company(id_company).expiration_date < datetime.now().date()):
             aviso = True
-            return JsonResponse({'aviso':'Alcansaste el limite de registros para este plan.','aviso':aviso})
+            date_expiration = True
+            return JsonResponse({'aviso':'Alcansaste el limite de registros para este plan. o la fecha ha caducado','aviso':aviso, 'date_expiration':date_expiration})
         else:
             producto.save()
-            return JsonResponse({'success':'Producto registrado exitosamente.','aviso':aviso})
+            return JsonResponse({'success':'Producto registrado exitosamente.','aviso':aviso, 'date_expiration':date_expiration})
     form = formProducto()
 
     if int(cantProductos) >= int(company.plan.cantidad):
         aviso = True
+    if get_company(id_company).expiration_date < datetime.now().date():
+        date_expiration = True
+    
     categorys = Category.objects.all().order_by('-id')
-    return render(request, 'catalog/newProducto.html',{'form':form,'company':company,'categorys':categorys, 'aviso':aviso})
+    return render(request, 'catalog/newProducto.html',{'form':form,'company':company,'categorys':categorys, 'aviso':aviso, 'date_expiration':date_expiration})
 
 def cantProductosByCompany(id_company):
     cantidad = Product.objects.filter(company_id = int(id_company)).count()

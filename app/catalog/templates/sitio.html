@@ -77,7 +77,7 @@
       {% if aviso %}
         {% include 'notificaciones/opciones_avisos.html' %}
       {% endif %}
-      <div class="container-fluid productos_por_categorias" data-aos="fade-up">
+      <div class="container-fluid productos_por_categorias">
           {% include 'catalog/card_productos.html' with productos=productos %}
         <hr>
           {% include 'pag_productos.html' %}

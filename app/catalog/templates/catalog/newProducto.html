@@ -103,7 +103,7 @@
             style="margin-right: 5px;"><i class="bi bi-arrow-left-circle"></i> Ir Catálogo</a>
 
             
-            {% if aviso %}
+            {% if aviso or date_expiration %}
             <button type="submit" class="btn btn-success btn-sm" disabled><i class="bi bi-save"></i> Registrar Producto</button>
             {% else %}
             <button type="submit" class="btn btn-success btn-sm btn_product"><i class="bi bi-save"></i> Registrar Producto</button>
@@ -113,11 +113,23 @@
       
       {% if aviso %}
       <div class="alert alert-warning aviso_plan text-center" style="margin-top: 5px;" role="alert">
-        Alcansaste el limite de registros para este plan {{company.plan}}
+        Alcansaste el limite de registros para este plan {{company.plan|title}}
         <a href="#" onclick="verPlanes('/ver_planes', '{{company.id}}')" data-bs-toggle="modal"
         data-bs-target="#exampleModal"><strong>Solicitar Nuevo Plan</strong></a>
       </div>
       {% endif %}
+
+      
+      {% if date_expiration %}
+      <div class="alert alert-warning aviso_plan text-center" style="margin-top: 5px;" role="alert">
+        Up.! su contrato expiro hace: {{company.expiration_date|timesince}}<strong>
+          <a href="https://api.whatsapp.com/send?text=Id página: {{company.id}}:%0A Hola, solicito renovar mi contrato muchas gracias. &phone={{dashboard.mobile}}"
+            target="_blank">Contactese con el administrador aqui</a></strong><br>
+        <small class="text-muted ">Aviso: Debe renovar su contrato en los siguientes 15 dias, caso contrario su página
+          estara inactivo, muchas gracias por su comprención.</small>
+      </div>
+      {% endif %}
+        
         
     </div>
   </div>

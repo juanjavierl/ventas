@@ -7,7 +7,7 @@
 </div>
 <div class="row col-12 justify-content-center" style="margin-left: 1px;">
   {% for n in type_company %}
-  <div class="card dark card_c single-product" onclick="detailType('/{{n.id}}/type')">
+  <div class="card dark card_c single-product" onclick="detailType('/{{n.id}}/type')" data-aos="fade-up">
     <i class="{{n.icono}} icon_img card-img-top" alt="..."></i>
     {% if n.is_new %}        
       <span class="badge rounded-pill bg-primary sale-tag d-flex">

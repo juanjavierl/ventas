@@ -112,13 +112,12 @@
       </div>
     </section>
     {% endblock contenido %}
-    <!-- <section id="category" class="category">
-      <div class="container">
-        {% include 'catalog/card_category.html' %}
-      </div>
-    </section> -->
-    <!-- End Team Section -->
-    <!-- Modal -->
+    
+    
+    {% block preg_frecuentes %}
+    {% include 'preguntas_frecuentes.html' %}
+    {% endblock preg_frecuentes %}
+      
     <div class="modal fade" id="exampleModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
       aria-labelledby="staticBackdropLabel" aria-hidden="true">
       <div class="modal-dialog">

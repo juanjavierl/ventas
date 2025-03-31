@@ -198,6 +198,20 @@ def eliminarProducto(request, id_producto):#el id_producto es el indicen
     }
     return JsonResponse(data)
 
+def actualizarCantidad(request):
+    cantidad = request.GET['cantidad']
+    indice = request.GET['indice']
+    productos = request.session['compra']
+    productos[int(indice)]['cantidad'] =  int(productos[int(indice)]['cantidad']) + int(cantidad)
+    productos[int(indice)]['total'] = int(productos[int(indice)]['precio_uni']) * int(productos[int(indice)]['cantidad'])
+    #print(productos[int(indice)]['precio_uni'], " X ", productos[int(indice)]['cantidad'])
+    request.session['compra'] = productos
+    data = {
+        'cant_compras':len(request.session['compra']),
+        't_pago':calcular_pago(request)
+    }
+    return JsonResponse(data)
+
 def shear_product(request, id_company):
     if request.method=="POST":
         texto=request.POST["search"]

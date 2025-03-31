@@ -1,3 +1,13 @@
+<style>
+  input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type=number] {
+      -moz-appearance: textfield;
+    }
+</style>
 <div class="modal-header  thead-light" style="background-color: #58bba9;">
     <h5 class="modal-title text-white" id="exampleModalLabel">Mi Lista de Pedidos</h5>
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -20,7 +30,13 @@
                 <td>{{forloop.counter}}</td>
                 <td>{{i.name}}</td>
                 <td>{{i.precio_uni}}</td>
-                <td>{{i.cantidad}}</td>
+                <td>
+                  <div class="input-group" style="width: 100px;">
+                    <button class="btn btn-sm btn-outline-primary" type="button" onclick="cambiarValor(-1, '{{forloop.counter0}}')">-</button>
+                    <input type="number" id="cantidad_{{forloop.counter0}}" class="form-control form-control-sm text-center" value="{{i.cantidad}}" min="1" max="100000">
+                    <button class="btn btn-sm btn-outline-primary" type="button" onclick="cambiarValor(1, '{{forloop.counter0}}')">+</button>
+                </div>
+                </td>
                 <td>{{i.total}}</td>
                 <td><button onclick="eliminarProducto('/eliminarProducto/{{forloop.counter0}}')" data-bs-toggle="tooltip" title="Eliminar" class="btn btn-danger btn-sm"><i class="bi bi-trash3"></i></button></td>
             </tr>
@@ -47,6 +63,25 @@
   </div>
 {% endif %}
 <script>
+
+  function cambiarValor(valor, indice) {
+      let input = document.getElementById("cantidad_"+indice);
+      let nuevoValor = parseInt(input.value) + valor;
+      if (nuevoValor >= parseInt(input.min) && nuevoValor <= parseInt(input.max)) {
+          input.value = nuevoValor;
+          $.ajax({
+          type:'GET',
+          url:'/actualizarCantidad/',
+          data:{'cantidad':valor, 'indice':indice},
+          success:function(resp){
+            $("#data_dable tbody #t_p").html("Total a Pagar: "+resp.t_pago);
+            
+            verCarrito('/{{company.id}}/ver_carrito/');
+          }
+      });
+      }
+  }
+    
   function vaciar_carito(urls){
       $.ajax({
           type:'GET',

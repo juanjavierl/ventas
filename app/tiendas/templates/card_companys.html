@@ -50,17 +50,23 @@
         <div class="card-body" style="padding: 10px;">
             <div class="text-section" onclick="detailSite('/{{n.id}}/catalogo')">
                 <h5 class="card-title text-wrap text-primary fw-bolder">{{n.name|title}}</h5>
-                <p class="card-text text-break text-wrap">{{n.description|default:" - - - "|capfirst|truncatewords:10}}
+                <p class="card-text text-break text-wrap fst-italic">{{n.description|default:" - - - "|capfirst|truncatewords:10}}
                 </p>
                 <p class="card-text">
                   {% for c, v in count_productos.items %}
                     {% if c == n.name %}
-                        {{ v }}
+                      
+                      {% if v == 0 %}
+                      <small class="text-muted text-danger fst-italic" style="margin-right: 10px;">En creación</small>
+                      {% else %}
+                      {{ v }} <small class="text-muted text-success fst-italic" style="margin-right: 10px;">: Productos</small>
+                      {% endif %}  
                     {% endif %}
                   {% endfor %}
-                  <small class="text-muted text-success fst-italic" style="margin-right: 10px;">: Productos</small> 
-                  <small class="fst-italic text-success">Verificado: </small><i class="bi bi-check-lg" style="margin-right: 10px;"></i>
-                  
+                  <small class="fst-italic text-success">Verificado: </small>
+                  <i class="bi bi-star-fill" style="color: gold;"></i>
+                  <i class="bi bi-star-fill" style="color: gold;"></i>
+                  <i class="bi bi-star-fill" style="color: gold;"></i>                
                 </p>
             </div>
             

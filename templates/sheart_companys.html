@@ -3,7 +3,7 @@
         <a class="dropdown-item" id="compartir_url" href="#"><i class="bi bi-share-fill"></i></a>
 </h1>
 <h1>
-        <a href="https://api.whatsapp.com/send?text=*_Visita el Sistema AMCEB_* %0A _Crea y encuentra las mejores tiendas online de toda Bolivia_%0A{{request.build_absolute_uri}}"
+        <a href="https://api.whatsapp.com/send?text=*_Visita el Sistema AMCEB_* %0A _Crea y encuentra las mejores tiendas online de toda Bolivia en_%0A{{request.build_absolute_uri}}"
                 target="_blank" title="Compartir con whatsapp" style="font-size: 25px;">
                 <i class="bi bi-send"></i>
         </a>
@@ -25,8 +25,8 @@
                 // Código si la Web Share API es soportada
                 document.getElementById("compartir_url").value = "En más lugares"
                 const shareData = {
-                        title: "Sistema Anceb",
-                        text: "Crear tu tienda Online",
+                        title: "Sistema AMCEB",
+                        text: "Crea tu tienda Online",
                         url: window.location.href,
                 };
                 let btn = document.getElementById("compartir_url");

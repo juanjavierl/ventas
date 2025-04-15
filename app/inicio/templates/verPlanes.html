@@ -1,5 +1,5 @@
 <div class="modal-header  thead-light" style="background-color: #58bba9;">
-    <h5 class="modal-title text-white" id="exampleModalLabel">Elige un plan de tu preferencia</h5>
+    <h5 class="modal-title text-white" id="exampleModalLabel">Elige un Plan</h5>
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
   </div>
   
@@ -20,7 +20,7 @@
               <p class="card-text text-break text-wrap fst-italic">{{p.description|default:" - - - "|capfirst}}</p>
               <small class="text-section"><i class="bi bi-check"></i>Tiempo mínimo.- {{p.contracts_min}}  Precio.- {{p.price_min}} Bs.</small><br>
               <small  class="text-section text-success"><i class="bi bi-check"></i>contrato en oferta.- {{p.contracts_max}}  Precio.- {{p.price_max}} Bs.</small><br>
-              <small class="text-section"><i class="bi bi-check"></i>{{p.cantidad}} Items de almacenamiento</small>
+              <small class="text-section"><i class="bi bi-check"></i>{{p.cantidad}} productos de almacenamiento</small>
             </div>
             <div class="cta_c-sectiformPlaneson">
   
@@ -53,13 +53,13 @@
   <script>
     $("#btn_solicitarPlan").on('click', function(){
         let name = $('input:radio[name=plan]:checked').val();
-        let ruta = "https://api.whatsapp.com/send?text=_Hola me interesa un catálogo digital en {{request.get_host}}_  %0A _deseo comprar el_ *_PLAN:"+ name.toUpperCase() +"_* %0A _muchas gracias_.%0A &phone={{celular.mobile}}";
+        let ruta = "https://api.whatsapp.com/send?text=_Hola me interesa una tienda online en: {{request.get_host}}_  %0A _deseo comprar el_ *_PLAN:"+ name.toUpperCase() +"_* %0A _muchas gracias_.%0A &phone={{celular.mobile}}";
         window.open(ruta, '_blank')
     })
 
     $("#btn_solicitarPlanActulizar").on('click', function(){
         let name = $('input:radio[name=plan]:checked').val();
-        let ruta = "https://api.whatsapp.com/send?text=_Hola quiero actualizar mi plan:{{company.plan}} al_: *_Plan"+ name.toUpperCase() +"_* %0A _muchas gracias_.%0A &phone={{celular.mobile}}";
+        let ruta = "https://api.whatsapp.com/send?text=_Hola deseo actualizar mi plan:{{company.plan}} al_: *_Plan"+ name.toUpperCase() +"_* %0A _muchas gracias_.%0A &phone={{celular.mobile}}";
         window.open(ruta, '_blank')
     })
   </script>

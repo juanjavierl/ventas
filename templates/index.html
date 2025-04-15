@@ -89,7 +89,7 @@
   <section id="hero" class="d-flex flex-column justify-content-center align-items-center">
     <div class="container text-center text-md-left" data-aos="fade-up">
       <h1>Bienvenido al Sistema {{dashboard.name|upper|cut:" "}}</h1>
-      <h2>Crea & encuentra las mejores tiendas online de toda Bolivia</h2>
+      <h2>Crea & encuentra las mejores tiendas online de toda Bolivia con AI & SEO</h2>
       <a href="#team" class="btn-get-started scrollto"> Ver Ultimas Novedades</a>
       <a href="#" onclick="form_company('/registro_company/')" data-bs-toggle="modal"
       data-bs-target="#exampleModal" class="btn-get-started scrollto"> crear mi tienda online</a>
@@ -100,7 +100,11 @@
 
   <main id="main">
     <!-- ======= Services Section ======= -->
-    {% include 'sheart_product_by_company.html' with dashboard=dashboard %}
+    
+    {% block form_buscador %}
+      
+    {% endblock form_buscador %}
+      
     <!-- End Services Section -->
     <!-- ======= Team Section ======= -->
     {% block contenido %}

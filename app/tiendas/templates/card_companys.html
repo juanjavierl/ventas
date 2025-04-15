@@ -2,7 +2,7 @@
 
 {% block company %}
   <a href="/">
-    <marquee behavior="" direction="">{{dashboard.name|title|cut:" "}}</marquee>
+    {{dashboard.name|upper|cut:" "}}
   </a>
 {% endblock company %}
 
@@ -59,7 +59,7 @@
                       {% if v == 0 %}
                       <small class="text-muted text-danger fst-italic">En creación</small>
                       {% else %}
-                      {{ v }}<small class="text-muted text-success fst-italic">:Productos</small> 
+                      {{ v }}<small class="text-muted text-success fst-italic">:prods</small> 
                       {% endif %}  
                     {% endif %}
                   {% endfor %}

@@ -70,7 +70,12 @@
       </div>
     </section>
 {% endblock hero %}
-  
+
+
+{% block form_buscador %}
+{% include 'sheart_product_by_company.html' with dashboard=dashboard %}
+{% endblock form_buscador %}
+
 {% block contenido %}
     <section id="team_productos" class="portfolio">
       

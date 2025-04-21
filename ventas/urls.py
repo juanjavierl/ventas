@@ -19,11 +19,25 @@ from django.urls import path, include
 from django.conf.urls.static import static
 from ventas import settings
 
+from django.contrib.sitemaps.views import sitemap
+from app.inicio.sitemaps import *
+from app.inicio.views import robots_txt
+
+sitemaps = {
+    'inicio': IndexSitemap,
+    'companies': CompanySitemap,
+    'products': ProductSitemap,
+    'categorias': TipoCompanySitemap,
+    'ciudades':CiudadSitemap,
+}
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('app.catalog.urls')),
     path('', include('app.tiendas.urls')),
     path('', include('app.inicio.urls')),
+    path("robots.txt", robots_txt, name="robots_txt"),
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

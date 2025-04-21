@@ -1,9 +1,10 @@
+#encoding:utf-8
 from datetime import datetime, date
 from random import randint
 from django.forms import model_to_dict
 from django.db import models
 from django.contrib.auth.forms import User
-
+from meta.models import ModelMeta
 from ventas import settings
 
 class Tipo_company(models.Model):
@@ -25,6 +26,16 @@ class Tipo_company(models.Model):
         """Unicode representation of Categoria ."""
         return self.name
 
+    # Métodos para django-meta (SEO)
+    def get_meta_title(self):
+        return f"{self.name}"
+
+    def get_meta_description(self):
+        return (self.description or "")[:160]
+
+    def get_meta_url(self):
+        return f"/{self.id}/type"
+
     def num_vistos(self):
         num = randint(1500,5000)
         return num
@@ -42,6 +53,16 @@ class Ciudad(models.Model):
     def __str__(self):
         """Unicode representation of Cuidad."""
         return self.ciudad
+
+    # Métodos para django-meta (SEO)
+    def get_meta_title(self):
+        return f"{self.ciudad}"
+    
+    def get_meta_description(self):
+        return f"Explora empresas, productos y servicios disponibles en {self.ciudad.title()}, Bolivia."
+
+    def get_meta_url(self):
+        return f"/{self.id}/city"
 
 class Plataforma(models.Model):
     name = models.CharField(max_length=20, verbose_name="Nombre")
@@ -67,7 +88,7 @@ class Plataforma(models.Model):
         """Unicode representation of Cuidad."""
         return self.name
 
-class Company(models.Model):
+class Company(models.Model, ModelMeta):
     name = models.CharField(max_length=50, verbose_name='Nombre/Razón social')
     description = models.TextField(verbose_name='Descripción de su catalogo (Opcional)', null=True, blank=True, help_text='Escriba una descripción sobre de su negocio')
     ruc = models.CharField(max_length=15, blank=True, null=True, verbose_name='Número de NIT (Opcional)')
@@ -89,6 +110,21 @@ class Company(models.Model):
 
     def __str__(self):
         return self.name
+
+    # Métodos para django-meta (SEO)
+    def get_meta_title(self):
+        return f"{self.name}"
+
+    def get_meta_description(self):
+        return (self.description or "")[:160]
+
+    def get_meta_image(self):
+        if self.image:
+            return f'{settings.MEDIA_URL}{self.image}'
+        return f"{settings.STATIC_URL}img/default/empty.png"
+
+    def get_meta_url(self):
+        return f"/{self.id}/catalogo"
     
     def contarLikes(self):
         from app.catalog.models import Like

@@ -6,6 +6,24 @@
   </a>
 {% endblock company %}
 
+
+{% block tecnica_seo %}
+  {% if category %}
+  <meta name="description" content="{{ category.get_meta_description }}">
+  <meta property="og:title" content="{{ category.get_meta_title }}">
+  <meta property="og:description" content="{{ category.get_meta_description }}">
+  <meta property="og:url" content="https://{{ request.get_host }}{{ category.get_meta_url }}">
+  <link rel="canonical" href="https://{{ request.get_host }}{{ category.get_meta_url }}">
+  {% else %}
+  <meta name="description" content="{{ ciudad.get_meta_description }}">
+  <meta property="og:title" content="{{ ciudad.get_meta_title }}">
+  <meta property="og:description" content="{{ ciudad.get_meta_description }}">
+  <meta property="og:url" content="https://{{ request.get_host }}{{ ciudad.get_meta_url }}">
+  <link rel="canonical" href="https://{{ request.get_host }}{{ ciudad.get_meta_url }}">
+  {% endif %}
+{% endblock tecnica_seo %}
+  
+
 {% block carrito %}
   {% include 'sheart_companys.html' %}
 {% endblock carrito %}
@@ -29,7 +47,13 @@
                 <h4 class="text-success">Usuario: {{user.username}}, estos son tus catálogos</h4>
                 <p class="text-muted">Actualiza tus Catálogos. y agrega más productos.</p>
                 {% else %}
-                  <h2>Elige tu catálogo de {{category.name|title}}</h2>
+                  <h2>Elige tu catálogo de 
+                    {% if category %}
+                      {{ category.name|title }}
+                    {% else %}
+                      {{ ciudad.ciudad|title }}
+                    {% endif %}
+                </h2>
                 {% endif %}
             </div>
         </div>
@@ -59,14 +83,14 @@
                       {% if v == 0 %}
                       <small class="text-muted text-danger fst-italic">En creación</small>
                       {% else %}
-                      {{ v }}<small class="text-muted text-success fst-italic">:prods</small> 
+                      {{ v }}<small class="text-muted text-success fst-italic">:prods</small>
+                      <small class="fst-italic text-success">Verificado:</small>
+                      <i class="bi bi-star-fill" style="color: gold;"></i>
+                      <i class="bi bi-star-fill" style="color: gold;"></i>
+                      <i class="bi bi-star-fill" style="color: gold;"></i>   
                       {% endif %}  
                     {% endif %}
-                  {% endfor %}
-                  <small class="fst-italic text-success">Verificado:</small>
-                  <i class="bi bi-star-fill" style="color: gold;"></i>
-                  <i class="bi bi-star-fill" style="color: gold;"></i>
-                  <i class="bi bi-star-fill" style="color: gold;"></i>                
+                  {% endfor %}              
                 </p>
             </div>
             

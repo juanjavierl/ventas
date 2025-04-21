@@ -1,5 +1,5 @@
 from django.db import models
-
+from ventas import settings
 # Create your models here.
 class Dashboard(models.Model):
     name = models.CharField(max_length=50, unique=True, verbose_name='Nombre del Sistema')
@@ -15,6 +15,18 @@ class Dashboard(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_meta_title(self):
+        return self.name
+
+    def get_meta_description(self):
+        return self.description
+
+    def get_meta_image(self):
+        return self.get_image()
+
+    def get_meta_url(self):
+        return '/'
 
     def get_image(self):
         if self.image:

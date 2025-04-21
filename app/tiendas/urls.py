@@ -3,6 +3,7 @@ from django.urls import path
 
 urlpatterns = [
     path('<int:id_type>/type/', views.getTypes, name='type'),
+    path('<int:id_ciudad>/city/', views.getCiudades, name='city'),
     path('registro_company/', views.registro_company, name='registro_company'),
     path('validar_form/', views.validar_form, name='validar_form'),
     path('validar_username/', views.validar_username, name='validar_username'),

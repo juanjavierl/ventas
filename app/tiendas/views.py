@@ -25,7 +25,7 @@ from app.catalog.views import *
 # Create your views here.
 def getTypes(request, id_type):
     if request.user.is_authenticated:
-        companys = Company.objects.filter(user_id = int(request.user.id), status=True)
+        companys = Company.objects.filter(user_id = int(request.user.id))
     else:
         companys = Company.objects.filter(category=int(id_type), status=True)
     count_productos = {}
@@ -41,6 +41,23 @@ def getTypes(request, id_type):
     }
     return render(request, 'card_companys.html', dic)
 
+def getCiudades(request, id_ciudad):
+    if request.user.is_authenticated:
+        companys = Company.objects.filter(user_id = int(request.user.id))
+    else:
+        companys = Company.objects.filter(cuidad=int(id_ciudad), status=True)
+    count_productos = {}
+    for c in companys:
+        count_productos[c.name] = Product.objects.filter(company_id = int(c.id)).count()
+    
+    request.session['compra'] = []#inicializa el carrito vacio nuevamente
+    dic = {
+        'ciudad':getCity(id_ciudad),
+        'companys':companys,
+        'dashboard':get_Dashboard(),
+        'count_productos':count_productos
+    }
+    return render(request, 'card_companys.html', dic)
 
 def getType(id_type):
     try:
@@ -48,6 +65,13 @@ def getType(id_type):
     except:
         companys = {'name':"company"}
     return companys
+
+def getCity(id_ciudad):
+    try:
+        ciudad = Ciudad.objects.get(id=int(id_ciudad))
+    except:
+        ciudad = {'name':"Cochabamba"}
+    return ciudad
 
 def registro_company(request):
     form_user = RegisterForm()

@@ -48,6 +48,20 @@ class Product(models.Model):
 
     def __str__(self):
         return self.get_full_name()
+    
+    def get_meta_title(self):
+        return f"{self.name} - {self.company.name}"
+
+    def get_meta_description(self):
+        if self.description:
+            return self.description
+        return f"Compra {self.name} en {self.company.name}, en la categoría {self.category.name}."
+
+    def get_meta_image(self):
+        return self.get_image()
+
+    def get_meta_url(self):
+        return f'/{self.id}/{self.company.id}/detail_product'
 
     def get_full_name(self):
         return f'{self.name} ({self.code}) ({self.category.name})'

@@ -1,8 +1,18 @@
 {% extends 'index.html' %}
 
 {% block titulo %}
-    {{company.name|title|truncatechars:17|cut:" "}}
+    {{company.name|title|truncatechars:26}}
 {% endblock titulo %}
+  
+{% block tecnica_seo %}
+  <meta name="title" content="{{ company.get_meta_title }}">
+  <meta name="description" content="{{ company.get_meta_description }}">
+  <meta property="og:title" content="{{ company.get_meta_title }}">
+  <meta property="og:description" content="{{ company.get_meta_description }}">
+  <meta property="og:image" content="{{ company.get_meta_image }}">
+  <meta property="og:url" content="https://{{ request.get_host }}{{ company.get_meta_url }}">
+  <link rel="canonical" href="https://{{ request.get_host }}{{ company.get_meta_url }}">
+{% endblock tecnica_seo %}
 
 {% block company %}
     <a href="/{{company.id}}/catalogo">

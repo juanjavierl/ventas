@@ -11,7 +11,23 @@ from app.tiendas.models import *
 from .forms import *
 
 # Create your views here.
+
+def robots_txt(request):
+    sitemap_url = f"https://{request.get_host()}/sitemap.xml"
+    lines = [
+        "User-Agent: *",
+        "Disallow: /admin/",
+        "Disallow: /ver_planes/",
+        "Disallow: /change_password/",
+        "Disallow: /login_user/",
+        "Disallow: /registro_company/",
+        "Allow: /",
+        f"Sitemap: {sitemap_url}",
+    ]
+    return HttpResponse("\n".join(lines), content_type="text/plain")
+
 def inicio(request):
+    ciudades = Ciudad.objects.all().order_by('-id')
     type_company = Tipo_company.objects.all().order_by('-id')
     #contar todas las conpanyas q pertenecen a cada categoria
     #conpanias = Company.objects.all().order_by('-id')
@@ -22,7 +38,8 @@ def inicio(request):
     dic = {
         'dashboard':get_Dashboard(),
         'type_company':type_company,
-        'count_comp':count_comp
+        'count_comp':count_comp,
+        'ciudades':ciudades
     }
     return render(request,'index.html',dic)
 

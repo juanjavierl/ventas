@@ -44,6 +44,8 @@ THIRD_PARTY_APPS = [
     'crispy_bootstrap5',
     'django_cleanup.apps.CleanupConfig',
     'import_export',
+    'meta',
+    'django.contrib.sitemaps',
 ]
 
 LOCAL_APPS = [

@@ -31,7 +31,7 @@
         {% for p in pedidos %}
         <tr>
             <td>{{forloop.counter}}</td>
-            <td>{{p.product.name}}</td>
+            <td>{{p.product.name}} {{p.nota|default:""|title}}</td>
             <td>{{p.cant}}</td>
             <td>{{p.price}}</td>
             <td>{{p.total}}</td>

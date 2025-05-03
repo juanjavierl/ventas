@@ -7,6 +7,29 @@ function verCarrito(urls){
         }
     });
   }
+
+function updateProductosEnConfirmar(urls){
+    $.ajax({
+        type: 'GET',
+        url: urls,
+        success: function (respuesta) {
+            $('#carritos_items').html(respuesta);
+        }
+    })
+}
+
+function updateTotalPago(urls, valor_option){
+    $.ajax({
+        type:'GET',
+        url:urls,
+        data:{'opcion':valor_option},
+        success:function(resp){
+          $('#costos').text("Importe: "+ resp.datos.importe + " Precio de envio: "+ resp.datos.precio_envio + " Total a pagar : Bs." + resp.datos.total_pagar)
+        }
+      });
+}
+
+
 function mostrar_buscador(id_company){
   $('.menus').slideToggle(1000);
   $('.menus form #shear_text').focus();

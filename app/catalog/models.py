@@ -130,7 +130,7 @@ class Client(models.Model):
     mobile = models.IntegerField(verbose_name='Celular (WhatsApp)')
     email = models.EmailField(max_length=100, unique=True, verbose_name='Correo Electrónico')
     date_joined = models.DateField(default=datetime.now, verbose_name='Fecha de registro')
-    address = models.CharField(max_length=500, null=True, blank=True, verbose_name='Dirección*', help_text="Ingrese:Zona,Calle,Nro,")
+    address = models.CharField(max_length=500, null=True, blank=True, verbose_name='Dirección o referencia exacta*', help_text="Ingrese:Zona,Calle,Nro")
 
     def __str__(self):
         return self.get_full_name()
@@ -190,6 +190,7 @@ class Pedido(models.Model):
     price = models.DecimalField(max_digits=9, decimal_places=2, default=0.00)
     subtotal = models.DecimalField(max_digits=9, decimal_places=2, default=0.00)
     total = models.DecimalField(max_digits=9, decimal_places=2, default=0.00)
+    nota = models.TextField(max_length=255, null=True, blank=True)
 
     class Meta:
         """Meta definition for Pedido."""

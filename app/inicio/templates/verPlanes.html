@@ -9,6 +9,7 @@
         {% csrf_token %}
   
         {% for p in planes %}
+          <label class="form-check-label" for="id_plan_{{p.id}}">
         <div class="card dark card_c single-product">
           <i class="{{p.icono}} icon_img card-img-top" alt="..."></i>
           <span class="badge rounded-pill bg-primary sale-tag d-flex">
@@ -25,14 +26,18 @@
             <div class="cta_c-sectiformPlaneson">
   
               {% if p.name|upper == 'EMPRENDEDOR' %}
-              <input type="radio" name="plan" value="{{p.name}}" id="id_plan_{{p.id}}" checked required>
+              
+                <input class="form-check-input" type="radio" name="plan" value="{{p.name}}" id="id_plan_{{p.id}}" checked required>
+
               {% else %}
-              <input type="radio" name="plan" value="{{p.name}}" id="id_plan_{{p.id}}">
+                <input class="form-check-input" type="radio" name="plan" value="{{p.name}}" id="id_plan_{{p.id}}">
+            
               {% endif %}
   
             </div>
           </div>
         </div>
+      </label>
         {% endfor %}
   
       </form>

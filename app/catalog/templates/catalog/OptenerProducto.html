@@ -193,7 +193,16 @@
                   </div>
                   <div class="valores mas" style="border-radius: 0px 15px 15px 0px;"> + </div>
                 </div>
-
+                <div class="form-check" style="margin-bottom: 15px;">
+                  <input class="form-check-input" type="checkbox" name="is_nota" id="defaultCheck1">
+                  <label class="form-check-label" for="defaultCheck1">
+                    ¿Desea agregar alguna caracteriscica?
+                  </label>
+                </div>
+                <div class="mb-3 caracteristica_producto">
+                  <label for="exampleFormControlTextarea1">Escriba una nota breve</label>
+                  <textarea name="nota" class="form-control" id="exampleFormControlTextarea1" rows="3" placeholder="Color, tamaño, forma, tipo, etc. Ejem:Color Negro"></textarea>
+                </div>
                 <div class="row btn_add align-items-center" style="height: 30px;">
                   <button type="col submit" class="btn btn-success btn-sm tb_text efecto_button">
                     <i class="bi bi-cart-fill"></i>
@@ -201,7 +210,7 @@
                   </button><br><br>
                   <a href="/{{company.id}}/catalogo" class="col btn btn-secondary btn-sm tb_text"
                     style="padding-top: 5px;">
-                    <i class="bi bi-arrow-left-circle"> Volver Atrás</i>
+                    <i class="bi bi-arrow-left-circle"> Ir Atrás</i>
                   </a>
 
 
@@ -304,6 +313,8 @@
           $('.toast-body').fadeIn(1000).html('<strong>'+ resp.success +'</strong>');
           mostrar_notificacion();
           $("#cont_compras").html(resp.total_compra);
+          $('#exampleFormControlTextarea1').val("");
+          $('.caracteristica_producto').hide();
         }
       },
       error: function (xhr, ajaxOptions, thrownError) {
@@ -314,8 +325,19 @@
     });
   });
   $(function () {
+    $('.caracteristica_producto').hide();
+
+    $('#defaultCheck1').change(function () {
+      if (this.checked) {
+          $('.caracteristica_producto').fadeIn(1000).show();
+          $('#exampleFormControlTextarea1').focus();
+        }else{
+          $('.caracteristica_producto').hide(500);
+        }
+    });
     //validaciones del input cantidad
     //$('#cantidad_id').focus();
+
     input = $(".valor_numerico");
     min = $(".valor_numerico").attr('min'),
       max = $(".valor_numerico").attr('max');

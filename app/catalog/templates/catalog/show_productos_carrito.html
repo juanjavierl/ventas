@@ -5,7 +5,7 @@
         <th scope="col">Producto</th>
         <th scope="col">Precio</th>
         <th scope="col">Cantidad</th>
-        <th scope="col">Total</th>
+        <th scope="col">Sub Total</th>
       </tr>
     </thead>
     <tbody>
@@ -23,7 +23,7 @@
       {% endfor %}
       {% if datos %}
       <tr>
-        <td colspan="5" style="text-align: right;"><strong id="t_p">Total a Pagar: Bs. {{t_pago}}</strong></td>
+        <td colspan="5" style="text-align: center;"><strong id="t_p">Importe estimado: Bs. {{t_pago}}</strong></td>
       </tr>
       {% endif %}
     </tbody>

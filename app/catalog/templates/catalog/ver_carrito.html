@@ -20,7 +20,7 @@
             <th scope="col">Producto</th>
             <th scope="col">Precio</th>
             <th scope="col">Cantidad</th>
-            <th scope="col">Total</th>
+            <th scope="col">Sub Total</th>
             <th scope="col"></th>
           </tr>
         </thead>
@@ -49,7 +49,7 @@
           
           {% if datos %}
           <tr>
-            <td colspan="6" style="text-align: center;"><strong data-value="{{t_pago}}" id="t_pago">Total a Pagar: Bs. {{t_pago}}</strong></td>
+            <td colspan="6" style="text-align: center;"><strong data-value="{{t_pago}}" id="t_pago">Importe estimado: Bs. {{t_pago}}</strong></td>
           </tr>
           {% endif %}
         </tbody>
@@ -74,9 +74,11 @@
           url:'/actualizarCantidad/',
           data:{'cantidad':valor, 'indice':indice},
           success:function(resp){
-            $("#data_dable tbody #t_p").html("Total a Pagar: "+resp.t_pago);
+            //$("#data_dable tbody #t_p").html("Importe estimado: "+resp.t_pago);
             
             verCarrito('/{{company.id}}/ver_carrito/');
+            updateProductosEnConfirmar("/{{company.id}}/show_productos_carrito/");
+            updateTotalPago("/{{company.id}}/getPrecioEnvio/",$('#tipo_envio').val())
           }
       });
       }
@@ -99,11 +101,11 @@
           type:'GET',
           url:urls,
           success:function(resp){
-            $("#data_dable tbody #"+id_pro).remove();
-            var valor = $('#t_pago').attr('data-value');
-            $("#data_dable tbody #t_p").html("Total a Pagar: "+resp.t_pago);
+            
             $("#cont_compras").html(resp.cant_compras);
             verCarrito('/{{company.id}}/ver_carrito/');
+            updateProductosEnConfirmar("/{{company.id}}/show_productos_carrito/");
+            updateTotalPago("/{{company.id}}/getPrecioEnvio/",$('#tipo_envio').val())
           }
       });
       return false;

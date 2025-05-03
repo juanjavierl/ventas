@@ -77,17 +77,12 @@
                 }
                 else {
                     $('.toast-body').removeClass('alert-danger').addClass('alert-success');
-                    $('.toast-body').fadeIn(1000).html(resp.success);
+                    $('.toast-body').fadeIn(1000).html('<strong>'+ resp.success +'</strong>');
                     mostrar_notificacion();
 
                     $("#cont_compras").html(resp.total_compra);
-                    $.ajax({
-                        type: 'GET',
-                        url: '/{{company.id}}/show_productos_carrito/',
-                        success: function (respuesta) {
-                            $('#carritos_items').html(respuesta);
-                        }
-                    })
+                    updateProductosEnConfirmar("/{{company.id}}/show_productos_carrito/");
+                    updateTotalPago("/{{company.id}}/getPrecioEnvio/",$('#tipo_envio').val())
                 }
             }
         });

@@ -68,6 +68,13 @@ def get_rule_condicion(id_company):
         reglas = False
     return reglas
 
+def getBanco(id_company):
+    try:
+        banco = Banco.objects.get(company_id=int(id_company))
+    except:
+        banco = False
+    return banco
+
 def optener_avisos_by_company(id_company):
     try:
         aviso = Aviso.objects.get(company_id=int(id_company))
@@ -109,7 +116,14 @@ def optenerProducto(request, id_producto, id_company):
         datos['cantidad'] = int(request.POST['cantidad'])
         datos['precio_uni'] = float(p.price)
         datos['total'] = float(int(request.POST['cantidad']) * float(p.price))
-        if len(data_cli) == 0:
+
+        tiene_nota = request.POST.get('is_nota',False) == 'on'#verificamos si su pedido tiene una nota
+        if tiene_nota:
+            datos['nota'] = request.POST['nota']
+        else:
+            datos['nota'] = ""
+
+        if len(data_cli) == 0:#cuanoo el carrido esta vasio
             data_cli.append(datos)
             request.session['compra'] = data_cli
             dic = {
@@ -123,7 +137,7 @@ def optenerProducto(request, id_producto, id_company):
             }
             dic['success'] = p.name.title()," agregado al Carrito."
             return JsonResponse(dic)
-        elif len(data_cli) > 0:
+        elif len(data_cli) > 0:#cuando el carrito ya tiene compras
             for indice in range(len(data_cli)):   
                 if data_cli[indice]['id_producto'] == datos['id_producto']:
                     data_cli[indice]['cantidad'] = int(data_cli[indice]['cantidad']) + int(request.POST['cantidad'])
@@ -132,7 +146,7 @@ def optenerProducto(request, id_producto, id_company):
                     request.session['compra'] = data_cli
                     dic['success'] = p.name.title()," agregado al Carrito."
                     return JsonResponse(dic)
-            if not datos in data_cli:
+            if not datos in data_cli:#verifica si el producto aun no esta en la sesion
                 data_cli.append(datos)
                 request.session['compra'] = data_cli
                 dic['total_compra'] = len(request.session['compra'])
@@ -192,6 +206,7 @@ def eliminarProducto(request, id_producto):#el id_producto es el indicen
     productos = request.session['compra']
     productos.pop(int(id_producto))
     request.session['compra'] = productos
+    #calcular nuevamente
     data = {
         'cant_compras':len(request.session['compra']),
         't_pago':calcular_pago(request)
@@ -287,12 +302,11 @@ def confirmar_compra(request, id_company):
                 pedido.cant = int(productos['cantidad'])
                 pedido.price = float(productos['precio_uni'])
                 pedido.total = float(int(productos['cantidad']) * float(productos['precio_uni']))
+                pedido.nota = productos['nota']
                 pedido.save()
 
                 if not getProducto(int(productos['id_producto'])).is_service:
-                    print("No es servicio")
                     cantProductos = getProducto(int(productos['id_producto'])).salida
-                    print("Cant productos: ",cantProductos)
                     Product.objects.filter(id=int(productos['id_producto'])).update(salida=int(cantProductos)+int(productos['cantidad']))
             
             lista_product = request.session['compra']
@@ -324,6 +338,7 @@ def confirmar_compra(request, id_company):
                     pedido.cant = int(productos['cantidad'])
                     pedido.price = float(productos['precio_uni'])
                     pedido.total = float(int(productos['cantidad']) * float(productos['precio_uni']))
+                    pedido.nota = productos['nota']
                     pedido.save()
                     
                     if not getProducto(int(productos['id_producto'])).is_service:
@@ -355,8 +370,6 @@ def confirmar_compra(request, id_company):
         'datos':datos,
         't_pago':t_pago,
         'productos':productosMasVistos(id_company),
-        'precio_envio':determinarPrecioEnvio(id_company),
-        'precio_envio_ciudad':determinarPrecioEnvioCiudad(id_company),
         'aviso':optener_avisos_by_company(id_company),
         'address':get_address(id_company),
         'regla':get_rule_condicion(id_company),
@@ -602,3 +615,34 @@ def deleteImgProduct(request, id_img):
     image = get_object_or_404(Imagen, id=int(id_img))
     image.delete()
     return JsonResponse({'success':'Se Elimino la Imagen'})
+
+def getPrecioEnvio(request, id_company):
+    datos = {}
+    opcion = request.GET.get('opcion', 'domicilio')
+    datos['total'] = calcular_pago(request)#total a pagar de todo el carrito
+    
+    if getBanco(id_company):
+        datos['qr'] = getBanco(id_company).toJSON()#estoy traendo toda la funcion toJSON del models
+    else:
+        datos['qr'] = False
+
+    if opcion == "domicilio":
+        if determinarPrecioEnvio(id_company):
+            datos['precio_envio'] = determinarPrecioEnvio(id_company)
+            datos['total_pagar'] = int(calcular_pago(request)) + int(determinarPrecioEnvio(id_company))
+        else:
+            datos['precio_envio'] = 0
+            datos['total_pagar'] = calcular_pago(request)
+    elif opcion == "ciudad":
+        if determinarPrecioEnvioCiudad(id_company):
+            datos['precio_envio'] = determinarPrecioEnvioCiudad(id_company)
+            datos['total_pagar'] = int(calcular_pago(request)) + int(determinarPrecioEnvioCiudad(id_company))
+        else:
+            datos['precio_envio'] = 0
+            datos['total_pagar'] = calcular_pago(request)
+    else:
+        datos['precio_envio'] = 0
+        datos['total_pagar'] = calcular_pago(request)
+    
+    datos['importe'] = calcular_pago(request)
+    return JsonResponse({'datos':datos})

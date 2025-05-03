@@ -63,16 +63,16 @@
         {{ form|crispy }}
         <label for="">Tipo de entrega* </label>
         <select class="form-select" id="tipo_envio" name="tipo_envio" aria-label="Small select example">
-          <option value="tienda">Recoger en tienda</option>
-          <option value="domicilio">Recibir en mi domicilio</option>
+          <option value="tienda">Recogeré en la tienda</option>
+          <option value="domicilio">Enviame a mi domicilio</option>
           
           {% if not company.is_service %}
           <option value="ciudad">Envio a otra Ciudad</option>
           {% endif %}
         </select>
-        <small class="text-muted menj_valor_envio"></small>
+        <small class="text-muted menj_valor_envio"></small><br>
         <br><br>
-        <select class="form-select" id="destino" name="destino" aria-label="Small select example">
+        <select class="form-select" id="destino" name="destino" aria-label="Small select example" style="margin-top: -30px;">
           <option value="">Seleccione su Ciudad</option>
           <option value="Cochabamaba">Cochabamba</option>
           <option value="La Paz">La Paz</option>
@@ -85,7 +85,7 @@
           <option value="Beni">Beni</option>
           <option value="Pando">Pando</option>
         </select>
-        <div id="div_id_fecha">
+        <div id="div_id_fecha" style="margin-top: -30px;">
           <label for="">Fecha y Hora a Recoger</label>
           <input type="datetime-local" id="date_time" name="date_time" value="{% now 'd-m-Y H:i:s' %}"
             min="{% now 'd-m-Y H:i:s' %}" max="" class="textinput form-control">
@@ -93,18 +93,28 @@
             Ingrese 1 hora más tarde a su hora actual.
           </span>
         </div>
-        <br>
         
         {% if regla %}
-        <div class="alert alert-info text-center" role="alert" style="padding: 0px;">
-          <i class="bi bi-check-lg"></i> <small>{{regla.regla}}</small>
+        <div class="alert alert-info text-center" role="alert" style="padding: 0px; margin-top: 10px;">
+          <i class="bi bi-info-circle"></i> <small>{{regla.regla}}</small>
         </div>
         {% endif %}
+
+        <div class="text-center img_pagoQr" style="margin-bottom: 10px;">
+          <div class="text-center" role="alert" style="padding: 0px; margin-top: 10px;">
+            <i class="bi bi-check-lg"></i> <small class="text-success">Escanea el siguiente código QR para completar su pedido:</small><br>
+            <strong id="costos"></strong><br>
+            <small>Una vez realizado el pago, preciona el boton confirmar.</small>
+          </div>
+          <img class="img-fluid rounded img_qr_company" src="" alt="" style="width: 300px; height: 320px;">
+        </div>
+
         <div class="modal-footer">
           <a href="/{{company.id}}/catalogo" class="btn btn-secondary btn-sm"
-            style="margin-bottom: 20px; margin-right: 10px;"><i class="bi bi-arrow-left-circle"></i> Ir Atras</a>
-          <button type="submit" class="btn btn-success btn-sm btn-block efecto_button" style="margin-bottom: 20px;"><i
-              class="bi bi-save"></i> Registrar Pedido & Confirmar por Whatsapp</button>
+            style="margin-bottom: 20px; margin-right: 10px;"><i class="bi bi-arrow-left-circle"></i> Ir Atrás</a>
+          
+          <button type="submit" class="btn btn-success btn-sm btn-block" style="margin-bottom: 20px;"><i
+            class="bi bi-save"></i> Registrar Pedido & Confirmar por Whatsapp</button>
         </div>
       </form>
     </div>
@@ -117,7 +127,7 @@
             <th scope="col">Detalle</th>
             <th scope="col">Precio</th>
             <th scope="col">Cantidad</th>
-            <th scope="col">Total</th>
+            <th scope="col">Sub total</th>
           </tr>
         </thead>
         <tbody>
@@ -133,13 +143,13 @@
           {% empty %}
           <tr>
             <td colspan="5">
-              <div class="alert alert-warning" role="alert">No hay Productos</div>
+              <div class="alert alert-warning text-center" role="alert">No hay Productos</div>
             </td>
           </tr>
           {% endfor %}
           {% if datos %}
           <tr>
-            <td colspan="5" style="text-align: center;"><strong id="t_p">Total : Bs. {{t_pago}}</strong></td>
+            <td colspan="5" style="text-align: center;"><strong id="t_p">Importe estimado: Bs. {{t_pago}}</strong></td>
           </tr>
           {% endif %}
         </tbody>
@@ -150,53 +160,78 @@
 </section>
 <script>
   $(function () {
+    $(".menj_valor_envio").text('Una vez confirmado puede pasar a recoger.');
+    $('.img_pagoQr').hide();
     $("#date_time").value = "{% now 'd-m-Y H:i:s' %}";
-
+    $('#date_time').attr('required', 'true');
     $("#div_id_address").hide();
     $("#destino").hide();
 
     $("#tipo_envio").change(function () {
+      $.ajax({
+        type: 'GET',
+        url: "/{{company.id}}/getPrecioEnvio",
+        data:{'opcion':$(this).val()},
+        success: function (resp) {
+          //$("#t_p").text(resp.datos.total);
+          console.log("imagn" + resp.datos.qr)
+          if(resp.datos.precio_envio != "0"){
+            $(".menj_valor_envio").text("Costo de envio: Bs. "+ resp.datos.precio_envio).show();
+            $('.img_pagoQr').fadeIn(500).show();
+            
+            if(resp.datos.qr == false){
+              $('.img_pagoQr').hide();
+            }else{
+              $('.img_pagoQr img').attr('src',resp.datos.qr.qr_img);
+              $('#costos').text("Importe: "+ resp.datos.importe + " Precio de envio: "+ resp.datos.precio_envio + " Total a pagar : Bs." + resp.datos.total_pagar);
+            }
+          
+          }else{
+            if(resp.datos.precio_envio == "0"){
+              $(".menj_valor_envio").text('Una vez confirmado puede pasar a recoger.').show();
+            }else{
+              $(".menj_valor_envio").text('Envio Gratis').show();
+            }
+          }
+        }
+      });
       if ($(this).val() == "tienda") {
-        $("#div_id_fecha").show();
-        $("#div_id_fecha input").focus();
-        $("#div_id_address").hide();
-        $("#destino").hide();
-        $(".menj_valor_envio").text('Una vez confirmado ud. puede pasar recoger por la tienda');
+        $("#div_id_fecha").fadeIn(1000).show().find("input").focus();
+        $("#div_id_address, #destino").hide(500);
+        
+        $('.img_pagoQr').fadeOut(1000).hide();
+        $('#date_time').attr('required', 'true');
+        $('#id_address, #destino').removeAttr('required');
       }
       if ($(this).val() == "domicilio") {
-        $("#div_id_fecha").hide();
-        $("#destino").hide();
-        $("#div_id_address").show();
-        $("#div_id_address input").focus();
-        if ('{{precio_envio}}' != '0') {
-          $(".menj_valor_envio").text("Costo de envio a domicilio: Bs. " + '{{precio_envio}}').show();
-        } else {
-          $(".menj_valor_envio").text('Envio Gratis').show();
-        }
-
+        $("#div_id_fecha, #destino").hide(500);
+        $("#div_id_address").fadeIn(1000).show().find("input").focus();
+   
+        $('#id_address').attr('required', 'true');
+        $('#date_time, #destino').removeAttr('required');
       }
       if ($(this).val() == "ciudad") {
-        $("#div_id_address").hide();
-        $("#div_id_fecha").hide();
-        $("#destino").show();
+        $("#div_id_address, #div_id_fecha").hide(500);
+        $("#destino").fadeIn(1000).show();
         $("#destino").focus();
-        if ('{{precio_envio_ciudad}}' != '0') {
-          $(".menj_valor_envio").text("Costo de envio a otra ciudad: Bs. " + '{{precio_envio_ciudad}}').show();
-        } else {
-          $(".menj_valor_envio").text('Envio Gratis').show();
-        }
+        
+        $('#destino').attr('required', 'true');
+        $('#id_address, #date_time').removeAttr('required');
       }
     });
 
     if ("{{ total_compra }}" == "0"){
-    $(".form_msj").hide();
-    $(".col-6 h2").fadeIn(1000).html("No hay productos");
-    setTimeout(function () {
-      window.location.href = "/{{company.id}}/catalogo";
-    }, 3000);
-  }
-    });
+      $(".form_msj").hide();
+      $(".col-6 h2").fadeIn(1000).html("No hay productos");
+      setTimeout(function () {
+        window.location.href = "/{{company.id}}/catalogo";
+      }, 5000);
+    }
+  });
 
+  function capitalizarTexto(texto) {
+    return texto.toLowerCase().replace(/\b\w/g, letra => letra.toUpperCase());
+  }
   $('#form_pedido').submit(function (e) {
     e.preventDefault();
     if (validateEmail($("#id_email").val())){
@@ -218,19 +253,23 @@
             $('#form_pedido')[0].reset();
             $("#cont_compras").html(resp.products);
 
-            var datos = "***** *Confirmo mi Pedido Nro. " + resp.orden.id + "* ***** %0A";
-            datos = datos + "A nombre de: " + resp.cliente_object.names + "%0A %0A";
+            var datos = "*** *Confirmo mi Pedido Nro. " + resp.orden.id + "* *** %0A";
+            datos = datos + "*Cliente:* " + capitalizarTexto(resp.cliente_object.names) + "%0A %0A";
             var pedido = "";
             for (let productos = 0; productos < resp.lista.length; productos++) {
-              pedido = pedido + resp.lista[productos]['name'] + " " + resp.lista[productos]['cantidad'] + "x" + resp.lista[productos]['precio_uni'] + "=" + resp.lista[productos]['total'] + "%0A";
+              var nota = "";
+              if(resp.lista[productos]['nota'].trim() !== ""){
+                nota = resp.lista[productos]['nota'];
+              }
+              pedido = pedido + resp.lista[productos]['name']+ " " + resp.lista[productos]['cantidad'] +" = "+ resp.lista[productos]['total'] + "Bs." + " " + nota + "%0A";
+              
             }
-            pedido = pedido + "%0A"
             let lugar = "";
             let Envio = "";
             let sub_total = "- *Sub total: Bs. " + parseFloat(resp.t_pago) + "* %0A";
             let total = "- *Total a pagar Bs: " + resp.t_pago+ "* %0A";
             if (resp.lugar.date == "date") {
-              lugar = "Fecha y hora a recoger: %0A" + resp.lugar.fecha + "%0A %0A";
+              lugar = "*Fecha y hora a recoger:* %0A" + resp.lugar.fecha + "%0A %0A";
             }
             if (resp.lugar.dir == "dir") {
               lugar = "Dirección de envio: " + resp.lugar.direccion + "%0A";
@@ -247,12 +286,15 @@
             dir = "Dirección: " + resp.dir + "%0A";
             cuidad = "Ciudad:" + resp.cuidad + "%0A";
             
+            
+            //href="https://api.whatsapp.com/send?text=Mas informacion sobre este producto: {{p.description|default:' '}}, gracias. &phone={{company.mobile}}/?u={{request.build_absolute_uri}}"
+            
+
             //href="https://api.whatsapp.com/send?text=Mas informacion sobre este producto: {{p.description|default:' '}}, gracias. &phone={{company.mobile}}/?u={{request.build_absolute_uri}}"
             
             var ruta = "https://api.whatsapp.com/send?phone=+591" + resp.company_object.mobile + "&text=" + datos + pedido  + sub_total + Envio + total + lugar;
-            
             window.open(ruta, '_blank');
-            //location.reload();
+
             $.ajax({
               type: 'GET',
               url: "/"+resp.company_object.id+"/"+ resp.orden.id + "/" + resp.cliente_object.id +"/like",

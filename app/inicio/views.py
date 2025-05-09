@@ -52,6 +52,8 @@ def get_Dashboard():
     return dashboard
 
 def verPlanes(request):
+    if request.headers.get('x-requested-with') != 'XMLHttpRequest':
+        return redirect('/')
     idCompany = int(request.GET.get('id_company', 0))
     if idCompany == 0:
         planes = Plataforma.objects.all()

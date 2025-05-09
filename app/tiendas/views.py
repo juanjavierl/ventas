@@ -74,6 +74,8 @@ def getCity(id_ciudad):
     return ciudad
 
 def registro_company(request):
+    if request.headers.get('x-requested-with') != 'XMLHttpRequest':
+        return redirect('/')
     form_user = RegisterForm()
     form_company = formCompany()
     planes = Plataforma.objects.all().order_by('-id')
@@ -101,6 +103,8 @@ def validar_username(request):
             return JsonResponse({'valido':'valido'})
 
 def login_user(request):
+    if request.headers.get('x-requested-with') != 'XMLHttpRequest':
+        return redirect('/')
     if request.method == "POST":
         form = AuthenticationForm(data=request.POST)
         if form.is_valid():

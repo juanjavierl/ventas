@@ -79,10 +79,14 @@
                     $('.toast-body').removeClass('alert-danger').addClass('alert-success');
                     $('.toast-body').fadeIn(1000).html('<strong>'+ resp.success +'</strong>');
                     mostrar_notificacion();
-
                     $("#cont_compras").html(resp.total_compra);
-                    updateProductosEnConfirmar("/{{company.id}}/show_productos_carrito/");
-                    updateTotalPago("/{{company.id}}/getPrecioEnvio/",$('#tipo_envio').val())
+
+                    const path = window.location.pathname;
+                    const esConfirmarCompra = /^\/\d+\/confirmar_compra\/?$/.test(path);
+                    if(esConfirmarCompra){
+                        updateProductosEnConfirmar("/{{company.id}}/show_productos_carrito/");
+                        updateTotalPago("/{{company.id}}/getPrecioEnvio/",$('#tipo_envio').val());
+                    }
                 }
             }
         });

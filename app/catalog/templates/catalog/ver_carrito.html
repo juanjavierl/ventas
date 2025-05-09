@@ -76,9 +76,15 @@
           success:function(resp){
             //$("#data_dable tbody #t_p").html("Importe estimado: "+resp.t_pago);
             
-            verCarrito('/{{company.id}}/ver_carrito/');
-            updateProductosEnConfirmar("/{{company.id}}/show_productos_carrito/");
-            updateTotalPago("/{{company.id}}/getPrecioEnvio/",$('#tipo_envio').val())
+            const path = window.location.pathname;
+            const esConfirmarCompra = /^\/\d+\/confirmar_compra\/?$/.test(path);
+            if(esConfirmarCompra){
+              verCarrito('/{{company.id}}/ver_carrito/');
+              updateProductosEnConfirmar("/{{company.id}}/show_productos_carrito/");
+              updateTotalPago("/{{company.id}}/getPrecioEnvio/",$('#tipo_envio').val());
+            }else{
+              verCarrito('/{{company.id}}/ver_carrito/');
+            }
           }
       });
       }
@@ -101,11 +107,16 @@
           type:'GET',
           url:urls,
           success:function(resp){
-            
             $("#cont_compras").html(resp.cant_compras);
-            verCarrito('/{{company.id}}/ver_carrito/');
-            updateProductosEnConfirmar("/{{company.id}}/show_productos_carrito/");
-            updateTotalPago("/{{company.id}}/getPrecioEnvio/",$('#tipo_envio').val())
+            const path = window.location.pathname;
+            const esConfirmarCompra = /^\/\d+\/confirmar_compra\/?$/.test(path);
+            if(esConfirmarCompra){
+              verCarrito('/{{company.id}}/ver_carrito/');
+              updateProductosEnConfirmar("/{{company.id}}/show_productos_carrito/");
+              updateTotalPago("/{{company.id}}/getPrecioEnvio/",$('#tipo_envio').val());
+            }else{
+              verCarrito('/{{company.id}}/ver_carrito/');
+            }
           }
       });
       return false;

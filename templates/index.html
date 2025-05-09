@@ -212,6 +212,7 @@
     $.ajax({
       type: 'GET',
       url: urls,
+      headers: {'X-Requested-With': 'XMLHttpRequest' },// Marca como AJAX
       success: function (resp) {
         $(".modal-content").html(resp);
         $(".navbar-mobile i").click();
@@ -222,6 +223,7 @@
     $.ajax({
       type: 'GET',
       url: urls,
+      headers: {'X-Requested-With': 'XMLHttpRequest' },// Marca como AJAX
       success: function (resp) {
         $(".modal-content").html(resp);
         $(".navbar-mobile i").click();
@@ -233,6 +235,7 @@
       type: 'GET',
       url: urls,
       data:{'id_company':id_company},
+      headers: {'X-Requested-With': 'XMLHttpRequest' },// Marca como AJAX
       success: function (resp) {
         $(".modal-content").html(resp);
         $(".navbar-mobile i").click();

@@ -37,7 +37,9 @@ def getTypes(request, id_type):
         'category':getType(id_type),
         'companys':companys,
         'dashboard':get_Dashboard(),
-        'count_productos':count_productos
+        'count_productos':count_productos,
+        'ciudades':Ciudad.objects.all().order_by('-id'),
+        'type_company':Tipo_company.objects.all().order_by('-id')
     }
     return render(request, 'card_companys.html', dic)
 
@@ -55,7 +57,9 @@ def getCiudades(request, id_ciudad):
         'ciudad':getCity(id_ciudad),
         'companys':companys,
         'dashboard':get_Dashboard(),
-        'count_productos':count_productos
+        'count_productos':count_productos,
+        'ciudades':Ciudad.objects.all().order_by('-id'),
+        'type_company':Tipo_company.objects.all().order_by('-id')
     }
     return render(request, 'card_companys.html', dic)
 
@@ -138,10 +142,7 @@ def create_mail(user_mail, subject, template_name, context):
         subject=subject,
         body='',
         from_email=settings.EMAIL_HOST_USER,
-        to=[
-            user_mail
-        ],
-        cc=[]
+        to=[user_mail]
     )
 
     message.attach_alternative(content, 'text/html')
@@ -153,7 +154,7 @@ def send_welcome_mail(user, password, url_tienda):
         'Bienvenido a la plataforma AMCEB',
         'notificaciones/welcome_user_email.html',
         {
-            'username': user.username,
+            'username': user,
             'password':password,
             'ruta':url_tienda
         }
@@ -194,11 +195,10 @@ def datos_registro(request):
         user = authenticate(username=datos['user_data']['user'].strip(),password=datos['user_data']['pass1'].strip())
         if user:
             login(request, user)
-            #url_tienda = 'www.amceb.online/',user.id,'/catalogo'
+            url_tienda = 'www.amceb.online/',user.id,'/catalogo'
             user = request.user
-            #print("Usuariooo:  ",user)
-            #thread = threading.Thread(target=send_welcome_mail, args=(user,datos['user_data']['pass1'].strip(),url_tienda,))
-            #thread.start()
+            thread = threading.Thread(target=send_welcome_mail, args=(datos['user_data']['email'].strip(),datos['user_data']['pass1'].strip(),f"{url_tienda[0].rstrip('/')}/{url_tienda[1]}{url_tienda[2]}",))
+            thread.start()
 
             return JsonResponse({'user_id':user.id})
         else:

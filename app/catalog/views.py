@@ -2,7 +2,7 @@
 #import pywhatkit
 from datetime import datetime, date
 
-from django.shortcuts import render, HttpResponse,get_object_or_404
+from django.shortcuts import render, HttpResponse,get_object_or_404, redirect
 from django.http import JsonResponse, request
 from django.core.paginator import Paginator
 from django.http import Http404
@@ -30,8 +30,11 @@ def CatalogView(request, id_company):
         categorys = categorys_from_productos(productos)
 
         date_expiration = False
-        if(get_company(id_company).expiration_date < datetime.now().date()):
-            date_expiration = True
+        try:
+            if(get_company(id_company).expiration_date < datetime.now().date()):
+                date_expiration = True
+        except:
+            return redirect("/")
         dic = {
             'categorias':categorys,
             'productos':productos,
@@ -248,6 +251,8 @@ def shear_product(request, id_company):
         return render(request,'catalog/card_productos.html',{'productos':productos,'company':get_company(id_company)})
 
 def mostrar_por_categoria(request, id_company, id_categoria):
+    if request.headers.get('x-requested-with') != 'XMLHttpRequest':
+        return redirect(f'/{id_company}/catalogo')
     productos = Product.objects.filter(stock__gt=0, category_id = id_categoria, company_id= id_company).order_by('-id')
     return render(request, 'catalog/card_productos.html', {'productos':productos,'company':get_company(id_company)})
 

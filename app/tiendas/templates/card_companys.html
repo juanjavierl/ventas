@@ -30,11 +30,15 @@
 
 {% block hero %}    {% endblock hero %}
 
-{% if user.is_authenticated %}
-  {% block menus %}
+
+{% block menus %}
+  {% if user.is_authenticated %}
   {% include 'menu_from_user.html' %}
-  {% endblock menus %}
-{% endif %}
+  {% else %}
+  {% include 'menu_index.html' %}
+  {% endif %}
+{% endblock menus %}
+
 
 {% block contenido %}
 <section id="team_productos" class="team" style="margin-top: 80px;" >
@@ -148,3 +152,24 @@
   
 {% endblock contenido %}
 {% block preg_frecuentes %} {% endblock preg_frecuentes %}
+
+
+{% block google_adsense %}
+  
+  {% if not debug %}
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6758294951145066"
+      crossorigin="anonymous"></script>
+      <!-- dos -->
+      <ins class="adsbygoogle"
+        style="display:block"
+        data-ad-client="ca-pub-6758294951145066"
+        data-ad-slot="2274550750"
+        data-ad-format="auto"
+        data-full-width-responsive="true"></ins>
+      <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
+  {% endif %}
+    
+{% endblock google_adsense %}
+  

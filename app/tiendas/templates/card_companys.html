@@ -47,18 +47,25 @@
         <div class="col-12">
             <div class="section-title">
                 
-                {% if user.is_authenticated %}
+              {% if user.is_authenticated %}
                 <h4 class="text-success">Usuario: {{user.username}}, estos son tus catálogos</h4>
-                <p class="text-muted">Actualiza tus Catálogos. y agrega más productos.</p>
-                {% else %}
+                <p>Actualiza tus Catálogos. o agrega más productos a tu tienda.
+                </p>
+                <div class="container alert alert-success">
+                  <small>Atrae más clientes hacia tu tienda online, puedes realizar publicidad vinculándolo con todas tus redes sociales, solo copias el enlace de tu tienda y pégalo donde tú quieras o comparte con tus contactos. Si necesitas ayuda puedes contactarnos por
+                    <a class="dropdown-item"
+                    href="https://api.whatsapp.com/send?text=Quiero Realizar marketing para mi tienda online: {{request.build_absolute_uri}} gracias. &phone={{dashboard.mobile}}"
+                    target="_blank"> has click <i class="bi bi-whatsapp"></i> {{dashboard.mobile}}</a></small>
+                </div>
+              {% else %}
                   <h2>Elige tu catálogo de 
                     {% if category %}
                       {{ category.name|title }}
                     {% else %}
                       {{ ciudad.ciudad|title }}
                     {% endif %}
-                </h2>
-                {% endif %}
+                  </h2>
+              {% endif %}
             </div>
         </div>
     </div>
@@ -155,8 +162,6 @@
 
 
 {% block google_adsense %}
-  
-  {% if not debug %}
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6758294951145066"
       crossorigin="anonymous"></script>
       <!-- dos -->
@@ -169,7 +174,5 @@
       <script>
         (adsbygoogle = window.adsbygoogle || []).push({});
       </script>
-  {% endif %}
-    
 {% endblock google_adsense %}
   

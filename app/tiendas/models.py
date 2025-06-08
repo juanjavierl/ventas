@@ -161,6 +161,28 @@ class Company(models.Model, ModelMeta):
             ('view_company', 'Can view Empresa'),
         )
 
+class Cupon(models.Model):
+    codigo = models.CharField(max_length=255, verbose_name="Ingrese el Código del Cupon", help_text="Una o mas palabra separadas por coma Ej: 1234,tienda,negocio123")
+    descuento = models.IntegerField(help_text="Ingrese el porcentaje del descuento %")
+    estado = models.BooleanField(default=True, help_text="Indica que estara activo en todas las compras")
+    company = models.OneToOneField(Company, on_delete=models.CASCADE)
+
+    class Meta:
+        """Meta definition for Bancos."""
+        verbose_name = 'cupon'
+        verbose_name_plural = 'cupones'
+
+    def __str__(self):
+        return self.codigo
+
+    def toJSON(self):
+        item = model_to_dict(self)
+        item['company'] = self.company.name
+        item['codigo'] = self.codigo
+        item['descuento'] = self.descuento
+        item['estado'] = self.estado
+        return item
+
 class Banco(models.Model):
     """Model definition for Bancos."""
     name = models.CharField(max_length=50, verbose_name='Nombre del Banco')
@@ -290,6 +312,11 @@ class PixelMeta(models.Model):
 class Suscripcion(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE, verbose_name='Negocio')
     email = models.EmailField(max_length=255)
+
+    class Meta:
+        unique_together = ('company', 'email')  # no puede repetirse para el email para la misca company
+        verbose_name = "Suscripción"
+        verbose_name_plural = "Suscripciones"
 
     def __str__(self):
         return self.company.name

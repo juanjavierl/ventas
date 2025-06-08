@@ -36,4 +36,7 @@ urlpatterns = [
     path('<int:id_company>/get_condiciones', views.get_condiciones, name='get_condiciones'),
     path('<int:id_regla>/delete_regla', views.delete_regla, name='delete_regla'),
     path('<int:id_company>/suscribirse/',  views.suscribirse, name='suscribirse'),
+    path('<int:id_company>/add_cupon', views.add_cupon, name='add_cupon'),
+    path('<int:id_company>/get_cupom', views.get_cupom, name='get_cupom'),
+    path('<int:id_cupom>/delete_cupom', views.delete_cupom, name='delete_cupom'),
 ]

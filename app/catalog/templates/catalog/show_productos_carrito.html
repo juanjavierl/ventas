@@ -1,5 +1,15 @@
 <table class="table table-striped table-sm" id="data_dable">
     <thead>
+      <tr>
+        <td colspan="5">
+          <div class="alert alert-success" role="alert" style="padding: 0px 10px; text-align: justify;">
+             <small><i class="bi bi-star-fill" style="color: gold;"></i>¡Ya casi lo tienes! No dejes pasar esta oferta por tiempo limitado: todos los productos tienen descuento, ¡aprovechalos antes de que se acaben!</small><br>
+            {% if regla %}
+             <small><i class="bi bi-star-fill" style="color: gold;"></i> {{regla.regla}}</small>
+            {% endif %}
+          </div>
+        </td>
+      </tr>
       <tr class="table-info">
         <th scope="col">#</th>
         <th scope="col">Producto</th>

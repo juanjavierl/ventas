@@ -186,7 +186,8 @@ def show_productos_carrito(request, id_company):
     company = get_object_or_404(Company, id=id_company)
     datos = request.session['compra']
     t_pago = calcular_pago(request)
-    return render(request, 'catalog/show_productos_carrito.html',{'datos':datos,'t_pago':t_pago, 'company':company})
+    regla = get_rule_condicion(id_company)
+    return render(request, 'catalog/show_productos_carrito.html',{'datos':datos,'t_pago':t_pago, 'company':company, 'regla':regla})
 
 
 def calcular_pago(request):

@@ -293,7 +293,9 @@ def configuraciones_company(request, id_company):
         #'ordens':Orden.objects.filter(company_id=int(id_company)).values('client_id').order_by('-id').distinct(),
         'ordens':ped,
         'clientes':Client.objects.all().order_by('-id'),
-        'address':get_address(id_company)
+        'address':get_address(id_company),
+        'form_cupom':FormCupon(),
+        'cupom':Cupon.objects.filter(company_id = int(id_company))[:1]
     }
     return render(request,'configuraciones_company.html', dic)
 
@@ -494,7 +496,7 @@ def add_condiciones(request, id_company):
             c.save()
             return JsonResponse({'success':'Registro exitoso.'})
     except:
-        return JsonResponse({'error':'Ys existe el registro.'})
+        return JsonResponse({'error':'Ya existe el registro.'})
 
 def get_condiciones(request, id_company):
     try:
@@ -510,14 +512,72 @@ def delete_regla(request, id_regla):
         return JsonResponse({'success':"Se Borro el registro. "})
     return render(request, 'notificaciones/delete_reglas.html', {'regla':regla})
 
+def send_suscripcion_mail(email_user, url_tienda, company):
+    mail = create_mail_suscripcion(
+        email_user,
+        'Bienvenido a ' + company.name.title(),
+        'notificaciones/sucripcion_user_email.html',
+        {
+            'email_user': email_user,
+            'url_tienda':url_tienda,
+            'company':company
+        }
+    )
+    mail.send(fail_silently=False)
+
+def create_mail_suscripcion(user_mail, subject, template_name, context):
+    template = get_template(template_name)
+    content = template.render(context)
+
+    message = EmailMultiAlternatives(
+        subject=subject,
+        body='',
+        from_email=settings.EMAIL_HOST_USER,
+        to=[user_mail]
+    )
+
+    message.attach_alternative(content, 'text/html')
+    return message
+
 def suscribirse(request, id_company):
     company = get_object_or_404(Company, id = int(id_company))
+    url_tienda = f'https://{request.get_host()}/{id_company}/catalogo'
     try:  
         if request.method == 'POST':
             c = Suscripcion()
             c.company_id = int(id_company)
             c.email = request.POST['email']
             c.save()
+            thread = threading.Thread(target=send_suscripcion_mail, args=(request.POST['email'].strip(),url_tienda, company))
+            thread.start()
+            return JsonResponse({'success':'¡Gracias por suscribirte! Revisa te correo(spam), te enviamos un código de cupón para tu compra.'})
+    except:
+        return JsonResponse({'error':'El email ya está suscrito.'})
+    
+def add_cupon(request, id_company):
+    company = get_object_or_404(Company, id = int(id_company))
+    try:  
+        if request.method == 'POST':
+            form = FormCupon(request.POST, instance=company)
+            c = Cupon()
+            c.codigo = request.POST['codigo'].strip()
+            c.descuento = int(request.POST['descuento'])
+            c.company_id = int(id_company)
+            c.save()
             return JsonResponse({'success':'Registro exitoso.'})
     except:
-        return JsonResponse({'error':'Ys existe el registro.'})
+        return JsonResponse({'error':'Ya existe el registro.'})
+    
+def get_cupom(request, id_company):
+    try:
+        cupom = Cupon.objects.filter(company_id = int(id_company))
+    except:
+        cupom = False
+    return render(request, 'notificaciones/get_cupom.html', {'cupom':cupom})
+
+def delete_cupom(request, id_cupom):
+    cupom = get_object_or_404(Cupon, id = int(id_cupom))
+    if request.method == 'POST':
+        cupom.delete()
+        return JsonResponse({'success':"Se Borro el registro. "})
+    return render(request, 'notificaciones/delete_cupom.html', {'cupom':cupom})

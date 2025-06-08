@@ -39,6 +39,25 @@ class PrecioForm(forms.ModelForm):
         model = Precio_envio
         exclude = ('date_joined','company')
 
+class FormCupon(forms.ModelForm):
+    descuento = forms.IntegerField(
+        min_value=0,
+        max_value=100,
+        widget=forms.NumberInput(
+            attrs={
+                'type': 'range',
+                'min': '0',
+                'max': '100',
+                'step': '1',
+                'class': 'form-range',  # Bootstrap class opcional
+            }
+        ),
+        label='Ingrese el porcentaje del descuento %',
+    )
+    class Meta:
+        model = Cupon
+        exclude = ('company','estado',)
+
 class FormBanco(forms.ModelForm):
     class Meta:
         model = Banco

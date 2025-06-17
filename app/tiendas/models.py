@@ -1,4 +1,5 @@
 #encoding:utf-8
+from app.catalog.images import procesar_imagen_portada
 from datetime import datetime, date
 from random import randint
 from django.forms import model_to_dict
@@ -107,6 +108,11 @@ class Company(models.Model, ModelMeta):
     expiration_date = models.DateField(verbose_name='Fecha de expiracion (dd/mm/AAAA)')
     status = models.BooleanField(default=True, verbose_name="Estado")
     is_service = models.BooleanField(default=False, verbose_name='¿Tus ventas sera solo en esta ciudad?', help_text="Ej. restauranes o productos consumibles que dificultan el envío a lugares alejados")
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        procesar_imagen_portada(self, 'image')
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name

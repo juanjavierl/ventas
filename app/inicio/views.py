@@ -4,7 +4,14 @@ from django.shortcuts import render, get_object_or_404,HttpResponse,redirect
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.forms import User
 from django.contrib.auth import authenticate,login, logout
+
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_decode
+from django.contrib.auth.forms import SetPasswordForm
+
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import PasswordResetView
+from django.urls import reverse_lazy
 
 from app.inicio.models import *
 from app.tiendas.models import *
@@ -98,3 +105,41 @@ def changePassword(request, id_user):
     else:
         form=ChangePasswordForm()
     return render(request,'changePassword.html',{'form':form})
+
+
+class AjaxPasswordResetView(PasswordResetView):
+    template_name = 'password_reset.html'
+    success_url = reverse_lazy('password_reset_done')
+
+    def form_valid(self, form):
+        if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            form.save(self.request)
+            return JsonResponse({'message': 'Correo enviado con éxito'})
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'errors': form.errors}, status=400)
+        return super().form_invalid(form)
+
+def password_reset_confirm_ajax(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User.objects.get(pk=uid)
+    except Exception:
+        return JsonResponse({'error': 'Token inválido'}, status=400)
+
+    if not default_token_generator.check_token(user, token):
+        return JsonResponse({'error': 'Token inválido o expirado'}, status=400)
+
+    if request.method == 'POST':
+        form = SetPasswordForm(user, request.POST)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'message': 'Tu contraseña fue restablecida correctamente.'})
+        else:
+            return JsonResponse({'errors': form.errors}, status=400)
+    else:
+        form = SetPasswordForm(user)
+
+    return render(request, 'password_confirm.html', {'form': form})

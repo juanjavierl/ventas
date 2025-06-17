@@ -155,19 +155,19 @@
       success: function (resp) {
         //Por realizar tareas
         $('.toast-body').removeClass('alert-danger').addClass('alert-success');
-        $('.toast-body').fadeIn(1000).html(resp.success);
+        $('.toast-body').fadeIn(1000).html('<strong>'+resp.success+'</strong>');
         $('#form_producto')[0].reset();
         $("#form_producto #id_category").select2("val", " ");
         mostrar_notificacion();
         if(resp.aviso){
           $('.toast-body').removeClass('alert-success').addClass('alert-warning');
-          $('.toast-body').fadeIn(1000).html("Alcanseste el limite de registros, Solicita un nuevo plan");
+          $('.toast-body').fadeIn(1000).html('<strong>'+resp.error+'</strong>');
           //$("#id_category").empty();
           mostrar_notificacion();
         }
       },
       error: function (xhr, ajaxOptions, thrownError) {
-        alert("Error:" + thrownError);
+        alert("Error: Formato de imagen no permitido. debe ser JPG, PNG o WEBP.");
       }
     });
   });

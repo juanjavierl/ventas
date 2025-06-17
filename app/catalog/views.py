@@ -493,10 +493,6 @@ def crear_orden(request, id_cliente, id_company, ref = 'tienda'):
     orden.save()
     return orden
 
-emprendedor = 30
-profecional = 100
-empresarial = 250
-
 def newProducto(request, id_company):
     company = get_object_or_404(Company,id = int(id_company))
     aviso = False
@@ -529,7 +525,7 @@ def newProducto(request, id_company):
         if  int(cantProductos) >= int(company.plan.cantidad) or (get_company(id_company).expiration_date < datetime.now().date()):
             aviso = True
             date_expiration = True
-            return JsonResponse({'aviso':'Alcansaste el limite de registros para este plan. o la fecha ha caducado','aviso':aviso, 'date_expiration':date_expiration})
+            return JsonResponse({'error':'Alcansaste el limite de registros para este plan. o la fecha ha caducado','aviso':aviso, 'date_expiration':date_expiration})
         else:
             producto.save()
             return JsonResponse({'success':'Producto registrado exitosamente.','aviso':aviso, 'date_expiration':date_expiration})

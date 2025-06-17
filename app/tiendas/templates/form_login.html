@@ -12,8 +12,9 @@
        <input type="checkbox" name="show_pass" id="id_show_pass">
        <label for="id_show_pass">Ver contraseña</label>
        <div class="modal-footer">
-        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="bi bi-arrow-left-circle"></i> Cancelar</button>
         <button type="submit" class="btn btn-success btn-sm" id="btn_sesion"><i class="bi bi-person"></i> Iniciar Sesión</button>
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="bi bi-arrow-left-circle"></i> Cancelar</button>
+        <a href="#" onclick="reset_password('/reset_password')">¿Olvidaste tu contraseña?</a>
       </div>
     </form>
     <p class="invalid text-danger"></p>
@@ -28,7 +29,7 @@
     });
     $('.modal-body #login_forms').on('submit', function(e){
       e.preventDefault();
-      $("#btn_sesion").html("Iniciando Sesión...!");
+      $("#btn_sesion").html("Iniciando...!");
       $.ajax({
             type:'POST',
             url:$("#login_forms").attr('action'),
@@ -37,6 +38,7 @@
             success:function(resp){
               if(resp.error){
                 $(".invalid").text(resp.error);
+                $("#btn_sesion").html("<i class='bi bi-person'></i> Iniciar Sesión");
               }
               else{
                 window.location.href='/'+resp.user_id+'/companys';
@@ -44,5 +46,18 @@
             }
         });
     });
-    
+    function reset_password(urls){
+      $.ajax({
+            type:'GET',
+            url:urls,
+            success:function(resp){
+              if(resp.error){
+                $(".invalid").text(resp.error);
+              }
+              else{
+                $(".modal-content").html(resp);
+              }
+            }
+        });
+    }
   </script>

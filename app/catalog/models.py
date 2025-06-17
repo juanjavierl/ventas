@@ -1,5 +1,6 @@
 #encoding:utf-8
 import os
+from .images import procesar_imagen
 from random import randint
 from datetime import datetime
 from django.db.models import Sum, FloatField
@@ -36,7 +37,7 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=9, decimal_places=2, default=0.00, verbose_name='Precio de Venta')
     #pvp = models.DecimalField(max_digits=9, decimal_places=2, default=0.00, verbose_name='Precio de Venta')
     price_before = models.DecimalField(max_digits=9,decimal_places=2,null=True, blank=True,default=0.00, verbose_name='Precio Antes')
-    image = models.ImageField(upload_to='product/%Y/%m/%d', default="default.png", blank=True, null=True, verbose_name='Imagen')
+    image = models.ImageField(upload_to='product/%Y', default="default.png", blank=True, null=True, verbose_name='Imagen')
     is_service = models.BooleanField(default=False, verbose_name='¿Es un servicio?')
     #with_tax = models.BooleanField(default=False, verbose_name='¿Se cobra impuesto?')
     stock = models.IntegerField(default=1)
@@ -45,6 +46,11 @@ class Product(models.Model):
     is_promotion = models.BooleanField(default=False, verbose_name='¿Esta en promocion?',help_text='marque solo si corresponde')
     date_joined = models.DateField(default=datetime.now, verbose_name='Fecha de registro')
     date_update = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        procesar_imagen(self, 'image')
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.get_full_name()
@@ -105,6 +111,11 @@ class Imagen(models.Model):
     img = models.ImageField(upload_to='img_products', default="default.png", verbose_name='Imagen', help_text="Puede registrar hasta 2 imagenes como maximo")
     items = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='producto')
     
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        procesar_imagen(self, 'img')
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f'{self.img} ({self.items.name})'
     

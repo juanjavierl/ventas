@@ -99,7 +99,7 @@
       </div> 
     </section>
 {% endblock contenido %}
-{% block preg_frecuentes %} {% endblock preg_frecuentes %}
+
 {% block button_whatsap %}
   {% include 'button_whatsap.html' %}
 {% endblock button_whatsap %}
@@ -107,6 +107,10 @@
 {% block suscipcion_for_email %}
   {% include 'form_suscripcion_email.html' %}
 {% endblock suscipcion_for_email %}
+
+{% block preg_frecuentes %}
+{% include 'preg_frecuentes_tienda.html' %}
+{% endblock preg_frecuentes %}
 
 {% block google_adsense %} {% endblock google_adsense %}
   

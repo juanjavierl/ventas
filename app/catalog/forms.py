@@ -1,5 +1,5 @@
 from django import forms
-
+from PIL import Image, UnidentifiedImageError
 from app.catalog.models import *
 
 class ClientFormOrder(forms.ModelForm):
@@ -16,6 +16,26 @@ class formUpdateProducto(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['name'].widget.attrs['autofocus'] = True
+    
+    def clean_image(self):
+        image = self.cleaned_data.get('image')
+
+        if image:
+            try:
+                # Intentar abrir con Pillow para verificar si realmente es una imagen
+                img = Image.open(image)
+                img.verify()  # Lanza error si no es una imagen válida
+
+                # Validar el formato permitido
+                formato_permitido = ['JPEG', 'JPG', 'PNG', 'WEBP']
+                if img.format.upper() not in formato_permitido:
+                    raise forms.ValidationError("Formato de imagen no permitido. Solo se permiten JPG, PNG o WEBP.")
+
+            except UnidentifiedImageError:
+                raise forms.ValidationError("El archivo no es una imagen válida.")
+            except Exception:
+                raise forms.ValidationError("Error al procesar la imagen.")
+        return image
 
     class Meta:
         model = Product

@@ -15,13 +15,15 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.contrib.auth import views as auth_views
+
 from django.urls import path, include
 from django.conf.urls.static import static
 from ventas import settings
 
 from django.contrib.sitemaps.views import sitemap
 from app.inicio.sitemaps import *
-from app.inicio.views import robots_txt
+from app.inicio.views import robots_txt, password_reset_confirm_ajax
 
 sitemaps = {
     'inicio': IndexSitemap,
@@ -38,6 +40,18 @@ urlpatterns = [
     path('', include('app.inicio.urls')),
     path("robots.txt", robots_txt, name="robots_txt"),
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
+
+    path(
+        'reset_password/',
+        auth_views.PasswordResetView.as_view(
+            template_name="password_reset.html",
+            success_url='/reset_password_send/'  # Redirige correctamente
+        ),
+        name='password_reset'
+    ),
+    path('reset_password_send/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', password_reset_confirm_ajax, name='password_reset_confirm'),
+    path('reset_password_complete/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

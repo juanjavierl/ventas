@@ -90,6 +90,17 @@ def registro_company(request):
         }
     return render(request, 'registro_company.html' , dic)
 
+def crearNuevaTienda(request, id_usuario):
+    if request.headers.get('x-requested-with') != 'XMLHttpRequest':
+        return redirect('/')
+    form_company = formCompany()
+    planes = Plataforma.objects.all().order_by('-id')
+    dic = {
+        'form_company':form_company,
+        'planes':planes
+        }
+    return render(request, 'crearNuevaTienda.html' , dic)
+
 def validar_form(request):
     if request.method == "POST":
         formulario = formCompany(data=request.POST)
@@ -205,6 +216,38 @@ def datos_registro(request):
             return JsonResponse({'error':"Up! ocurrio un problema, intentalo nuevamente gracias."})
         #else:
             #return JsonResponse({'error': 'Up. algo salio mal intentalo nuevamente gracias.'})
+
+def new_store(request):
+    if request.method == "POST":
+        datos = request.POST['valores']
+        #print(datos)
+        """ print(datos)#{user_data: {…}, company_data: {…}, plan_data: {…}}
+        print(type(datos))#como string
+        print("*"*50)"""
+        datos = ast.literal_eval(datos)
+        #print(datos)#como dict
+        #print(type(datos))#como string
+        
+        company = Company()
+        company.name = datos['company_data']['name']
+        company.description = datos['company_data']['description']
+        company.ruc = datos['company_data']['ruc']
+        company.mobile = datos['company_data']['mobile']
+        company.category_id = datos['company_data']['category']
+        company.cuidad_id = datos['company_data']['cuidad']
+        company.user_id = int(request.user.id)
+        #company.image =  datos['company_data']['image']#no se puedo guardar la imagen
+        company.is_service = datos['company_data']['is_service']
+        company.plan_id = datos['plan_data']['plan_name']
+        company.expiration_date = datetime.now().date() + timedelta(days=7)
+        company.save()
+
+
+        return JsonResponse({'user_id':request.user.id})
+    else:
+        return JsonResponse({'error':"Up! ocurrio un error. inicie sesion con su usuario"})
+    #else:
+        #return JsonResponse({'error': 'Up. algo salio mal intentalo nuevamente gracias.'})
 
 def contar_productos(id_user):
     companys = Company.objects.filter(user_id = int(id_user))
@@ -550,7 +593,7 @@ def suscribirse(request, id_company):
             c.save()
             thread = threading.Thread(target=send_suscripcion_mail, args=(request.POST['email'].strip(),url_tienda, company))
             thread.start()
-            return JsonResponse({'success':'¡Gracias por suscribirte! Revisa te correo(spam), te enviamos un código de cupón para tu compra.'})
+            return JsonResponse({'success':'¡Gracias por suscribirte! Revisa tu correo(spam), te enviamos un código de cupón para tu compra.'})
     except:
         return JsonResponse({'error':'El email ya está suscrito.'})
     

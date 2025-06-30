@@ -49,15 +49,8 @@
                 
               {% if user.is_authenticated %}
                 <h4 class="text-success">Usuario: {{user.username}}, estos son tus catálogos</h4>
-                <p>Actualiza tus Catálogos. o agrega más productos a tu tienda.
-                </p>
-                <p class="container alert alert-info">
-                  <i class="bi bi-award-fill" style="color: gold;"></i> Atrae más clientes hacia tu tienda online, puedes realizar publicidad vinculándolo con todas tus redes sociales, solo copias el enlace de tu tienda y pégalo donde tú quieras o comparte con tus contactos. Si necesitas ayuda puedes contactarnos por
-                    <a class="dropdown-item" style="color: blue;"
-                    href="https://api.whatsapp.com/send?text=Quiero Realizar marketing para mi tienda online: {{request.build_absolute_uri}} gracias. &phone={{dashboard.mobile}}"
-                    target="_blank"><i class="bi bi-whatsapp"></i> {{dashboard.mobile}}</a> <br>
-                    <i class="bi bi-award-fill" style="color: gold;"></i> Comparte tu tienda online con todos tus clientes para mostrar tus productos
-                </p>
+                <p>Actualiza tus Catálogos. o agrega más productos en oferta, nuevos etc.</p>
+                
               {% else %}
                   <h2>Elige tu catálogo de 
                     {% if category %}
@@ -132,6 +125,27 @@
           </div>
         {% endfor %}     
     </div>
+    
+    {% if user.is_authenticated %}
+    <div class="container-fluid alert alert-info">
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          <p><i class="bi bi-star-fill" style="color: gold;"></i> ¡Haz que tu tienda online llegue a todos! Comparte el enlace en tus redes sociales, chats o donde quieras. Tus clientes podrán ver todo lo que ofreces. ¡Promociona tu negocio y aumenta tus ventas!</p>
+        </div>
+        <div class="col-md-4 mb-3">
+          <p><i class="bi bi-star-fill" style="color: gold;"></i> ¡Lleva tu tienda online al siguiente nivel con Facebook Ads (pagada)! Llega a miles de clientes potenciales, aumenta tus ventas y haz crecer tu marca. ¿No sabes por dónde empezar? Nosotros te ayudamos. Contáctanos y empieza a atraer más clientes hoy mismo.
+            <a class="dropdown-item d-inline" style="color: rgb(40, 166, 240);"
+            href="https://api.whatsapp.com/send?text=Quiero Realizar marketing para mi tienda online: {{request.build_absolute_uri}} gracias. &phone={{dashboard.mobile}}"
+            target="_blank"><i class="bi bi-whatsapp"></i> {{dashboard.mobile}}</a>
+          </p>
+        </div>
+        <div class="col-md-4 mb-3">
+          <p><i class="bi bi-star-fill" style="color: gold;"></i> ¿Necesita ayuda con la carga de productos hacia su tienda online? Envíenos un archivo Excel con la información estructurada (nombre del producto, código opcional, descripción, precio, stock) y lo ayudamos a realizar la importación masiva al sistema.</p>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+      
   </div>
 </section>
 <script>
@@ -168,17 +182,20 @@
 
 
 {% block google_adsense %}
+  {% if not user.is_authenticated %}
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6758294951145066"
-      crossorigin="anonymous"></script>
-      <!-- dos -->
-      <ins class="adsbygoogle"
-        style="display:block"
-        data-ad-client="ca-pub-6758294951145066"
-        data-ad-slot="2274550750"
-        data-ad-format="auto"
-        data-full-width-responsive="true"></ins>
-      <script>
-        (adsbygoogle = window.adsbygoogle || []).push({});
-      </script>
+    crossorigin="anonymous"></script>
+    <!-- dos -->
+    <ins class="adsbygoogle"
+      style="display:block"
+      data-ad-client="ca-pub-6758294951145066"
+      data-ad-slot="2274550750"
+      data-ad-format="auto"
+      data-full-width-responsive="true"></ins>
+    <script>
+      (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+  {% endif %}
 {% endblock google_adsense %}
+  
   

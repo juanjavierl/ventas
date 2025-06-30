@@ -1,26 +1,9 @@
 {% load crispy_forms_tags %}
-
 <div class="modal-header  thead-light" style="background-color: #58bba9;">
-  <h5 class="modal-title text-white" id="exampleModalLabel">Paso(1/4) Crear mi cuenta de usuario</h5>
+  <h5 class="modal-title text-white" id="exampleModalLabel">Registrar Nueva Tienda</h5>
   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
-<div class="user">
-  <div class="modal-body table-responsive">
-    <form action="" method="post" id="userForm">
-      {% csrf_token %}
 
-      {{form_user|crispy}}
-      <input type="checkbox" name="show_pass" id="id_show_pass">
-      <label for="id_show_pass">Ver contraseña</label>
-    </form>
-    <p class="text-danger validate_user"></p>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i
-        class="bi bi-arrow-left-circle"></i> Cancelar</button>
-    <button type="button" class="btn btn-success btn-sm" id="formUser"><i class="bi bi-person-fill"></i> Siguiente</button>
-  </div>
-</div>
 <div class="company fade-left">
   <div class="modal-body table-responsive">
     <form action="" method="post" class="row" id="form_Company" enctype="multipart/form-data">
@@ -32,16 +15,19 @@
     <p class="text-danger validate_company"></p>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-secondary btn-sm anterior1"><i class="bi bi-arrow-left-circle"></i>
-      Anterior</button>
+    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i
+      class="bi bi-arrow-left-circle"></i> Cancelar</button>
     <a href="#next" type="button" class="btn btn-success btn-sm" id="formCompany"><i class="bi bi-shop-window"></i>
       Siguiente</a>
   </div>
 </div>
 
+
 <div class="planes fade-left">
   <div class="modal-body table-responsive">
-    <form action="" method="post">{% csrf_token %}
+    <form action="" method="post">
+      {% csrf_token %}
+
       {% for p in planes %}
       <label class="form-check-label" for="id_plan_{{p.id}}">
       <div class="card dark card_c single-product">
@@ -58,7 +44,7 @@
           </div>
           <div class="cta_c-sectiformPlaneson">
 
-            {% if p.name|upper == 'GRATIS' %}
+            {% if p.name|upper == 'PROFESIONAL' %}
             <input class="form-check-input" type="radio" name="plan" value="{{p.id}}" id="id_plan_{{p.id}}" checked required>
             {% else %}
             <input class="form-check-input" type="radio" name="plan" value="{{p.id}}" id="id_plan_{{p.id}}">
@@ -79,6 +65,7 @@
       Siguiente</a>
   </div>
 </div>
+
 
 <div class="img_qr fade-left">
   <div class="modal-body table-responsive">
@@ -102,113 +89,36 @@
       Seleccione su tienda virtual > perfil > Administrador y disfrute las opciones que tenemos.
     </small><br>
     <small class="text-muted text-success"><i class="bi bi-check-lg"></i>
-      Por unica vez te enviaremos tu email y contraseña por correo para que vuelvas a ingresar.
-    </small><br>
-    <small class="text-muted text-success"><i class="bi bi-check-lg"></i>
       Una vez concluido el plan demo, puede solicitar un nuevo plan que se adapte a sus necesidades
     </small>
   </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-secondary btn-sm anterior3"><i class="bi bi-arrow-left-circle"></i>
       Anterior</button>
-    <a href="#next" type="button" class="btn btn-success btn-sm" id="form_Qrr" disabled="false"><i
-        class="bi bi-shop-window"></i> Aceptar & Registrar </a>
+    <a href="#next" type="button" class="btn btn-success btn-sm" id="form_Qrr" disabled="false">
+      <i class="bi bi-shop-window"></i> Aceptar & Registrar </a>
   </div>
 </div>
 
 <script>
-  $('#id_show_pass').change(function () {
-      if (this.checked) {
-            $('.modal-body #userForm #id_password1').attr("type", 'text');
-            $('.modal-body #userForm #id_password2').attr("type", 'text');
-        }else{
-             $('.modal-body #userForm #id_password1').attr("type", 'password');
-             $('.modal-body #userForm #id_password2').attr("type", 'password');
-        }
-    });
-    
-  $(function () {
-    $("#div_id_username").hide();//compo username transparen
-    $("#id_email").focus();
-
-    $(".company").hide();
+  $(function(){
     $(".planes").hide();
     $(".img_qr").hide();
 
-    $('#id_email').change(function () {
-      valor = $(this).val();
-      $.ajax({
-        type: 'POST',
-        url: '/validar_username/',
-        data: { csrfmiddlewaretoken: '{{ csrf_token }}', 'email': valor },
-        success: function (resp) {
-          if (resp.error) {
-            $(".validate_user").html(resp.error);
-           
-            $(".user").fadeIn('slow').show();
-            $('.company').hide();
-            $("#formUser").attr("disabled", "true");
-          } else {
-            $(".validate_user").text("");
-            $("#formUser").removeAttr('disabled');
-          }
-        }
-      });
-      $('#id_username').val(valor);
-    });
-
-    $(".anterior1").on("click", function () {
-      $(".user").fadeIn('slow').show();
-      $('.company').hide();
-      $(".planes").hide();
-      $(".img_qr").hide();
-    });
-
     $(".anterior2").on("click", function () {
-      $(".user").hide();
       $('.company').fadeIn('slow').show();
       $(".planes").hide();
       $(".img_qr").hide();
     });
     $(".anterior3").on("click", function () {
-      $(".user").hide();
       $('.company').hide();
       $(".planes").fadeIn('slow').show();
       $(".img_qr").hide();
     });
-  });
-  var datos_registro = {};
-  $("#formUser").on("click", function () {
-    $("#id_mobile").attr("type", "number");
-    if ($("#id_email").val() != "" && ($("#id_password1").val() != "" || $("#id_password2").val() != "")) {
-      if (validateEmail($("#id_email").val())) {
-        if (validatePasword($("#id_password1").val(), $("#id_password2").val())) {
-          $("#exampleModalLabel").text("Paso(2/4) Registrar mi tienda virtual");
-          $(".user").hide();
-          $('.company').fadeIn('slow').show();
-          let user_data = {
-            user: $("#id_username").val(),
-            email: $("#id_email").val(),
-            pass1: $("#id_password1").val(),
-            pass2: $("#id_password2").val()
-          };
-          datos_registro['user_data'] = user_data;
-        }
 
-      } else {
-        $(".user").fadeIn('slow').show();
-        $('.company').hide();
-        $(".validate_user").text("El Correo Electrónico. no es válidos");
-      }
-
-    } else {
-      $(".validate_user").text("Todos los campos son requeridos");
-    }
-    return false;
-  });
-
-  $("#formCompany").on("click", function () {
-    $("#exampleModalLabel").text("Paso (3/4) Seleccione un plan ");
+    var datos_registro = {};
+    $("#formCompany").on("click", function () {
+      $("#exampleModalLabel").text("Paso (3/4) Seleccione un plan ");
     var datos = new FormData(document.getElementById("form_Company"));
     $.ajax({
       type: 'POST',
@@ -222,10 +132,9 @@
           $(".validate_company").text(resp.error);
           $("#exampleModalLabel").text("Paso(2/4) Registrar mi tienda virtual");
         } else {
-          $(".user").hide();
-          $('.company').hide();
           $(".planes").fadeIn('slow').show();
           $(".img_qr").hide();
+          $('.company').hide();
           //datos_registro['company_data']=datos;
           console.log(datos.get('is_service'));
           let service = "False"
@@ -248,14 +157,11 @@
       }
     });
 
-    return false;
-  });
-  $("#formPlanes").on("click", function () {
-    $("#exampleModalLabel").text("Paso(3/4) Bien, estas a punto de terminar");
-    $(".user").hide();
-    $('.company').hide();
-    $(".planes").hide();
-    $(".img_qr").fadeIn('slow').show();
+    $("#formPlanes").on("click", function () {
+      $("#exampleModalLabel").text("Paso(3/4) Bien, estas a punto de terminar");
+      $(".img_qr").fadeIn('slow').show();
+      $('.company').hide();
+      $(".planes").hide();
     $.ajax({
       type: 'get',
       url: '/' + $('input:radio[name=plan]:checked').val() + '/get_img',
@@ -272,15 +178,17 @@
       }
     });
     return false;
-  });
-  $("#form_Qrr").on('click', function () {
-    $("#form_Qrr").html("Iniciando Sesión...!");
+    });
+
+    $("#form_Qrr").on("click", function () {
+
+      $("#form_Qrr").html("Iniciando Sesión...!");
     $.ajax({
       type: 'POST',
-      url: '/register_data/',
+      url: '/new_store/',
       headers: { 'X-CSRFToken': '{{ csrf_token }}' },
       dataType: 'json',
-      data: { valores: JSON.stringify(datos_registro) },//JSON.stringify(objteto) {user_data: {…}, company_data: {…}, plan_data: {…}}
+      data: { valores: JSON.stringify(datos_registro) },//JSON.stringify(objteto) {company_data: {…}, plan_data: {…}}
 
       success: function (resp) {
         //console.log(resp.user_id);
@@ -296,20 +204,9 @@
       }
     });
     return false;
+    });
+
   });
-  function validatePasword(pass1, pass2) {
-    if (pass1 == pass2) {
-      return true;
-    }
-    else {
-      $(".validate_user").text("Las contraseñas que ingreso no coinciden.");
-      return false;
-    }
-  }
 
-  function validateEmail(email) {
-    const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{0,9}$/;
-    return regex.test(email);
-  }
-
-</script>
+});
+  </script>

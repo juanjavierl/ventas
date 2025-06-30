@@ -1,8 +1,8 @@
 <ul>
     {% if user.is_authenticated %}
     
-      {% if company.id %}
-        <!-- otro menu -->
+      {% if not company.id %}
+      <li><a class="nav-link scrollto active" href="#" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="newTienda('/crear_tienda/{{request.user.id}}')">  Crear nueva tienda </a></li>
         
       {% endif %}
       
@@ -49,3 +49,16 @@
       <li><a class="nav-link scrollto" href="#login" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="login('/login_user/')">Ingresar</a></li>
     {% endif %}
   </ul>
+
+  <script>
+    function newTienda(urls){
+    $.ajax({
+        type:'GET',
+        url:urls,
+        success:function(resp){
+            $(".modal-content").html(resp);
+            $(".navbar-mobile i").click();
+        }
+    });
+}
+  </script>

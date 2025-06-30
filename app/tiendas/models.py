@@ -102,7 +102,7 @@ class Company(models.Model, ModelMeta):
     user = models.ForeignKey(User,on_delete=models.CASCADE)
     website = models.CharField(max_length=250, verbose_name='Link a grupo de WhatsApp (Opcional)', blank=True, null=True, help_text="Tus clientes se uniran mediante este link")
     #iva = models.DecimalField(default=0.00, decimal_places=2, max_digits=9, verbose_name='IVA')
-    image = models.ImageField(null=True, blank=True, upload_to='company/%Y', verbose_name='Logotipo de la empresa (Opcional)')    
+    image = models.ImageField(null=True, blank=True, upload_to='company/%Y', verbose_name='Imagen de Portada (Opcional)')    
     date_joined = models.DateField(default=datetime.now, verbose_name='Fecha de registro')
     plan = models.ForeignKey(Plataforma, on_delete=models.CASCADE, verbose_name="Seleccione un plan")
     expiration_date = models.DateField(verbose_name='Fecha de expiracion (dd/mm/AAAA)')

@@ -27,7 +27,7 @@
   </li>
   <li><a class="nav-link scrollto" href="#footer">Nosotros</a></li>
   {% if user.is_authenticated %}
-
+  <li><a class="nav-link scrollto" href="/salir/">Salir</a></li>
   {% else %}
   <li><a class="nav-link scrollto" href="#login" data-bs-toggle="modal" data-bs-target="#exampleModal"
       onclick="login('/login_user/')">Ingresar</a></li>

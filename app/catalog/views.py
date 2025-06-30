@@ -16,7 +16,10 @@ from app.inicio.views import get_Dashboard
 def CatalogView(request, id_company):
     template_name = "sitio.html"
     if request.method == 'GET':
-        productos = Product.objects.filter(company_id=int(id_company)).order_by('-id')
+        #productos = Product.objects.filter(company_id=int(id_company)).order_by('-id')
+        productos = Product.objects.filter(company_id=int(id_company)) \
+            .select_related('category') \
+            .order_by('category__name', '-id')
         page = request.GET.get('page',1)
         try: 
             paginator = Paginator(productos, 10)

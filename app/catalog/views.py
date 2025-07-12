@@ -651,3 +651,7 @@ def getPrecioEnvio(request, id_company):
     
     datos['importe'] = calcular_pago(request)
     return JsonResponse({'datos':datos})
+
+def form_sheart_product(request):
+    company = Company.objects.get(id = int(request.GET['id_company']))
+    return render(request, 'catalog/form_sheart_product.html', {'company':company})

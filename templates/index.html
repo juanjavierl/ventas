@@ -110,9 +110,7 @@
   <main id="main">
     <!-- ======= Services Section ======= -->
     
-    {% block form_buscador %}
-      
-    {% endblock form_buscador %}
+    {% block form_buscador %} {% endblock form_buscador %}
       
     <!-- End Services Section -->
     <!-- ======= Team Section ======= -->
@@ -203,17 +201,36 @@
     toastBootstrap.show();
   }
 
-  function mostrar_por_categoria(urls) {
-    $.ajax({
-      type: 'GET',
-      url: urls,
-      headers: {'X-Requested-With': 'XMLHttpRequest' },// Marca como AJAX
-      success: function (resp) {
-        $(".productos_por_categorias").fadeIn(1000).html(resp);
-        $(".navbar-mobile i").click();
-      }
-    });
-  }
+let lightbox = null;
+function mostrar_por_categoria(urls) {
+  $.ajax({
+    type: 'GET',
+    url: urls,
+    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+    success: function (resp) {
+      // Inyectar HTML y esperar que termine para reinicializar GLightbox
+      $(".productos_por_categorias").fadeOut(200, function () {
+        $(this).html(resp).fadeIn(400, function () {
+
+          // Destruir instancia anterior si existe
+          if (lightbox && typeof lightbox.destroy === 'function') {
+            lightbox.destroy();
+          }
+
+          // Inicializar nuevamente el lightbox
+          lightbox = GLightbox({
+            selector: '.portfolio-lightbox'
+          });
+
+        });
+      });
+
+      // Cierra menú móvil si estaba abierto
+      $(".navbar-mobile i").click();
+    }
+  });
+}
+
   function form_company(urls) {
     $.ajax({
       type: 'GET',

@@ -874,10 +874,17 @@ section {
 }
 
 /*--------------------------------------------------------------
-# Portfolio
+# contenedor del buscador de productos
 --------------------------------------------------------------*/
-.portfolio .portfolio-item {
-  /*margin-bottom: 30px;*/
+.form_buscador_product{
+  font-weight: bold;
+  position: fixed;
+  top: 65px;
+  padding: 5px 10px;
+  z-index: 22;
+}
+.form_buscador_product .navbar{
+  border-radius: 10px;
 }
 
 .portfolio #portfolio-flters {

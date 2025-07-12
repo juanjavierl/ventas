@@ -25,4 +25,5 @@ urlpatterns = [
     path('<int:id_producto>/remode_imgs_products/', views.remode_imgs_products, name='remode_imgs_products'),
     path('<int:id_img>/deleteImgProduct/', views.deleteImgProduct, name='deleteImgProduct'),
     path('<int:id_company>/getPrecioEnvio/', views.getPrecioEnvio, name='get_precios'),
+    path('form_sheart_product/', views.form_sheart_product, name='form_sheart_product'),
 ]

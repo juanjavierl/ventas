@@ -83,7 +83,9 @@
 
 
 {% block form_buscador %}
-{% include 'sheart_product_by_company.html' with dashboard=dashboard %}
+    <div class="form_buscador_product" style="display: none;">
+    
+    </div>
 {% endblock form_buscador %}
 
 {% block contenido %}
@@ -127,7 +129,3 @@
 {% block footer_catalog %}
   {% include 'footer_tienda.html' %}
 {% endblock footer_catalog %}
-  
-  
-
-  

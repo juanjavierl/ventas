@@ -32,6 +32,11 @@
 
 {% block hero %} {% endblock hero %}
 
+{% block form_buscador %}
+<div class="form_buscador_product" style="display: none;"> 
+</div>
+{% endblock form_buscador %}
+
 {% block contenido %}
 <style>
   @media (max-width: 500px) {
@@ -251,15 +256,14 @@
         url: $(this).attr("action"),
         data: $(this).serialize(),
         success: function (resp) {
-          console.log(resp);
           if (resp.error) {
             $('.toast-body').removeClass('alert-success').addClass('alert-danger');
-            $('.toast-body').fadeIn(1000).html(resp.error);
+            $('.toast-body').fadeIn(1000).html('<strong>'+resp.error+'</strong>');
             mostrar_notificacion();
           }
           else {
             $('.toast-body').removeClass('alert-danger').addClass('alert-success');
-            $('.toast-body').fadeIn(1000).html(resp.success);
+            $('.toast-body').fadeIn(1000).html('<strong>'+resp.success+'</strong>');
             mostrar_notificacion();
             $('#form_pedido')[0].reset();
             $("#cont_compras").html(resp.products);

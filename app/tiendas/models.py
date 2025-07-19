@@ -110,9 +110,9 @@ class Company(models.Model, ModelMeta):
     is_service = models.BooleanField(default=False, verbose_name='¿Tus ventas sera solo en esta ciudad?', help_text="Ej. restauranes o productos consumibles que dificultan el envío a lugares alejados")
 
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        procesar_imagen_portada(self, 'image')
-        super().save(*args, **kwargs)
+        if self.image:# Si hay imagen nueva o editada
+            procesar_imagen_portada(self, 'image')  # Procesar primero la imagen antes de guardar
+        super().save(*args, **kwargs)  # Guardar ya procesada
 
     def __str__(self):
         return self.name

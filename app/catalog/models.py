@@ -46,11 +46,11 @@ class Product(models.Model):
     is_promotion = models.BooleanField(default=False, verbose_name='¿Esta en promocion?',help_text='marque solo si corresponde')
     date_joined = models.DateField(default=datetime.now, verbose_name='Fecha de registro')
     date_update = models.DateTimeField(auto_now=True)
-
+    
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        procesar_imagen(self, 'image')
-        super().save(*args, **kwargs)
+        if self.image:# Si hay imagen nueva o editada
+            procesar_imagen(self, 'image')  # Procesar primero la imagen antes de guardar
+        super().save(*args, **kwargs)  # Guardar ya procesada
 
     def __str__(self):
         return self.get_full_name()
@@ -112,9 +112,9 @@ class Imagen(models.Model):
     items = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='producto')
     
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        procesar_imagen(self, 'img')
-        super().save(*args, **kwargs)
+        if self.image:# Si hay imagen nueva o editada
+            procesar_imagen(self, 'img')  # Procesar primero la imagen antes de guardar
+        super().save(*args, **kwargs)  # Guardar ya procesada
 
     def __str__(self):
         return f'{self.img} ({self.items.name})'

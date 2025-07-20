@@ -57,7 +57,7 @@
       }
       try {
         const imagenComprimida = await comprimirImagen(archivo);
-        datos.set('image', imagenComprimida, archivo.name);
+        datos.set('img', imagenComprimida, archivo.name);
       } catch (error) {
         alert("Error al comprimir la imagen: " + error.message);
         botonSubmit.prop('disabled', false).text('Confirmar');

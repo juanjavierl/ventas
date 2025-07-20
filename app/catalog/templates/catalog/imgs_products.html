@@ -5,7 +5,8 @@
 </div>
 <div class="modal-body table-responsive">
   <div>
-    <img id="imgPreview" class="object-fit-fill rounded mx-auto d-block" style="width: 400px; height: 300px; text-align: center; border: 0;">
+    <img id="imgPreview" class="object-fit-fill rounded mx-auto d-block"
+      style="width: 400px; height: 300px; text-align: center; border: 0;">
 
   </div>
   <form action="/{{product.id}}/imgs_products/" method="post" enctype="multipart/form-data" id="FormImgProduct">
@@ -31,12 +32,42 @@
 </div>
 
 <script>
-  $('#FormImgProduct').on('submit', function (e) {
+  $('#FormImgProduct').on('submit', async function (e) {
     e.preventDefault();
-    let datos = new FormData(this);
+    const form = this;
+    const botonSubmit = $(form).find('button[type="submit"]');
+    botonSubmit.prop('disabled', true).text('Enviando...');
+
+    const datos = new FormData(form);
+    const inputArchivo = form.querySelector('input[type="file"]');
+    const archivo = inputArchivo ? inputArchivo.files[0] : null;
+
+    if (archivo) {
+      const tiposPermitidos = ['image/jpeg', 'image/png', 'image/webp'];
+      const maxTamanoMB = 10;
+      if (!tiposPermitidos.includes(archivo.type)) {
+        alert("Solo se permiten imágenes JPG, PNG o WEBP.");
+        botonSubmit.prop('disabled', false).text('Confirmar');
+        return;
+      }
+      if (archivo.size > maxTamanoMB * 1024 * 1024) {
+        alert(`La imagen no debe superar los ${maxTamanoMB} MB.`);
+        botonSubmit.prop('disabled', false).text('Confirmar');
+        return;
+      }
+      try {
+        const imagenComprimida = await comprimirImagen(archivo);
+        datos.set('image', imagenComprimida, archivo.name);
+      } catch (error) {
+        alert("Error al comprimir la imagen: " + error.message);
+        botonSubmit.prop('disabled', false).text('Confirmar');
+        return;
+      }
+    }
+
     $.ajax({
       type: 'POST',
-      url: $(this).attr('action'),
+      url: $(form).attr('action'),
       data: datos,
       contentType: false,
       processData: false,
@@ -47,16 +78,23 @@
           mostrar_notificacion();
         } else {
           $('.toast-body').removeClass('alert-danger').addClass('alert-success');
-          $('.toast-body').fadeIn(1000).html('<strong>'+ resp.success +'</strong>');
-          $('#FormImgProduct')[0].reset();
+          $('.toast-body').fadeIn(1000).html('<strong>' + resp.success + '</strong>');
+          form.reset();
           mostrar_notificacion();
         }
       },
       error: function (xhr, ajaxOptions, thrownError) {
-        alert("Formato de imagen no permitido. debe ser JPG, PNG o WEBP. recomendación suaba la imagen a su WhatsApp y descárgalo. Error: "+thrownError);
+        alert("Ocurrió un error al enviar el formulario. Error: " + thrownError);
+      },
+      complete: function () {
+        botonSubmit.prop('disabled', false).html('Confirmar');
       }
     });
   });
+
+
+
+
   function previewImage(event, querySelector) {
     //Recuperamos el input que desencadeno la acción
     const input = event.target;

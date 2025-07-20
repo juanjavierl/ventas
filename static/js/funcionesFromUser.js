@@ -98,3 +98,37 @@ function add_hivicacion(urls){
         }
     });
 }
+
+// Función para comprimir y redimensionar imagen en el navegador
+function comprimirImagen(archivo, maxAncho = 1200, maxAlto = 900, calidad = 0.75) {
+    return new Promise((resolve, reject) => {
+      const lector = new FileReader();
+      lector.readAsDataURL(archivo);
+      lector.onload = function (evento) {
+        const img = new Image();
+        img.src = evento.target.result;
+        img.onload = function () {
+          let ancho = img.width;
+          let alto = img.height;
+
+          if (ancho > maxAncho || alto > maxAlto) {
+            const escala = Math.min(maxAncho / ancho, maxAlto / alto);
+            ancho *= escala;
+            alto *= escala;
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = ancho;
+          canvas.height = alto;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, ancho, alto);
+
+          canvas.toBlob(blob => {
+            resolve(blob);
+          }, archivo.type, calidad);
+        };
+        img.onerror = () => reject(new Error("No se pudo procesar la imagen."));
+      };
+      lector.onerror = () => reject(new Error("Error al leer el archivo."));
+    });
+  }

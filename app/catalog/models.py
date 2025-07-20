@@ -112,7 +112,7 @@ class Imagen(models.Model):
     items = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='producto')
     
     def save(self, *args, **kwargs):
-        if self.image:# Si hay imagen nueva o editada
+        if self.img:# Si hay imagen nueva o editada
             procesar_imagen(self, 'img')  # Procesar primero la imagen antes de guardar
         super().save(*args, **kwargs)  # Guardar ya procesada
 

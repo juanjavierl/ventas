@@ -31,6 +31,11 @@ def getTypes(request, id_type):
     count_productos = {}
     for c in companys:
         count_productos[c.name] = Product.objects.filter(company_id = int(c.id)).count()
+
+    type_company = Tipo_company.objects.all().order_by('-id')
+    count_comp = {}
+    for t_companys in type_company:
+        count_comp[t_companys.name] = Company.objects.filter(category_id = int(t_companys.id)).count()
     
     request.session['compra'] = []#inicializa el carrito vacio nuevamente
     dic = {
@@ -39,7 +44,8 @@ def getTypes(request, id_type):
         'dashboard':get_Dashboard(),
         'count_productos':count_productos,
         'ciudades':Ciudad.objects.all().order_by('-id'),
-        'type_company':Tipo_company.objects.all().order_by('-id')
+        'type_company':Tipo_company.objects.all().order_by('-id'),
+        'count_comp':count_comp,
     }
     return render(request, 'card_companys.html', dic)
 

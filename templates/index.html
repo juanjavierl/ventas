@@ -52,12 +52,24 @@
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
   {% block code_meta %}
-    <script>
-      {{dashboard.codigo|safe}}
-    </script>
-    <noscript>
-      {{dashboard.noscript|safe}}
-    </noscript>
+    {% if dashboard.codigo %}
+      <script>
+        !function(f,b,e,v,n,t,s)
+        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+        n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t,s)}(window, document,'script',
+        'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '{{dashboard.codigo}}');
+        fbq('track', 'PageView');
+        </script>
+      <noscript>
+        <img height="1" width="1" style="display:none" 
+        src="https://www.facebook.com/tr?id={{dashboard.codigo}}&ev=PageView&noscript=1"/>
+      </noscript>
+    {% endif %}
   {% endblock code_meta %}
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6758294951145066" crossorigin="anonymous"></script>
 </head>
@@ -85,7 +97,7 @@
       <nav id="navbar" class="navbar">
 
         {% block menus %}
-        {% include 'menu_index.html' %}
+        {% include 'menu_index.html' with type_company=type_company count_comp=count_comp %}
         {% endblock menus %}
 
         <i class="bi bi-list mobile-nav-toggle"></i>

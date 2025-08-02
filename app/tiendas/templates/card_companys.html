@@ -35,7 +35,7 @@
   {% if user.is_authenticated %}
   {% include 'menu_from_user.html' %}
   {% else %}
-  {% include 'menu_index.html' %}
+  {% include 'menu_index.html' with type_company=type_company count_comp=count_comp %}
   {% endif %}
 {% endblock menus %}
 

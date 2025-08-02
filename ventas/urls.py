@@ -40,7 +40,8 @@ urlpatterns = [
     path('', include('app.inicio.urls')),
     path("robots.txt", robots_txt, name="robots_txt"),
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
-
+    path('auth/', include('social_django.urls', namespace='social')),
+    
     path(
         'reset_password/',
         auth_views.PasswordResetView.as_view(

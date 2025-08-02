@@ -6,18 +6,26 @@
 </div>
 <div class="user">
   <div class="modal-body table-responsive">
+    <div class="w-100 mt-0 text-center">
+      <p class="mb-0">
+        <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center">
+          <i class="bx bxl-google me-2" style="font-size: 1.2rem;"></i>
+          Registrarme con mi cuenta de Google
+        </a>
+      </p>
+    </div>    
+    <hr>
     <form action="" method="post" id="userForm">
       {% csrf_token %}
-
       {{form_user|crispy}}
       <input type="checkbox" name="show_pass" id="id_show_pass">
       <label for="id_show_pass">Ver contraseña</label>
     </form>
     <p class="text-danger validate_user"></p>
   </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i
-        class="bi bi-arrow-left-circle"></i> Cancelar</button>
+  <div class="modal-footer"> 
+    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+      <i class="bi bi-arrow-left-circle"></i> Cancelar</button>
     <button type="button" class="btn btn-success btn-sm" id="formUser"><i class="bi bi-person-fill"></i> Siguiente</button>
   </div>
 </div>

@@ -1,6 +1,7 @@
 from django.db.models import Avg, Max, Min, Count
 from django.http import JsonResponse, request
 from django.shortcuts import render, get_object_or_404,HttpResponse,redirect
+from django.urls import reverse
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.forms import User
 from django.contrib.auth import authenticate,login, logout
@@ -143,3 +144,15 @@ def password_reset_confirm_ajax(request, uidb64, token):
         form = SetPasswordForm(user)
 
     return render(request, 'password_confirm.html', {'form': form})
+
+def guardar_datos_extra(backend, user, response, *args, **kwargs):
+    if backend.name == 'google-oauth2':
+        user.first_name = response.get('given_name', '')
+        user.last_name = response.get('family_name', '')
+        user.email = response.get('email', '')
+        user.save()
+
+def redirigir_a_companys(strategy, user=None, *args, **kwargs):
+    if user:
+        url = reverse('companys_from_user', kwargs={'user_id': user.id})
+        return redirect(url)

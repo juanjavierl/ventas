@@ -304,8 +304,7 @@ class RRSS(models.Model):
 
 class PixelMeta(models.Model):
     company = models.OneToOneField(Company, on_delete=models.CASCADE, verbose_name='Negocio')
-    codigo = models.TextField(verbose_name='Código script(Pixel de Facebook)', help_text='Copie aqui el código script(pixel de facebook)')
-    noscript = models.TextField(verbose_name='Código no script de Facebook', null=True, blank=True, help_text='Copie aqui el código no script de facebook')
+    codigo = models.CharField(max_length=50, verbose_name='Pixel_id', null=True, blank=True, help_text='Copie pixel id de Meta')
     def __str__(self):
         return self.company.name
 

@@ -8,10 +8,14 @@
   <li class="dropdown">
     <a href="#team"><span>Categorías</span> <i class="bi bi-chevron-down"></i></a>
     <ul>
-      {% for c in type_company %}
-      <li style="cursor: pointer;" class="nav-link scrollto"><a href="/{{c.id}}/type">{{c.name|title}}</a></li>
+      {% for n in type_company %}
+        {% for c, v in count_comp.items %}
+          {% if c == n.name and v > 0 %}
+          <li style="cursor: pointer;" class="nav-link scrollto"><a href="/{{n.id}}/type">{{n.name|title}}</a></li>
+          {% endif %}
+        {% endfor %}
       {% empty %}
-      <li class="nav-link scrollto"><a href="">No hay Categorías</a></li>
+          <li class="nav-link scrollto"><a href="">No hay Categorías</a></li>
       {% endfor %}
     </ul>
   </li>

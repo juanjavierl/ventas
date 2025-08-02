@@ -12,10 +12,24 @@
        <input type="checkbox" name="show_pass" id="id_show_pass">
        <label for="id_show_pass">Ver contraseña</label>
        <div class="modal-footer">
-        <button type="submit" class="btn btn-success btn-sm" id="btn_sesion"><i class="bi bi-person"></i> Iniciar Sesión</button>
-        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="bi bi-arrow-left-circle"></i> Cancelar</button>
-        <a href="#" onclick="reset_password('/reset_password')">¿Olvidaste tu contraseña?</a>
+          <button type="submit" class="btn btn-success btn-sm" id="btn_sesion">
+            <i class="bi bi-person"></i> Iniciar Sesión
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+            <i class="bi bi-arrow-left-circle"></i> Cancelar
+          </button>
+        
+        <!-- Enlaces separados a izquierda y derecha -->
+        <div class="w-100 d-flex justify-content-between mt-3 mb-0">
+          <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-outline-primary btn-sm d-flex align-items-center px-3">
+            <i class="bx bxl-google me-2" style="font-size: 1rem;"></i> Iniciar con Google
+          </a>
+          <a href="#" class="btn btn-outline-secondary btn-sm d-flex align-items-center px-3" onclick="reset_password('/reset_password')">
+            <i class="bi bi-unlock me-2" style="font-size: 1rem;"></i> Olvide mi contraseña
+          </a>
+        </div>        
       </div>
+      
     </form>
     <p class="invalid text-danger"></p>
  </div>

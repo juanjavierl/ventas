@@ -152,7 +152,7 @@ def guardar_datos_extra(backend, user, response, *args, **kwargs):
         user.email = response.get('email', '')
         user.save()
 
-def redirigir_a_companys(strategy, user=None, *args, **kwargs):
-    if user:
-        url = reverse('companys_from_user', kwargs={'user_id': user.id})
-        return redirect(url)
+def redirigir_a_companys(backend, user, response, *args, **kwargs):
+    if user and user.is_authenticated:
+        return redirect(f"/{user.id}/companys/")
+

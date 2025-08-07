@@ -21,7 +21,8 @@ def CatalogView(request, id_company):
             .select_related('category') \
             .order_by('category__name', '-id')
         page = request.GET.get('page',1)
-        try: 
+        try:
+            categorys = categorys_from_productos(productos)
             paginator = Paginator(productos, 10)
             productos = paginator.page(page)
         except:
@@ -30,7 +31,6 @@ def CatalogView(request, id_company):
             request.session['compra']
         except:
             request.session['compra'] = []
-        categorys = categorys_from_productos(productos)
 
         date_expiration = False
         try:

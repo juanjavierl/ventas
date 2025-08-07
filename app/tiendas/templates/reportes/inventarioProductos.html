@@ -42,7 +42,8 @@
            {% endfor %}
         </tbody>
     </table>
-    <small class="text-muted">Los items que muestran en rojo son los que tienen un stock <=5 como criterio</small>
+    <small class="text-muted">Los items que muestran en rojo son los que tienen un stock <=5 como criterio
+    </small><a href="/{{id_company}}/{{criterio}}/productos" target="_blank">Imprimir</a>
     {% else %}
     <div class="alert alert-warning text-center text-danger" role="alert">No hay Productos</div>
     {% endif %}

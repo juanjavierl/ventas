@@ -31,12 +31,7 @@ def getTypes(request, id_type):
     count_productos = {}
     for c in companys:
         count_productos[c.name] = Product.objects.filter(company_id = int(c.id)).count()
-
-    type_company = Tipo_company.objects.all().order_by('-id')
-    count_comp = {}
-    for t_companys in type_company:
-        count_comp[t_companys.name] = Company.objects.filter(category_id = int(t_companys.id)).count()
-    
+   
     request.session['compra'] = []#inicializa el carrito vacio nuevamente
     dic = {
         'category':getType(id_type),
@@ -45,7 +40,7 @@ def getTypes(request, id_type):
         'count_productos':count_productos,
         'ciudades':Ciudad.objects.all().order_by('-id'),
         'type_company':Tipo_company.objects.all().order_by('-id'),
-        'count_comp':count_comp,
+        'count_comp':contar_companys()
     }
     return render(request, 'card_companys.html', dic)
 
@@ -57,7 +52,7 @@ def getCiudades(request, id_ciudad):
     count_productos = {}
     for c in companys:
         count_productos[c.name] = Product.objects.filter(company_id = int(c.id)).count()
-    
+
     request.session['compra'] = []#inicializa el carrito vacio nuevamente
     dic = {
         'ciudad':getCity(id_ciudad),
@@ -65,9 +60,17 @@ def getCiudades(request, id_ciudad):
         'dashboard':get_Dashboard(),
         'count_productos':count_productos,
         'ciudades':Ciudad.objects.all().order_by('-id'),
-        'type_company':Tipo_company.objects.all().order_by('-id')
+        'type_company':Tipo_company.objects.all().order_by('-id'),
+        'count_comp':contar_companys()
     }
     return render(request, 'card_companys.html', dic)
+
+def contar_companys():
+    type_company = Tipo_company.objects.all().order_by('-id')
+    count_comp = {}
+    for t_companys in type_company:
+        count_comp[t_companys.name] = Company.objects.filter(category_id = int(t_companys.id)).count()
+    return count_comp
 
 def getType(id_type):
     try:
@@ -271,6 +274,10 @@ def companys_from_user(request, user_id):
     }
     return render(request, 'card_companys.html', dic)
 
+@login_required(login_url='/')
+def redirigir_a_companys(request):
+    return redirect(f'/{request.user.id}/companys/')
+
 def updateCompany(request, id_company):
     company = Company.objects.get(id=id_company)
     if request.method=='POST':
@@ -391,15 +398,31 @@ def reportByRange(request, id_company):
         return render(request, 'reportes/reportByRangeOrden.html', {'ordenes':ordenes})
 
 def inventarioProductos(request, id_company):
-    p = Product()
     if request.method == 'POST':
         if request.POST['criterio'] == "todos":
-            productos = Product.objects.filter(company_id = int(id_company))
+            productos = Product.objects.filter(company_id = int(id_company)).select_related('category')
         elif request.POST['criterio'] == "con_stock":
-            productos = Product.objects.filter(company_id = int(id_company), stock__gt = 0)
+            productos = Product.objects.filter(company_id = int(id_company), stock__gt = 0).select_related('category')
         else:
-            productos = Product.objects.filter(company_id = int(id_company), stock__lte = 0)
-    return render(request, 'reportes/inventarioProductos.html', {'productos':productos})
+            productos = Product.objects.filter(company_id = int(id_company), stock__lte = 0).select_related('category')
+    return render(request, 'reportes/inventarioProductos.html', {'criterio':request.POST['criterio'],'id_company':id_company,'productos':productos.order_by('category__name', '-id')})
+
+def reporte_inventario(request, id_company, criterio):
+    if request.method == 'GET':
+        if criterio == "todos":
+            print('todos')
+            productos = Product.objects.filter(company_id = int(id_company)).select_related('category')
+        elif criterio == "con_stock":
+            productos = Product.objects.filter(company_id = int(id_company), stock__gt = 0).select_related('category')
+        else:
+            productos = Product.objects.filter(company_id = int(id_company), stock__lte = 0).select_related('category')
+    dic = {'productos':productos.order_by('category__name', '-id')}
+    html = render_to_string("reportes/reporte_inventario_pdf.html", dic)
+    response = HttpResponse(content_type="application/pdf")
+    response["Content-Disposition"] = "inline; reporte_orden.pdf"
+    font_config = FontConfiguration()
+    HTML(string=html).write_pdf(response)
+    return response
 
 def add_avisos(request, id_company):
     company = get_object_or_404(Company, id = int(id_company))
@@ -458,7 +481,6 @@ def eliminar_opciones(request, id_aviso):
         aviso.delete()
         return JsonResponse({'success':"Se Borro el registro. "})
     return render(request, 'notificaciones/eliminar_opciones.html', {'aviso':aviso})
-
 
 def report_pdf(request, id_company, id_orden):
     sucursal = get_address(id_company)

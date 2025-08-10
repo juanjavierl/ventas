@@ -227,7 +227,7 @@ def datos_registro(request):
             #return JsonResponse({'error': 'Up. algo salio mal intentalo nuevamente gracias.'})
 
 def new_store(request):
-    if request.method == "POST":
+    if request.method == "POST" and request.user.is_authenticated:
         datos = request.POST['valores']
         #print(datos)
         """ print(datos)#{user_data: {…}, company_data: {…}, plan_data: {…}}
@@ -250,7 +250,9 @@ def new_store(request):
         company.plan_id = datos['plan_data']['plan_name']
         company.expiration_date = datetime.now().date() + timedelta(days=7)
         company.save()
-
+        url_tienda = 'www.amceb.online/',request.user.id,'/catalogo'
+        thread = threading.Thread(target=send_welcome_mail, args=(request.user, "******", f"{url_tienda[0].rstrip('/')}/{url_tienda[1]}{url_tienda[2]}",))
+        thread.start()
 
         return JsonResponse({'user_id':request.user.id})
     else:

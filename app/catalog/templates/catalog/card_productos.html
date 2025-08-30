@@ -88,7 +88,7 @@
             <button type="submit" id="id_{{p.id}}"
               onclick="add_item('/{{p.id}}/{{company.id}}/detail_product','{{p.id}}')"
               class="btn btn-primary btn-sm">Agregar</button>
-            {% if user.is_authenticated %}
+            {% if user.is_authenticated and company.user == request.user %}
             <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="dropdown" aria-expanded="false"
               aria-haspopup="true">
               <span class="bi bi-three-dots-vertical"></span>

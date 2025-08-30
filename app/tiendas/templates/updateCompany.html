@@ -27,7 +27,7 @@
 
     if (archivo) {
       const tiposPermitidos = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
-      const maxTamanoMB = 10;
+      const maxTamanoMB = 15;
       if (!tiposPermitidos.includes(archivo.type)) {
         alert("Solo se permiten imágenes JPG, PNG o WEBP.");
         botonSubmit.prop('disabled', false).html('<i class="bi bi-shop-window"></i> Confirmar');

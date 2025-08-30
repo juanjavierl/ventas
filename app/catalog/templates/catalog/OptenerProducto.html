@@ -246,7 +246,7 @@
                       <li id="status">
                         <a class="dropdown-item" id="compartir" href="#">Compartir en más lugares</a>
                       </li>
-                      {% if user.is_authenticated %}
+                      {% if user.is_authenticated and company.user == request.user %}
                       <li>
                         <a class="dropdown-item" href="#" onclick="add_imagen('/{{p.id}}/imgs_products/')"
                           data-bs-toggle="modal" data-bs-target="#exampleModal">Agregar más Imagenes</a>

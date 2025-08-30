@@ -95,11 +95,13 @@ def categorys_from_productos(productos):
             ct.append({'id':p.category.id, 'name':p.category.name})
     return ct
 
-def get_company(id_company):
-    try:
-        company = Company.objects.get(id=int(id_company))
-    except:
-        company = {'name':"company",'id':'1'}
+def get_company(id_company, user=None):
+    company = get_object_or_404(Company, id=int(id_company))
+
+    # Verificar que el usuario logueado sea el dueño
+    if user is not None and company.user != user:
+        raise Http404("Empresa no encontrada")
+
     return company
 
 def optenerProducto(request, id_producto, id_company):

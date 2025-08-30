@@ -72,3 +72,20 @@ class Form_condiciones(forms.ModelForm):
     class Meta:
         model = Condicion
         exclude = ('company',)
+
+class formCompanyDominio(forms.ModelForm):
+    class Meta:
+        model = Dominio
+        fields = ['slug']
+
+    def clean_slug(self):
+        slug = self.cleaned_data['slug']
+        if Dominio.objects.filter(slug=slug).exists():
+            raise forms.ValidationError("El dominio ya existe.")
+        return slug
+    
+from django import forms
+
+class AdminEmailForm(forms.Form):
+    subject = forms.CharField(label="Asunto", max_length=200)
+    message = forms.CharField(label="Mensaje", widget=forms.Textarea)

@@ -1,4 +1,6 @@
 #encoding:utf-8
+from django.urls import reverse
+from django.utils.text import slugify
 from app.catalog.images import procesar_imagen_portada
 from datetime import datetime, date
 from random import randint
@@ -113,6 +115,18 @@ class Company(models.Model, ModelMeta):
         if self.image:# Si hay imagen nueva o editada
             procesar_imagen_portada(self, 'image')  # Procesar primero la imagen antes de guardar
         super().save(*args, **kwargs)  # Guardar ya procesada
+        # si no existe dominio asociado, lo creamos
+        # Crear dominio si no existe
+        if not hasattr(self, "dominio"):
+            base_slug = slugify(self.name)
+            slug = base_slug
+            contador = 1
+            # Evitar duplicados
+            while Dominio.objects.filter(slug=slug).exists():
+                slug = f"{base_slug}-{contador}"
+                contador += 1
+            # Crear Dominio con slug único
+            Dominio.objects.create(company=self, slug=slug)
 
     def __str__(self):
         return self.name
@@ -130,7 +144,11 @@ class Company(models.Model, ModelMeta):
         return f"{settings.STATIC_URL}img/default/empty.png"
 
     def get_meta_url(self):
-        return f"/{self.id}/catalogo"
+        try:
+            return f"/{self.dominio.slug}"
+        except Exception:
+            # fallback si no tiene dominio
+            return f"/{self.id}/catalogo"
     
     def contarLikes(self):
         from app.catalog.models import Like
@@ -220,7 +238,7 @@ class Banco(models.Model):
 
 class Sucursal(models.Model):
     company=models.OneToOneField(Company, on_delete=models.CASCADE, verbose_name='Negocio')
-    address = models.TextField(max_length=200, verbose_name='Dirección de todas sus sucursales')
+    address = models.TextField(max_length=200, verbose_name='Dirección de todas sus sucursales y Horario')
     latitud=models.CharField(max_length=50, verbose_name='Latitud')
     longitud=models.CharField(max_length=50, verbose_name='Longitud')
     date_joined = models.DateTimeField(auto_now_add=True)
@@ -331,3 +349,27 @@ class Suscripcion(models.Model):
         item['company'] = self.company.name
         item['email'] = self.email
         return item
+
+class Dominio(models.Model):
+    company = models.OneToOneField(Company, on_delete=models.CASCADE, related_name='dominio')
+    slug = models.SlugField(max_length=255, unique=True, verbose_name="El dominio por defecto es", help_text="Puede editarlo el dominio solo una vez (recomendado)")
+
+    def save(self, *args, **kwargs):
+        # Genera automáticamente el slug a partir del nombre de la empresa si no existe
+        if not self.slug:
+            self.slug = slugify(self.company.name)
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self, request=None):
+        """
+        Devuelve la URL completa del dominio.
+        Si se pasa request, construye URL dinámica.
+        """
+        if request:
+            return request.build_absolute_uri(f'/{self.slug}/')
+        else:
+            # URL por defecto si no se pasa request
+            return f'/{self.slug}/'
+
+    def __str__(self):
+        return f"{self.company.name} - {self.slug}"

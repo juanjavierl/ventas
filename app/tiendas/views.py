@@ -291,6 +291,51 @@ def updateCompany(request, id_company):
         form=formCompanyImage(instance=company)
         return render(request,'updateCompany.html',{'form':form,'company':company})
 
+def create_dominio(request, id_company):
+    company = get_object_or_404(Company, id=id_company)
+    # Recuperamos o creamos un dominio temporal
+    try:
+        dominio = company.dominio
+    except Dominio.DoesNotExist:
+        base_slug = slugify(company.name)
+        slug = base_slug
+        contador = 1
+        while Dominio.objects.filter(slug=slug).exists():
+            slug = f"{base_slug}-{contador}"
+            contador += 1
+        # Creamos y guardamos el dominio por defecto
+        dominio = Dominio.objects.create(company=company, slug=slug)
+    if request.method == 'POST':
+        form = formCompanyDominio(request.POST, instance=dominio)
+        if form.is_valid():
+            dominio = form.save()
+            full_url = request.build_absolute_uri(f'/{dominio.slug}/')
+            return JsonResponse({
+                'companys_from_user': request.user.id,
+                'url': full_url,
+                'slug': dominio.slug
+            })
+        else:
+            return JsonResponse({'error': form.errors})
+    else:
+        form = formCompanyDominio(instance=dominio)
+
+    # URL inicial para mostrar en el input del formulario
+    initial_url = request.build_absolute_uri(f'/{dominio.slug}/')
+
+    return render(request, 'create_dominio.html', {
+        'form': form,
+        'company': company,
+        'initial_url': initial_url  # enviamos al template
+    })
+
+def redirigir_a_catalogo(request, slug):
+    # Buscamos el dominio que coincida con el slug
+    dominio = get_object_or_404(Dominio, slug=slug)
+    # Redirigimos a la URL interna de la company
+    # Por ejemplo, "/<id>/catalogo/"
+    return redirect(f'/{dominio.company.id}/catalogo')
+
 def deleteCompany(request, id_company):
     company = get_object_or_404(Company, id=int(id_company))
     if request.method == 'POST':
@@ -341,7 +386,7 @@ def configuraciones_company(request, id_company):
         'form_avisos':Form_avisos(),
         'form_regla':Form_condiciones(),
         'categorias':categorys_from_productos(productos),
-        'company':get_company(id_company),
+        'company':get_company(id_company, request.user),  # ya hace validación y 404
         'total_compra':len(request.session['compra']),
         'precio':get_precio_envios(id_company),
         'avisos':Aviso.objects.filter(company_id = int(id_company))[:1],
@@ -654,3 +699,18 @@ def delete_cupom(request, id_cupom):
         cupom.delete()
         return JsonResponse({'success':"Se Borro el registro. "})
     return render(request, 'notificaciones/delete_cupom.html', {'cupom':cupom})
+
+def redirigir_tienda(request, slug):
+    # Busca el Dominio que coincida con el slug
+    dominio_company = get_object_or_404(Dominio, slug=slug)
+    # Si quieres mostrar la tienda dentro de tu sistema
+    return redirect(f"/{dominio_company.id}/catalogo")
+
+def estadoCompany(request, id_company):
+    company = get_object_or_404(Company, id=id_company)
+    try:
+        slug = company.dominio.slug
+        initial_url = request.build_absolute_uri(f'/{slug}/')
+    except Dominio.DoesNotExist:
+        initial_url = request.build_absolute_uri(f'/{company.id}/catalogo')
+    return render(request, 'notificaciones/estadoCompany.html',{'company':company, 'initial_url':initial_url})

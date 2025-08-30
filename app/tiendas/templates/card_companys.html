@@ -108,9 +108,13 @@
                 </button>
                 
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                  <a class="dropdown-item" href="#actualizar" onclick="updateCompany('/{{n.id}}/updateCompany/')" 
+                  <a class="dropdown-item" href="#actualizar" onclick="selectOptionCompany('/{{n.id}}/updateCompany/')" 
                   data-bs-toggle="modal" data-bs-target="#exampleModal">Actualizar</a>
-                  <a class="dropdown-item text-danger" href="#eliminar" onclick="deleteCompany('/{{n.id}}/deleteCompany/')" 
+                  <a class="dropdown-item" href="#dominio" onclick="selectOptionCompany('/{{n.id}}/createDonimio/')" 
+                  data-bs-toggle="modal" data-bs-target="#exampleModal">Dominio</a>
+                  <a class="dropdown-item" href="#status" onclick="selectOptionCompany('/{{n.id}}/estado_company/')" 
+                  data-bs-toggle="modal" data-bs-target="#exampleModal">Estado</a>
+                  <a class="dropdown-item text-danger" href="#eliminar" onclick="selectOptionCompany('/{{n.id}}/deleteCompany')" 
                   data-bs-toggle="modal" data-bs-target="#exampleModal">Eliminar</a>
                 </div><br>
                 {% endif %}
@@ -158,16 +162,7 @@
   function detailSite(urls){
     window.location.href = urls;
   }
-  function updateCompany(urls){
-    $.ajax({
-            type:'get',
-            url:urls,
-            success:function(resp){
-              $(".modal-content").html(resp);
-            }
-    });
-  }
-  function deleteCompany(urls){
+  function selectOptionCompany(urls){
     $.ajax({
             type:'get',
             url:urls,

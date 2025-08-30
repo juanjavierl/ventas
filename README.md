@@ -1,91 +1,51 @@
-# PROYECTO POS VENTAS
-Proyecto de ventas ecomerce
-## Pasos para la instalación del software
 
-# Instaladores
+---
 
-| Nombre                   | Instalador                                                                                                                                                                                                                     |
-|:-------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| 
-| `Compilador`             | [Python3](https://www.python.org/downloads/release/python-396/ "Python3")                                                                                                                                                      |
-| `IDE de programación`    | [Visual Studio Code](https://code.visualstudio.com/ "Visual Studio Code"), [Sublime Text](https://www.sublimetext.com/ "Sublime Text"), [Pycharm](https://www.jetbrains.com/es-es/pycharm/download/#section=windows "Pycharm") |
-| `Motor de base de datos` | [Sqlite Studio](https://github.com/pawelsalawa/sqlitestudio/releases "Sqlite Studio"), [PostgreSQL](https://www.enterprisedb.com/downloads/postgres-postgresql-downloads "PostgreSQL"), [MySQL](https://www.apachefriends.org/es/index.html "MySQL") |
+# 🛒 Proyecto E-commerce
 
-# Pasos de instalación
+## 📌 Descripción
 
-##### 1) Clonar el repositorio del proyecto en un directorio de tu computador o servidor
+Plataforma de **e-commerce en Django** para digitalizar ventas de negocios locales.
+Incluye catálogo de productos, carrito de compras y panel de administración. por cada propietario
 
-##### 2) Crear un entorno virtual para la instalación de las librerías del proyecto
+---
 
-Para windows:
+## 🚀 Características
 
-```bash
-python3 -m venv venv 
-```
+* Catálogo digital con buscador AJAX.
+* Crea un sub dominio hacia tu tienda online.
+* Carrito de compras intuitivo.
+* SEO optimizado (**django-meta**).
+* Pagos Por QR.
+* Diseño responsive con **Bootstrap + GLightbox**.
 
-Para linux:
+---
 
-```bash
-virtualenv venv -ppython3 
-```
+## 🛠️ Tecnologías
 
-##### 3) Instalar el complemento de [weasyprint](https://weasyprint.org/ "weasyprint") para imprensión de archivos pdf
+* **Backend:** Django (Python)
+* **Frontend:** Bootstrap, AJAX, GLightbox
+* **Base de datos:** PostgreSQL / MySQL
+* **Servidor:** Gunicorn + Nginx
 
-Si estas usando Windows debe descargar el complemento de [GTK3 installer](https://github.com/tschoonj/GTK-for-Windows-Runtime-Environment-Installer/releases "GTK3 installer"). En algunas ocaciones se debe colocar en las variables de entorno como primera para que funcione y se debe reiniciar el computador.
+---
 
-Si estas usando Linux debes instalar las [librerias](https://doc.courtbouillon.org/weasyprint/stable/first_steps.html#linux "librerias") correspondientes a la distribución que tenga instalado en su computador.
+## 💡 Beneficios
 
-##### 4) Activar el entorno virtual de nuestro proyecto
+* **Vendedores:** más ventas, fácil administración.
+* **Clientes:** compras rápidas, seguras y accesibles 24/7.
 
-Para windows:
+---
 
-```bash
-cd venv\Scripts\activate.bat 
-```
+## 📈 Roadmap
 
-Para Linux:
+* [x] Catálogo y carrito de compras
 
-```bash
-source venv/bin/active
-```
+---
 
-##### 5) Instalar todas las librerias del proyecto que se encuentran en la carpeta deploy
+## 📩 Contacto
 
-```bash
-pip install -r deploy/requirements.txt
-```
+📧 [amceb.online@gmail.com](mailto:amceb.online@gmail.com)
+🌐 Demo: [www.amceb.online](https://amceb.online)
 
-##### 6) Crear la tablas de la base de datos a partir de las migraciones de django
-
-```bash
-python manage.py makemigrations
-python manage.py migrate
-```
-
-
-```
-
-##### 9) Iniciar el servidor del proyecto
-
-```bash
-python manage.py runserver 
-```
-
-Si deseas verlo en toda tu red puedes ejecutarlo asi:
-
-```bash
-python manage.py runserver 0:8000 o python manage.py runserver 0.0.0.0:8000
-```
-
-##### 10) Iniciar sesión en el sistema (Puede cambiar la clave y usuario que se crea en el archivo core/init.py del paso 7)
-
-```bash
-username: admin
-password: admin
-```
-
-------------
-
-INSTALACION DE CRISPY FORM PARA LOS STYLOS DE FORMULARIOS:
-> pip install django-crispy-forms
-
-> pip install crispy-bootstrap5
+---

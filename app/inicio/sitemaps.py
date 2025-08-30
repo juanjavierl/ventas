@@ -15,14 +15,26 @@ class IndexSitemap(Sitemap):
 
 class CompanySitemap(Sitemap):
     changefreq = "weekly"
-    priority = 0.9
 
     def items(self):
         return Company.objects.filter(status=True)
 
     def location(self, obj):
-        return f'/{obj.id}/catalogo'
-
+        try:
+            return f"/{obj.dominio.slug}"
+        except Exception:
+            # fallback si no tiene dominio
+            return f"/{obj.id}/catalogo"
+        
+    def lastmod(self, obj):
+        # Usa el campo date_joined o si tienes un date_update mejor aún
+        return obj.date_joined
+    
+    def priority(self, obj):
+        # Más prioridad si tiene productos
+        if obj.product_set.exists():
+            return 1.0
+        return 0.8
 
 class ProductSitemap(Sitemap):
     changefreq = "weekly"

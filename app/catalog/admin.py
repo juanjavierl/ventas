@@ -16,6 +16,7 @@ class ClientAdmin(admin.ModelAdmin):
         'mobile',
         'address',
         'date_joined',
+        'email',
     )
     search_fields = ('names','dni',)
 

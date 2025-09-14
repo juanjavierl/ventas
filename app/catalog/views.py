@@ -1,6 +1,6 @@
 #encoding:utf-8
 #import pywhatkit
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 
 from django.shortcuts import render, HttpResponse,get_object_or_404, redirect
 from django.http import JsonResponse, request
@@ -384,7 +384,9 @@ def confirmar_compra(request, id_company):
         'aviso':optener_avisos_by_company(id_company),
         'address':get_address(id_company),
         'regla':get_rule_condicion(id_company),
-        'code':get_code_meta(id_company)
+        'code':get_code_meta(id_company),
+        'ahora':(datetime.now() + timedelta(minutes=30)).strftime("%Y-%m-%dT%H:%M"),  # fecha y hora actual en tu zona
+        'limite': (datetime.now() + timedelta(days=15)).strftime("%Y-%m-%dT%H:%M")  # fecha dentro de 30 días
     }
     return render(request,'catalog/confirmar_compra.html',dic)
 

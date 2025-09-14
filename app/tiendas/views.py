@@ -267,12 +267,13 @@ def contar_productos(id_user):
         count_productos[c.name] = Product.objects.filter(company_id = int(c.id)).count()
     return count_productos
 
-def companys_from_user(request, user_id):
-    companys = Company.objects.filter(user_id = int(user_id))
+@login_required(login_url='/')
+def companys_from_user(request, user_id=None):
+    companys = Company.objects.filter(user_id = int(request.user.id))
     dic = {
         'companys':companys,
         'dashboard':get_Dashboard(),
-        'count_productos':contar_productos(int(user_id))
+        'count_productos':contar_productos(int(request.user.id))
     }
     return render(request, 'card_companys.html', dic)
 

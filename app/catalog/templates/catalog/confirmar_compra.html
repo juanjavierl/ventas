@@ -85,9 +85,8 @@
           <option value="ciudad">Envio a otra Ciudad</option>
           {% endif %}
         </select>
-        <small class="text-muted menj_valor_envio"></small><br>
-        <br><br>
-        <select class="form-select" id="destino" name="destino" aria-label="Small select example" style="margin-top: -30px;">
+        <small class="text-muted menj_valor_envio"></small>
+        <select class="form-select" id="destino" name="destino" aria-label="Small select example" style="margin-top: 15px;">
           <option value="">Seleccione su Ciudad</option>
           <option value="Cochabamaba">Cochabamba</option>
           <option value="La Paz">La Paz</option>
@@ -102,10 +101,13 @@
         </select>
         <div id="div_id_fecha">
           <label for="">Fecha y Hora a Recoger</label>
-          <input type="datetime-local" id="date_time" name="date_time" value="{% now 'd-m-Y H:i:s' %}"
-            min="{% now 'd-m-Y H:i:s' %}" max="" class="textinput form-control">
+          <input type="datetime-local" id="date_time" name="date_time"
+            value="{{ ahora }}"
+            min="{{ ahora }}"
+            max="{{ limite }}"
+            class="textinput form-control">
           <span id="passwordHelpBlock" class="form-text">
-            Ingrese 1 hora más tarde a su hora actual.
+            fecha y hora que visitará la tienda, máximo en 15 días.
           </span>
         </div>
 
@@ -118,7 +120,7 @@
           <img class="img-fluid rounded img_qr_company" src="" alt="" style="width: 300px; height: 350px;">
         </div>
 
-        <div class="modal-footer">
+        <div class="modal-footer" id="btn_compra">
           <button type="submit" class="btn btn-success btn-sm btn-block" style="margin-bottom: 20px; margin-right: 10px;"><i
             class="bi bi-save"></i> Registrar Pedido & Confirmar por Whatsapp</button>
 
@@ -135,10 +137,12 @@
             <tr>
               <td colspan="5">
                 <div class="alert alert-success" role="alert" style="padding: 0px 10px; text-align: justify;">
-                   <small><i class="bi bi-star-fill" style="color: gold;"></i>¡Ya casi lo tienes! No dejes pasar esta oferta por tiempo limitado: todos los productos tienen descuento, ¡aprovechalos antes de que se acaben!</small><br>
+                   
                   {% if regla %}
                    <small><i class="bi bi-star-fill" style="color: gold;"></i> {{regla.regla}}</small>
-                  {% endif %}
+                  {% else %}
+                  <small><i class="bi bi-star-fill" style="color: gold;"></i>¡Ya casi lo tienes! No dejes pasar esta oferta por tiempo limitado: todos los productos tienen descuento, ¡aprovechalos antes de que se acaben!</small>
+                   {% endif %}
                 </div>
               </td>
             </tr>
@@ -154,7 +158,7 @@
           {% for i in datos %}
           <tr id="eliminarProducto{{forloop.counter0}}">
             <td>{{forloop.counter}}</td>
-            <td>{{i.name}}</td>
+            <td>{{i.name}} {{i.nota}}</td>
             <td>{{i.precio_uni}}</td>
             <td>{{i.cantidad}}</td>
             <td>{{i.total}}</td>
@@ -181,9 +185,9 @@
 <script>
   $(function () {
     $("#div_id_fecha").css("margin-bottom", "20px");
-    $("#div_id_fecha").css("margin-top", "-25px");
+    $("#div_id_fecha").css("margin-top", "20px");
 
-    $(".menj_valor_envio").text('Una vez confirmado puede pasar a recoger.');
+    $(".menj_valor_envio").html('Una vez confirmado puede pasar a recoger.');
     $('.img_pagoQr').hide();
     $("#date_time").value = "{% now 'd-m-Y H:i:s' %}";
     $('#date_time').attr('required', 'true');
@@ -209,10 +213,18 @@
             }
           
           }else{
-            if(resp.datos.precio_envio == "0"){
+            if(resp.datos.precio_envio == "0" && $("#tipo_envio").val() == "tienda"){
               $(".menj_valor_envio").text('Una vez confirmado puede pasar a recoger.').show();
+
             }else{
               $(".menj_valor_envio").text('Envio Gratis').show();
+              if(resp.datos.qr == false){
+                $('.img_pagoQr').fadeIn(500).hide();
+              }else{
+                $('.img_pagoQr img').attr('src',resp.datos.qr.qr_img);
+                $('#costos').text("Importe: "+ resp.datos.importe + " Precio de envio: "+ resp.datos.precio_envio + " Total a pagar : Bs." + resp.datos.total_pagar);
+                $('.img_pagoQr').fadeIn(500).show();
+              }
             }
           }
         }
@@ -234,6 +246,7 @@
         $('#date_time, #destino').removeAttr('required');
 
         $("#destino").css("margin-bottom", "20px");
+        $("#btn_compra").css("margin-top", "20px");
       }
       if ($(this).val() == "ciudad") {
         $("#div_id_address, #div_id_fecha").hide(500);
@@ -286,7 +299,7 @@
               if(resp.lista[productos]['nota'].trim() !== ""){
                 nota = resp.lista[productos]['nota'];
               }
-              pedido = pedido + resp.lista[productos]['name']+ " " + resp.lista[productos]['cantidad'] +" = "+ resp.lista[productos]['total'] + "Bs." + " " + nota + "%0A";
+              pedido = pedido + resp.lista[productos]['name']+ " " +nota+" " + resp.lista[productos]['cantidad'] +" = "+ resp.lista[productos]['total'] + "Bs." + "%0A";
               
             }
             let lugar = "";

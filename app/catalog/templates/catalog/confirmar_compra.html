@@ -1,12 +1,12 @@
 {% extends 'index.html' %}
 
 {% block titulo %}
-{{company.name|title|truncatechars:17|cut:" "}}
+{{company.name|title|truncatechars:25}}
 {% endblock titulo %}
 
 {% block company %}
 <a href="/{{company.id}}/catalogo">
-  <marquee behavior="" direction="">{{company.name|title|cut:" "}}</marquee>
+  <marquee behavior="" direction="">{{company.name|title}}</marquee>
 </a>
 {% endblock company %}
 

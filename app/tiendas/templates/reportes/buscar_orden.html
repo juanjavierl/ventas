@@ -20,6 +20,7 @@
     <thead class="table-dark">
         <tr>
             <th>#</th>
+            <td>Imagen</td>
             <th>Detalle</th>
             <th>Cantidad</th>
             <th>Precio Uni.</th>
@@ -31,6 +32,7 @@
         {% for p in pedidos %}
         <tr>
             <td>{{forloop.counter}}</td>
+            <td><img src="/media/{{p.product.image}}" alt="{{p.product.name}}" style="width: 60px; height: 60px;"></td>
             <td>{{p.product.name}} {{p.nota|default:""|title}}</td>
             <td>{{p.cant}}</td>
             <td>{{p.price}}</td>
@@ -40,15 +42,15 @@
             
         
         <tr>
-            <td colspan="4" class="text-end fw-bold">Subtotal</td>
+            <td colspan="5" class="text-end fw-bold">Subtotal</td>
             <td>{{orden.subtotal}}</td>
         </tr>
         <tr>
-            <td colspan="4" class="text-end fw-bold">Precio de Envio</td>
+            <td colspan="5" class="text-end fw-bold">Precio de Envio</td>
             <td>{{precio_envio}}</td>
         </tr>
         <tr>
-            <td colspan="4" class="text-end fw-bold">Total</td>
+            <td colspan="5" class="text-end fw-bold">Total</td>
             <td>{{orden.total}}</td>
         </tr>
         <tr>

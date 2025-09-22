@@ -13,8 +13,8 @@ def procesar_imagen(model_instance, campo_imagen):
     formato_original = img.format or 'JPEG'
 
     # Límites deseados
-    min_width, min_height = 300, 200
-    max_width, max_height = 900, 500
+    min_width, min_height = 600, 400
+    max_width, max_height = 901, 500
     max_file_size_kb = 150
 
     # Tamaño original del archivo en KB (en memoria)
@@ -65,9 +65,9 @@ def procesar_imagen_portada(model_instance, campo_imagen):
     formato_original = img.format or 'JPEG'
 
     # Límites deseados
-    min_width, min_height = 800, 600
-    max_width, max_height = 1200, 800
-    max_file_size_kb = 300
+    min_width, min_height = 1200, 900
+    max_width, max_height = 1600, 1200
+    max_file_size_kb = 200
 
     # Tamaño original del archivo en KB (en memoria)
     imagen.file.seek(0, os.SEEK_END)

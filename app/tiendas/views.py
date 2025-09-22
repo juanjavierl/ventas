@@ -1,7 +1,6 @@
 
 from django.shortcuts import render, get_object_or_404,HttpResponse,redirect
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth.forms import User
+from django.contrib.auth.forms import User, UserCreationForm, AuthenticationForm
 from django.contrib.auth import authenticate,login, logout
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, request,HttpResponse
@@ -19,9 +18,11 @@ import threading
 import ast
 from app.tiendas.models import *
 from app.tiendas.forms import *
+from app.catalog.forms import formProducto
 from app.catalog.models import Product, Orden, Pedido, Like
 from app.inicio.views import get_Dashboard
 from app.catalog.views import *
+from django.db.models import F, ExpressionWrapper, IntegerField
 # Create your views here.
 def getTypes(request, id_type):
     if request.user.is_authenticated:
@@ -446,31 +447,72 @@ def reportByRange(request, id_company):
         return render(request, 'reportes/reportByRangeOrden.html', {'ordenes':ordenes})
 
 def inventarioProductos(request, id_company):
-    if request.method == 'POST':
-        if request.POST['criterio'] == "todos":
-            productos = Product.objects.filter(company_id = int(id_company)).select_related('category')
-        elif request.POST['criterio'] == "con_stock":
-            productos = Product.objects.filter(company_id = int(id_company), stock__gt = 0).select_related('category')
-        else:
-            productos = Product.objects.filter(company_id = int(id_company), stock__lte = 0).select_related('category')
-    return render(request, 'reportes/inventarioProductos.html', {'criterio':request.POST['criterio'],'id_company':id_company,'productos':productos.order_by('category__name', '-id')})
+    criterio = request.POST.get('criterio', 'todos')
+
+    productos = Product.objects.filter(company_id=id_company).select_related('category').annotate(
+        stock_actual=ExpressionWrapper(F('stock') - F('salida'), output_field=IntegerField())
+    )
+
+    if criterio == "con_stock":
+        productos = productos.filter(stock_actual__gt=0)
+    elif criterio == "agotados":  # aquí corregí el nombre
+        productos = productos.filter(stock_actual__lte=0)
+
+    return render(
+        request,
+        'reportes/inventarioProductos.html',
+        {
+            'criterio': criterio,
+            'id_company': id_company,
+            'productos': productos.order_by('category__name', '-id'),
+        },
+    )
+
+def reporte_form(request, id_company, criterio):
+    form = formProducto()
+    
+    return render(request, "reportes/reporte_form.html", {
+        "company_id":id_company,
+        "form": form,
+        "criterio":criterio
+    })
 
 def reporte_inventario(request, id_company, criterio):
     if request.method == 'GET':
-        if criterio == "todos":
-            print('todos')
-            productos = Product.objects.filter(company_id = int(id_company)).select_related('category')
-        elif criterio == "con_stock":
-            productos = Product.objects.filter(company_id = int(id_company), stock__gt = 0).select_related('category')
-        else:
-            productos = Product.objects.filter(company_id = int(id_company), stock__lte = 0).select_related('category')
-    dic = {'productos':productos.order_by('category__name', '-id')}
-    html = render_to_string("reportes/reporte_inventario_pdf.html", dic)
-    response = HttpResponse(content_type="application/pdf")
-    response["Content-Disposition"] = "inline; reporte_orden.pdf"
-    font_config = FontConfiguration()
-    HTML(string=html).write_pdf(response)
-    return response
+        seleccionados = [key for key, value in request.GET.items() if value == "on"]
+
+        # Atributos que siempre deben estar incluidos
+        por_defecto = ["image", "name", "stock_actual"]
+
+        # Aseguramos que estén incluidos en la lista final
+        for attr in por_defecto:
+            if attr not in seleccionados:
+                seleccionados.append(attr)
+
+        # Reordenar para que los atributos por defecto estén al principio
+        seleccionados.sort(key=lambda x: (x not in por_defecto, x))
+
+        # Base queryset con stock_actual calculado
+        productos = Product.objects.filter(company_id=id_company).select_related('category').annotate(
+            stock_actual=ExpressionWrapper(F('stock') - F('salida'), output_field=IntegerField())
+        )
+
+        if criterio == "con_stock":
+            productos = productos.filter(stock_actual__gt=0)
+        elif criterio == "agotados":   # corregido: coincide con el select del formulario
+            productos = productos.filter(stock_actual__lte=0)
+
+        # Renderizar reporte
+        dic = {
+            'productos': productos.order_by('category__name', '-id'),
+            'seleccionados': seleccionados
+        }
+        html = render_to_string("reportes/reporte_inventario_pdf.html", dic)
+        response = HttpResponse(content_type="application/pdf")
+        response["Content-Disposition"] = "inline; filename=reporte_inventario.pdf"
+        font_config = FontConfiguration()
+        HTML(string=html).write_pdf(response, font_config=font_config)
+        return response
 
 def add_avisos(request, id_company):
     company = get_object_or_404(Company, id = int(id_company))

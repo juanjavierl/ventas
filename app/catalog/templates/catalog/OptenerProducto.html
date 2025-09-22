@@ -114,21 +114,6 @@
     input[type=number] {
       -moz-appearance: textfield;
     }
-
-    @media (min-width: 1024px) {
-
-      /*cuando la pantalla es > a 750*/
-      .detail .ims_detail img {
-        max-width: 561px;
-        max-height: 450px;
-        width: 561px;
-        height: 450px;
-      }
-
-      .detail .ims_detail {
-        text-align: center;
-      }
-    }
   </style>
   <div class="container" id="team_productos">
 
@@ -139,18 +124,18 @@
           <div class="swiper-wrapper align-items-center detail">
 
             {% if images_product %}
-              <div class="swiper-slide ims_detail">
-                <img src="/media/{{p.image}}" class="img-fluid rounded object-fit-cover" alt="">
+              <div class="swiper-slide">
+                <img src="/media/{{p.image}}" class="img-fluid rounded object-fit-cover mx-auto d-block" alt="">
               </div>
             {% for img_pro in images_product %}
-              <div class="swiper-slide ims_detail">
-                <img src="/media/{{img_pro.img}}" class="img-fluid rounded object-fit-cover" alt="">
+              <div class="swiper-slide">
+                <img src="/media/{{img_pro.img}}" class="img-fluid rounded object-fit-cover mx-auto d-block" alt="">
               </div>
             {% endfor %}
             {% else %}
               {% if p.image %}
                 <div class="swiper-slide" style="text-align: center;">
-                  <img src="/media/{{p.image}}" alt="" class="img-fluid rounded object-fit-cover">
+                  <img src="/media/{{p.image}}" alt="" class="img-fluid rounded object-fit-cover mx-auto d-block">
                 </div>
               {% else %}
                 <i class="bi bi-image icon" style="margin-top: 20px;" alt="..."></i>
@@ -223,12 +208,12 @@
                 <div class="form-check" style="margin-bottom: 10px;">
                   <input class="form-check-input" type="checkbox" name="is_nota" id="defaultCheck1">
                   <label class="form-check-label" for="defaultCheck1">
-                    Ingrese color ó talla (si corresponde)
+                    Ingrese una Nota (si corresponde)
                   </label>
                 </div>
                 <div class="mb-3 caracteristica_producto">
                   <textarea name="nota" class="form-control" id="exampleFormControlTextarea1" rows="3"
-                    placeholder="Ejem: Color Negro Talla 36"></textarea>
+                    placeholder="Ejem: Color Negro Talla 36 etc."></textarea>
                 </div>
                 <div class="row btn_add align-items-center" style="height: 30px;">
                   <button type="col submit" class="btn btn-success btn-sm tb_text efecto_button">
@@ -283,7 +268,7 @@
         <div class="portfolio-description">
           <h2>Información</h2>
           <p class="text-break">
-            {{p.description|urlize_mode:"ver_mas"|default:" - - -"|capfirst}}
+            {{p.description|urlize_mode:"ver_mas,br"|default:" - - -"|capfirst}}
           </p>
         </div>
       </div>

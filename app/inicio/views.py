@@ -13,11 +13,17 @@ from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import PasswordResetView
 from django.urls import reverse_lazy
-
+from django.views import View
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from django.db.models import Q
+from django.core.cache import cache
 from app.inicio.models import *
 from app.tiendas.models import *
+from app.catalog.models import *
 from .forms import *
 
+from openai import OpenAI
 # Create your views here.
 
 def robots_txt(request):
@@ -35,22 +41,34 @@ def robots_txt(request):
     return HttpResponse("\n".join(lines), content_type="text/plain")
 
 def inicio(request):
-    ciudades = Ciudad.objects.all().order_by('-id')
-    type_company = Tipo_company.objects.all().order_by('-id')
-    #contar todas las conpanyas q pertenecen a cada categoria
-    #conpanias = Company.objects.all().order_by('-id')
-    count_comp = {}
-    for t_companys in type_company:
-        count_comp[t_companys.name] = Company.objects.filter(category_id = int(t_companys.id)).count()
-    
-    dic = {
-        'dashboard':get_Dashboard(),
-        'type_company':type_company,
-        'count_comp':count_comp,
-        'ciudades':ciudades
-    }
-    return render(request,'index.html',dic)
+    data = cache.get('pagina_inicio')
+    if not data:
+        ciudades = Ciudad.objects.all().order_by('-id')
+        # Contar companias por categoria (en una sola consulta)
+        categorias = (
+            Tipo_company.objects
+            .annotate(total_companies=Count('company'))
+            .order_by('-id')
+        )
+        # Construir el diccionario count_comp a partir del annotate
+        count_comp = {cat.name: cat.total_companies for cat in categorias}
 
+        tiendas_online = (
+            Company.objects
+            .filter(status=True)
+            .select_related('category', 'cuidad')  # evita consultas extra
+            .order_by('?')[:12]
+        )
+        data = {
+            'dashboard':get_Dashboard(),
+            'type_company':categorias,
+            'count_comp':count_comp,
+            'ciudades':ciudades,
+            'tiendas':tiendas_online
+        }
+        # Guardar todo en cache durante 12 horas
+        cache.set('pagina_inicio', data,  60 * 60 * 12) 
+    return render(request, 'index.html', data)
 
 def get_Dashboard():
     try:
@@ -156,3 +174,51 @@ def redirigir_a_companys(backend, user, response, *args, **kwargs):
     if user and user.is_authenticated:
         return redirect(f"/{user.id}/companys/")
 
+#client = OpenAI(api_key=settings.OPENAI_API_KEY)
+@method_decorator(csrf_exempt, name='dispatch')
+class ChatBotView(View):
+    def post(self, request):
+        user_message = request.POST.get("text_boot", "").strip()
+
+        # Buscar productos por nombre, descripción o categoría
+        productos = Product.objects.filter(
+            Q(name__icontains=user_message) |
+            Q(description__icontains=user_message) |
+            Q(category__name__icontains=user_message)
+        )
+        # Preparar resultados
+        productos_data = [
+            {
+                "name": p.name.title(),
+                "price": str(p.price),
+                "image_url": p.image.url if p.image else "",
+                "url": f"/{p.id}/{p.company.id}/detail_product",
+                "description": (p.description[:100] + "...") if p.description and len(p.description) > 80 else p.description or "",
+                "ciudad": p.company.cuidad.ciudad if p.company and p.company.cuidad else "---",
+            }
+            for p in productos
+        ]
+
+        # Intentar consultar OpenAI solo si hay productos
+        """ bot_reply = ""
+        if productos_data:
+            productos_texto = "\n".join([f"- {p['name']} (${p['price']})" for p in productos_data])
+            try:
+                respuesta = client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[
+                        {"role": "system", "content": "Eres un asistente de ventas de una tienda online. Responde de forma amigable y breve."},
+                        {"role": "user", "content": f"El cliente dijo: {user_message}. Estos son los productos que encontré:\n{productos_texto}"},
+                    ],
+                )
+                bot_reply = respuesta.choices[0].message.content
+            except Exception:
+                # Si OpenAI falla, usamos respuesta por defecto
+                bot_reply = "Aquí están los productos que encontré:"
+        else:
+            bot_reply = "No encontré productos que coincidan con tu búsqueda."
+ """
+        return JsonResponse({
+            #"reply": bot_reply,
+            "productos": productos_data
+        })

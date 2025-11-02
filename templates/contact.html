@@ -1,4 +1,4 @@
-
+{% load extras %}
       <div class="section-title" data-aos="fade-up">
         <h2>Contáctanos</h2>
       </div>
@@ -56,7 +56,7 @@
             <div class="address">
               <i class="bi bi-geo-alt"></i>
               <h4>Dirección:</h4>
-              <p>{{address.address}}
+              <p>{{address.address|urlize_mode:"ver_mas,br"}}
               </p>
               <p>
                 <a href="https://www.google.com/maps?q={{address.latitud}},{{address.longitud}}" target="_blank"> Ver en Google Maps </a>

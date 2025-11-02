@@ -271,86 +271,140 @@
   function capitalizarTexto(texto) {
     return texto.toLowerCase().replace(/\b\w/g, letra => letra.toUpperCase());
   }
+  
   $('#form_pedido').submit(function (e) {
-    e.preventDefault();
-    if (validateEmail($("#id_email").val())){
-      $.ajax({
-        type: 'POST',
-        url: $(this).attr("action"),
-        data: $(this).serialize(),
-        success: function (resp) {
-          if (resp.error) {
-            $('.toast-body').removeClass('alert-success').addClass('alert-danger');
-            $('.toast-body').fadeIn(1000).html('<strong>'+resp.error+'</strong>');
-            mostrar_notificacion();
-          }
-          else {
-            $('.toast-body').removeClass('alert-danger').addClass('alert-success');
-            $('.toast-body').fadeIn(1000).html('<strong>'+resp.success+'</strong>');
-            mostrar_notificacion();
-            $('#form_pedido')[0].reset();
-            $("#cont_compras").html(resp.products);
+  e.preventDefault();
 
-            var datos = "*** *Confirmo mi Pedido Nro. " + resp.orden.id + "* *** %0A";
-            datos = datos + "*Cliente:* " + capitalizarTexto(resp.cliente_object.names) + "%0A %0A";
-            var pedido = "";
-            for (let productos = 0; productos < resp.lista.length; productos++) {
-              var nota = "";
-              if(resp.lista[productos]['nota'].trim() !== ""){
-                nota = resp.lista[productos]['nota'];
-              }
-              pedido = pedido + resp.lista[productos]['name']+ " " +nota+" " + resp.lista[productos]['cantidad'] +" = "+ resp.lista[productos]['total'] + "Bs." + "%0A";
-              
-            }
-            let lugar = "";
-            let Envio = "";
-            let sub_total = "- *Sub total: Bs. " + parseFloat(resp.t_pago) + "* %0A";
-            let total = "- *Total a pagar Bs: " + resp.t_pago+ "* %0A";
-            if (resp.lugar.date == "date") {
-              lugar = "*Fecha y hora a recoger:* %0A" + resp.lugar.fecha + "%0A %0A";
-            }
-            if (resp.lugar.dir == "dir") {
-              lugar = "Dirección de envio: " + resp.lugar.direccion + "%0A";
-              let to_p = parseFloat(resp.t_pago) + parseFloat(resp.precio_envio);
-              Envio = "- *Costo de envio: Bs." + resp.precio_envio + "* %0A";
-              total = "- *total a pagar: Bs. " + to_p + "* %0A%0A";
-            }
-            if (resp.lugar.cuidad == "cuidad") {
-              lugar = "Ciudad de envio: " + resp.lugar.destino + "%0A";
-              let to_p = parseFloat(resp.t_pago) + parseFloat(resp.precio_envio_ciudad);
-              Envio = "- *Costo de envio: Bs." + resp.precio_envio_ciudad + "* %0A";
-              total = "- *total a pagar: Bs. " + to_p + "* %0A%0A";
-            }
-            dir = "Dirección: " + resp.dir + "%0A";
-            cuidad = "Ciudad:" + resp.cuidad + "%0A";            
-
-            //href="https://api.whatsapp.com/send?text=Mas informacion sobre este producto: {{p.description|default:' '}}, gracias. &phone={{company.mobile}}/?u={{request.build_absolute_uri}}"
-            var ruta = "https://api.whatsapp.com/send?phone=+591" + resp.company_object.mobile + "&text=" + datos + pedido  + sub_total + Envio + total + lugar;
-            window.open(ruta, "_blank");
-            $.ajax({
-              type: 'GET',
-              url: "/"+resp.company_object.id+"/"+ resp.orden.id + "/" + resp.cliente_object.id +"/like",
-              success: function (response) {
-                $("#team_productos").html(response);
-              }
-            });
-          }
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-          $('.toast-body').removeClass('alert-success').addClass('alert-danger');
-          $('.toast-body').fadeIn(1000).html("Por favor complete sus datos");
+  if (validateEmail($("#id_email").val())) {
+    $.ajax({
+      type: 'POST',
+      url: $(this).attr("action"),
+      data: $(this).serialize(),
+      success: function (resp) {
+        if (resp.error) {
+          $('.toast-body')
+            .removeClass('alert-success')
+            .addClass('alert-danger')
+            .fadeIn(1000)
+            .html('<strong>' + resp.error + '</strong>');
           mostrar_notificacion();
+          return;
         }
-      });
-    }
-    else{
-      $('.toast-body').removeClass('alert-success').addClass('alert-danger');
-      $('.toast-body').fadeIn(1000).html('<strong>Email Inválido </strong>');
-      mostrar_notificacion();
-      $('#id_email').focus();
-    }
-    
-  });
+
+        // ✅ Mensaje de éxito
+        $('.toast-body')
+          .removeClass('alert-danger')
+          .addClass('alert-success')
+          .fadeIn(1000)
+          .html('<strong>' + resp.success + '</strong>');
+        mostrar_notificacion();
+
+        // Reset form y actualizar carrito
+        $('#form_pedido')[0].reset();
+        $("#cont_compras").html(resp.products);
+
+        // 🛍️ Encabezado del pedido
+        let datos = "🛍️ *CONFIRMACIÓN DE PEDIDO* %0A";
+        datos += "------------------------------------ %0A";
+        datos += "*Nro de Pedido:* " + (resp.orden?.id || "—") + "%0A";
+        datos += "*Cliente:* " + capitalizarTexto(resp.cliente_object?.names || "—") + "%0A";
+        datos += "------------------------------------ %0A";
+
+        // 📦 Detalles del pedido
+        let pedido = "📦 *Detalles del pedido:* %0A";
+        if (resp.lista && resp.lista.length > 0) {
+          for (let item of resp.lista) {
+            const nombre = item['name'] || "Producto sin nombre";
+            const cantidad = item['cantidad'] || 0;
+            const precio = item['price'] ?? item['precio_uni'] ?? 0;
+            const total = item['total'] ?? (cantidad * precio);
+            const nota = item['nota']?.trim() ? " (" + item['nota'] + ")" : "";
+
+            pedido += `• ${nombre}${nota} → ${cantidad} x ${precio} Bs. = *${total} Bs.*%0A`;
+          }
+        } else {
+          pedido += "_(Sin productos registrados)_ %0A";
+        }
+
+        // 💰 Totales
+        let sub_total = "%0A💰 *Sub Total:* Bs. " + parseFloat(resp.t_pago || 0).toFixed(2) + "%0A";
+        let Envio = "";
+        let total = "";
+        let lugar = "";
+
+        // 🏬 Tipo de entrega/envío
+        const tipo = resp.lugar?.tipo || "";
+
+        if (tipo === "tienda") {
+          lugar = "🏬 *Retiro en tienda:* %0A📅 " + (resp.lugar.fecha || "Sin fecha") + "%0A";
+          total = "💵 *Total a pagar:* Bs. " + parseFloat(resp.t_pago || 0).toFixed(2) + "%0A";
+        } 
+        else if (tipo === "domicilio") {
+          let envio = parseFloat(resp.precio_envio || 0);
+          let total_envio = parseFloat(resp.t_pago || 0) + envio;
+          lugar = "🚚 *Envío a domicilio:* %0A📍 " + (resp.lugar.direccion || "Sin dirección") + "%0A";
+          Envio = "📦 *Costo de envío:* Bs. " + envio.toFixed(2) + "%0A";
+          total = "💵 *Total a pagar:* Bs. " + total_envio.toFixed(2) + "%0A";
+        } 
+        else if (tipo === "ciudad") {
+          let envio_c = parseFloat(resp.precio_envio_ciudad || 0);
+          let total_envio_c = parseFloat(resp.t_pago || 0) + envio_c;
+          lugar = "🛫 *Envío a otra ciudad:* %0A🏙️ Destino: " + (resp.lugar.destino || "Sin destino") + "%0A";
+          Envio = "📦 *Costo de envío:* Bs. " + envio_c.toFixed(2) + "%0A";
+          total = "💵 *Total a pagar:* Bs. " + total_envio_c.toFixed(2) + "%0A";
+        } 
+        else {
+          lugar = "📍 *Entrega no especificada* %0A";
+          total = "💵 *Total a pagar:* Bs. " + parseFloat(resp.t_pago || 0).toFixed(2) + "%0A";
+        }
+
+        // 🧾 Mensaje completo
+        let mensaje = datos + pedido + sub_total + Envio + total + "%0A" + lugar;
+        mensaje += "------------------------------------ %0A";
+        mensaje += "🕒 *Fecha de Pedido:* " + (new Date().toLocaleString('es-BO')) + "%0A";
+        mensaje += "📞 *Tienda:* " + (resp.company_object?.name || "Sin nombre") + "%0A";
+        mensaje += "------------------------------------ %0A";
+        mensaje += "✅ ¡Gracias por tu compra! %0A";
+
+        // 🟢 Abrir WhatsApp
+        let telefono = resp.company_object?.mobile || "";
+        if (telefono.trim() !== "") {
+          let ruta = "https://api.whatsapp.com/send?phone=+591" + telefono + "&text=" + mensaje;
+          window.open(ruta, "_blank");
+        } else {
+          console.warn("⚠️ No se pudo enviar mensaje por WhatsApp: la tienda no tiene número móvil configurado.");
+        }
+
+        // 🔁 Actualizar productos recomendados
+        $.ajax({
+          type: 'GET',
+          url: "/" + resp.company_object.id + "/" + resp.orden.id + "/" + resp.cliente_object.id + "/like",
+          success: function (response) {
+            $("#team_productos").html(response);
+          }
+        });
+      },
+
+      error: function () {
+        $('.toast-body')
+          .removeClass('alert-success')
+          .addClass('alert-danger')
+          .fadeIn(1000)
+          .html("⚠️ Por favor complete sus datos correctamente.");
+        mostrar_notificacion();
+      }
+    });
+  } 
+  else {
+    $('.toast-body')
+      .removeClass('alert-success')
+      .addClass('alert-danger')
+      .fadeIn(1000)
+      .html('<strong>Email Inválido</strong>');
+    mostrar_notificacion();
+    $('#id_email').focus();
+  }
+});
 
   function eliminarProducto(urls) {
     $.ajax({
@@ -379,13 +433,12 @@
 {% include 'button_whatsap.html' %}
 {% endblock button_whatsap %}
 
+{% block suscipcion_for_email %}
+  {% include 'form_suscripcion_email.html' %}
+{% endblock suscipcion_for_email %}
+  
 {% block productos_mas_vistos %}
-<!-- ======= Contact Section ======= -->
-<section id="product_mas_vistos" class="product_view">
-  <div class="container">
     {% include 'catalog/productos_mas_vistos.html' %}
-  </div>
-</section>
 {% endblock productos_mas_vistos %}
 
 {% block google_adsense %} {% endblock google_adsense %}

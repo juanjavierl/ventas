@@ -3,14 +3,11 @@
     
       {% if not company.id %}
       <li><a class="nav-link scrollto active" href="#" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="newTienda('/crear_tienda/{{request.user.id}}')">  Crear nueva tienda </a></li>
-        
       {% endif %}
-      
-    {% else %}
-      <li><a class="nav-link scrollto active" href="{{request.build_absolute_uri}}">  Inicio </a></li>
     {% endif %}
     
     {% if company.id %}
+      <li><a class="nav-link scrollto active" href="/{{company.id}}/catalogo">Productos</a></li>
       <li class="dropdown"><a href="#"><span>Categorias</span> <i class="bi bi-chevron-down"></i></a>
         <ul>
           {% for c in categorias %}
@@ -21,15 +18,9 @@
         </ul>
       </li>
     {% endif %}
-        
-
-
-    <li><a class="nav-link scrollto" href="#contact">Contáctanos</a></li>
-    
+      <li><a class="nav-link scrollto" href="#bot_amceb">Suscribirme</a></li>
+      <li><a class="nav-link scrollto" href="#contact">Contáctanos</a></li>
     {% if user.is_authenticated %}
-    {% if company.id %}
-    <li><a class="nav-link scrollto" href="#team_productos" onclick="newProducto('/{{company.id}}/new_producto/')">Nuevo items</a></li>
-    {% endif %}
     <li class="dropdown"><a href="#"><span>Mi Perfil</span> <i class="bi bi-chevron-down"></i></a>
       <ul>
         {% if user.first_name %}
@@ -37,16 +28,15 @@
         {% endif %}
         <li><a class="nav-link scrollto" href="#team_productos" onclick="updateUser('/{{request.user.id}}/update_perfil_user/')">Actualizar mi Perfil</a></li>
         {% if company.id %}
-        <!--   <li><a class="nav-link scrollto" href="#" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="add_hivicacion('/{{company.id}}/add_huvicacion/')">Agregar Huvicación</a></li> -->
           <li><a class="nav-link scrollto" href="/{{company.id}}/configuraciones">Administrador</a></li>
+          <li><a class="nav-link scrollto" href="#team_productos" onclick="newProducto('/{{company.id}}/new_producto/')">Registrar Producto</a></li>
         {% endif %}
         <li><a class="nav-link scrollto" href="/{{request.user.id}}/companys">Mis Catálogos</a></li>
         <li><a class="nav-link scrollto" href="https://www.youtube.com/channel/UCzAi4iRY0j-bRhP9zlQWDRw" target="_blank">Ayuda</a></li>
         <li><a class="nav-link scrollto" href="/salir/">Cerrar Sesion</a></li>
       </ul>
     </li>
-      {% else %}
-      <li><a class="nav-link scrollto" href="#login" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="login('/login_user/')">Ingresar</a></li>
+      
     {% endif %}
   </ul>
 

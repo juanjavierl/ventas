@@ -4,8 +4,9 @@
 <table class="table table-bordered table-striped table-responsive table-sm">
     <thead class="thead-dark">
         <tr>
-            <th>Código</th>
+            <th>Nro.</th>
             <th>Cliente</th>
+            <th>Celular</th>
             <th>Fecha & hora de pedido</th>
             <th>Total</th>
         </tr>
@@ -15,6 +16,7 @@
         <tr>
             <td>{{o.id}}</td>
             <td>{{o.client|title}}</td>
+            <td>{{o.client.mobile}}</td>
             <td>{{o.creation_date}}</td>
             <td>{{o.total}}</td>
            

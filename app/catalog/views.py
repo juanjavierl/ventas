@@ -1,7 +1,9 @@
 #encoding:utf-8
 #import pywhatkit
 from datetime import datetime, date, timedelta
-
+from django.core.mail import EmailMultiAlternatives
+import threading
+from django.template.loader import get_template
 from django.shortcuts import render, HttpResponse,get_object_or_404, redirect
 from django.http import JsonResponse, request
 from django.core.paginator import Paginator
@@ -242,7 +244,7 @@ def shear_product(request, id_company):
         busqueda=(
             Q(name__icontains=texto) |
             Q(description__icontains=texto) |
-            Q(code__icontains=texto)
+            Q(category__name__icontains=texto)
         )
         productos=Product.objects.filter(busqueda,stock__gt=0, company_id=int(id_company)).distinct()
         return render(request,'catalog/card_productos.html',{'productos':productos,'company':get_company(id_company)})
@@ -251,7 +253,7 @@ def shear_product(request, id_company):
         busqueda=(
             Q(name__icontains=texto) |
             Q(description__icontains=texto) |
-            Q(code__icontains=texto)
+            Q(category__name__icontains=texto)
         )
         productos=Product.objects.filter(busqueda,stock__gt=0, company_id=int(id_company)).distinct()
         return render(request,'catalog/card_productos.html',{'productos':productos,'company':get_company(id_company)})
@@ -262,133 +264,157 @@ def mostrar_por_categoria(request, id_company, id_categoria):
     productos = Product.objects.filter(stock__gt=0, category_id = id_categoria, company_id= id_company).order_by('-id')
     return render(request, 'catalog/card_productos.html', {'productos':productos,'company':get_company(id_company)})
 
+def create_mail_confirmar_venta(email_propietario, subject, template_name, context):
+    template = get_template(template_name)
+    content = template.render(context)
+    message = EmailMultiAlternatives(
+        subject=subject,
+        body='',
+        from_email=settings.EMAIL_HOST_USER,
+        to=[email_propietario]
+    )
+    message.attach_alternative(content, 'text/html')
+    return message
+
+def send_confirmar_venta_mail(email_propietario, orden, company):
+    mail = create_mail_confirmar_venta(
+        email_propietario,
+        'Tienes una venta en tu tienda online',
+        'notificaciones/confirmar_venta_email.html',
+        {
+            'email': email_propietario,
+            'orden': orden,
+            'company': company
+        }
+    )
+    mail.send(fail_silently=False)
+
 def confirmar_compra(request, id_company):
-    company = get_object_or_404(Company, id = id_company)
-    t_pago = calcular_pago(request)#total a pagar de todo el carrito
-    try:
-        total_compra = len(request.session['compra'])
-        datos = request.session['compra']
-    except:
-        total_compra = 0
-        datos = []
+    company = get_object_or_404(Company, id=id_company)
+    t_pago = calcular_pago(request)
+    compra = request.session.get('compra', [])
+    total_compra = len(compra)
+
     if request.method == 'POST':
-        if request.POST['email'] == " ":
+        email = request.POST.get('email', '').strip()
+        mobile = request.POST.get('mobile', '').strip()
+        tipo_envio = request.POST.get('tipo_envio', '').strip()
+
+        # Validaciones
+        if not email:
             return JsonResponse({'error': "Por favor ingrese su email."})
-        if not request.POST['mobile'].isdigit():
+        if not mobile.isdigit():
             return JsonResponse({'error': "El Nro de Celular debe ser numérico."})
-        forms=ClientFormOrder(request.POST)
+        if not tipo_envio:
+            return JsonResponse({'error': "Por favor seleccione el tipo de envío."})
 
-        if request.POST['tipo_envio'] == 'tienda':
-            precio_envio = 0
+        forms = ClientFormOrder(request.POST)
+
+        # --- Determinar tipo de envío ---
+        lugar, precio_envio, ref = {}, 0, None
+
+        if tipo_envio == 'tienda':
             ref = 'tienda'
-            valor = request.POST['date_time'].split("T")
-            valor = " ".join(valor)#'2024,06,23 13:58'
-            d = datetime.strptime(request.POST['date_time']+":00", '%Y-%m-%dT%H:%M:%S')
-            if d < datetime.now():
-                return JsonResponse({'error':"Error: La fecha debe ser mayor o igual a hoy"})
-            else:
-                dias={0:'Lunes',1:'Martes',2:'Miercoles',3:'Jueves',4:'Viernes',5:'Sabado',6:'Domingo'}
-                dia = dias[d.weekday()]
-                fecha = datetime.strftime(d, dia + ' %d/%m/%y hora: %H:%M %p')
-                lugar = {'fecha':fecha,'date':'date'}
-        elif request.POST['tipo_envio'] == 'domicilio':
-            lugar = {'direccion':request.POST['address'],'dir':'dir'}
-            precio_envio = determinarPrecioEnvio(id_company)
+            try:
+                d = datetime.strptime(request.POST['date_time'] + ":00", '%Y-%m-%dT%H:%M:%S')
+                if d < datetime.now():
+                    return JsonResponse({'error': "Error: La fecha debe ser mayor o igual a hoy"})
+            except Exception:
+                return JsonResponse({'error': "Fecha inválida"})
+
+            dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+            dia = dias[d.weekday()]
+            fecha = datetime.strftime(d, f"{dia} %d/%m/%y hora: %H:%M %p")
+            lugar = {'fecha': fecha, 'tipo': 'tienda'}
+
+        elif tipo_envio == 'domicilio':
             ref = 'domicilio'
+            lugar = {'direccion': request.POST.get('address', ''), 'tipo': 'domicilio'}
+            precio_envio = determinarPrecioEnvio(id_company)
 
-        elif request.POST['tipo_envio'] == 'ciudad':
-            lugar = {'destino':request.POST['destino'],'cuidad':'cuidad'}
-            precio_envio = determinarPrecioEnvioCiudad(id_company)
+        elif tipo_envio == 'ciudad':
             ref = 'ciudad'
+            lugar = {'destino': request.POST.get('destino', ''), 'tipo': 'ciudad'}
+            precio_envio = determinarPrecioEnvioCiudad(id_company)
+
         else:
-            return JsonResponse({'error': "Por favor complete sus datos."})
-        #try:#si ya existe ese cliente
-        if Client.objects.filter(email = request.POST['email']).exists():
-            cliente = Client.objects.get(email = request.POST['email'])
-            orden = crear_orden(request, cliente.id, id_company, ref)#se crea una orden
-            for productos in request.session['compra']:#[{'id_producto':12,'cantidad':1},{'id_producto':10,'cantidad':2}]
-                pedido = Pedido()
-                pedido.orden_id = int(orden.id)
-                pedido.product_id = int(productos['id_producto'])
-                pedido.cant = int(productos['cantidad'])
-                pedido.price = float(productos['precio_uni'])
-                pedido.total = float(int(productos['cantidad']) * float(productos['precio_uni']))
-                pedido.nota = productos['nota']
-                pedido.save()
+            return JsonResponse({'error': "Por favor complete sus datos correctamente."})
 
-                if not getProducto(int(productos['id_producto'])).is_service:
-                    cantProductos = getProducto(int(productos['id_producto'])).salida
-                    Product.objects.filter(id=int(productos['id_producto'])).update(salida=int(cantProductos)+int(productos['cantidad']))
-            
-            lista_product = request.session['compra']
-            request.session['compra'] = []#cuando al cliente confirma su pedido se resetea al carrito a 0
-            return JsonResponse(
-                        {
-                            'cliente_object':cliente.toJSON(),
-                            'company_object':company.toJSON(),
-                            'orden':orden.toJSON(),
-                            'lugar':lugar,
-                            'products':len(request.session['compra']),
-                            'success':"Bien, tu pedido a sido registrado.",
-                            'lista':lista_product,#envio lasession en la variable lista_product
-                            't_pago':t_pago,
-                            'precio_envio':determinarPrecioEnvio(id_company),
-                            'precio_envio_ciudad':determinarPrecioEnvioCiudad(id_company)
-                        }
-                    )
-        #except Client.DoesNotExist:
-        else:
-            if forms.is_valid():
-                cliente = forms.save(commit=False)
-                cliente.save()
-                orden = crear_orden(request, cliente.id, id_company, ref)
-                for productos in request.session['compra']:#[{'id_producto':12,'cantidad':1},{'id_producto':10,'cantidad':2}]
-                    pedido = Pedido()
-                    pedido.orden_id = int(orden.id)
-                    pedido.product_id = int(productos['id_producto'])
-                    pedido.cant = int(productos['cantidad'])
-                    pedido.price = float(productos['precio_uni'])
-                    pedido.total = float(int(productos['cantidad']) * float(productos['precio_uni']))
-                    pedido.nota = productos['nota']
-                    pedido.save()
-                    
-                    if not getProducto(int(productos['id_producto'])).is_service:
-                        cantProductos = getProducto(int(productos['id_producto'])).salida
-                        Product.objects.filter(id=int(productos['id_producto'])).update(salida=int(cantProductos)+int(productos['cantidad']))
+        # --- Obtener o crear cliente ---
+        cliente, creado = Client.objects.get_or_create(
+            email=email,
+            defaults=forms.cleaned_data if forms.is_valid() else {}
+        )
 
-                lista_product = request.session['compra']
-                request.session['compra'] = []#cuando al cliente confirma su pedido se resetea al carrito a 0
-                return JsonResponse(
-                            {
-                                'company_object':company.toJSON(),
-                                'cliente_object':cliente.toJSON(),
-                                'orden':orden.toJSON(),
-                                'lugar':lugar,
-                                'products':len(request.session['compra']),
-                                'success':"En hora buena realizaste tu pedido.",
-                                'lista':lista_product,
-                                't_pago':t_pago,
-                                'precio_envio':determinarPrecioEnvio(id_company),
-                                'precio_envio_ciudad':determinarPrecioEnvioCiudad(id_company)
-                            }
-                        )
+        # --- Crear orden ---
+        orden = crear_orden(request, cliente.id, id_company, ref)
 
+        # --- Registrar pedidos ---
+        for item in compra:
+            producto_id = int(item['id_producto'])
+            cantidad = int(item['cantidad'])
+            precio = float(item['precio_uni'])
+            total = cantidad * precio
+
+            Pedido.objects.create(
+                orden=orden,
+                product_id=producto_id,
+                cant=cantidad,
+                price=precio,
+                total=total,
+                nota=item.get('nota', '')
+            )
+
+            producto = getProducto(producto_id)
+            if not producto.is_service:
+                Product.objects.filter(id=producto_id).update(
+                    salida=producto.salida + cantidad
+                )
+
+        # --- Vaciar carrito ---
+        lista_product = compra.copy()
+        request.session['compra'] = []
+
+        # --- Enviar correo al propietario ---
+        email_propietario = company.user.email
+        if email_propietario:
+            threading.Thread(
+                target=send_confirmar_venta_mail,
+                args=(email_propietario, orden, company)
+            ).start()
+
+        return JsonResponse({
+            'success': "Tu pedido fue registrado con éxito.",
+            'cliente_object': cliente.toJSON(),
+            'company_object': company.toJSON(),
+            'orden': orden.toJSON(),
+            'lugar': lugar,
+            'lista': lista_product,
+            't_pago': t_pago,
+            'precio_envio': determinarPrecioEnvio(id_company),
+            'precio_envio_ciudad': determinarPrecioEnvioCiudad(id_company),
+            'products': len(request.session['compra'])
+        })
+
+    # --- Si no es POST, renderizar vista ---
+    ahora = datetime.now() + timedelta(minutes=30)
+    limite = datetime.now() + timedelta(days=15)
     dic = {
-        'form':ClientFormOrder(),
-        'total_compra':total_compra,
-        'company':get_company(id_company),
-        'categorias':categorys_from_productos(productosMasVistos(id_company)),
-        'datos':datos,
-        't_pago':t_pago,
-        'productos':productosMasVistos(id_company),
-        'aviso':optener_avisos_by_company(id_company),
-        'address':get_address(id_company),
-        'regla':get_rule_condicion(id_company),
-        'code':get_code_meta(id_company),
-        'ahora':(datetime.now() + timedelta(minutes=30)).strftime("%Y-%m-%dT%H:%M"),  # fecha y hora actual en tu zona
-        'limite': (datetime.now() + timedelta(days=15)).strftime("%Y-%m-%dT%H:%M")  # fecha dentro de 30 días
+        'form': ClientFormOrder(),
+        'total_compra': total_compra,
+        'company': get_company(id_company),
+        'categorias': categorys_from_productos(productosMasVistos(id_company)),
+        'datos': compra,
+        't_pago': t_pago,
+        'productos': productosMasVistos(id_company),
+        'aviso': optener_avisos_by_company(id_company),
+        'address': get_address(id_company),
+        'regla': get_rule_condicion(id_company),
+        'code': get_code_meta(id_company),
+        'ahora': ahora.strftime("%Y-%m-%dT%H:%M"),
+        'limite': limite.strftime("%Y-%m-%dT%H:%M")
     }
-    return render(request,'catalog/confirmar_compra.html',dic)
+    return render(request, 'catalog/confirmar_compra.html', dic)
 
 def confirmarCita(request, id_company, id_producto):
     p = get_object_or_404(Product,id = id_producto)

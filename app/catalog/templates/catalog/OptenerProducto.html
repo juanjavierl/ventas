@@ -236,7 +236,7 @@
                         <li><a class="dropdown-item text-success" href="javascript: void(0);" onclick="window.open('whatsapp://send?text=Puedes ver: {{p.description}}/?u={{request.build_absolute_uri}}','ventanacompartir', 'toolbar=0, status=0, width=650, height=450');">En whatsapp</a></li> -->
                       <li>
                         <a class="dropdown-item text-success"
-                          href="https://api.whatsapp.com/send?text=Más información sobre el Item: *{{p.name|title|default:' '}} cod: {{p.id}}*, muchas gracias.%0A{{request.build_absolute_uri}} &phone={{company.mobile}}"
+                          href="https://api.whatsapp.com/send?phone={{ company.mobile }}&text=¿Está%20disponible%20el%20producto:%20*{{ p.name|title|default:' ' }}*%20(cod:%20{{ p.id }})%3F%0A🔗%20{{ request.build_absolute_uri }}%0A"
                           target="_blank">Consultar sobre el producto <i class="bi bi-whatsapp"></i></a>
                       </li>
                       <li id="status">
@@ -409,12 +409,7 @@
 {% endblock button_whatsap %}
 
 {% block productos_mas_vistos %}
-<!-- ======= Contact Section ======= -->
-<section id="product_mas_vistos" class="product_view">
-  <div class="container">
     {% include 'catalog/productos_mas_vistos.html' %}
-  </div>
-</section>
 {% endblock productos_mas_vistos %}
 
 {% block suscipcion_for_email %}

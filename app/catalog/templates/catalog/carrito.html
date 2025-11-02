@@ -3,12 +3,16 @@
         <i class="bi bi-search"></i>
     </a>
 </h1>
-
-
+    
 <h1>
-    <a href="https://api.whatsapp.com/send?text=Catalogo:{% now 'M-Y' %} %0A %0A *{{company.name|upper|default:' '}}* %0A{{request.build_absolute_uri}}" target="_blank" style="font-size: 25px;">
-        <i class="bi bi-share-fill"></i>
-    </a>
+    {% if company.dominio %}
+        <a href="https://api.whatsapp.com/send?text=Catálogo: {% now 'M-Y' %} %0A *{{ company.name|upper|default:' ' }}* %0A Una tienda online diseñada especialmente para nuestros clientes, donde pueden descubrir productos exclusivos y realizar sus pedidos de forma fácil, rápida y segura. %0Ahttps://amceb.online/{{ company.dominio.slug }}" 
+           target="_blank" style="font-size: 25px;">
+            <i class="bi bi-share-fill"></i>
+    {% else %}
+        <a href="https://api.whatsapp.com/send?text=Catalogo:{% now 'M-Y' %} %0A *{{company.name|upper|default:' '}}* %0A Una tienda online diseñada especialmente para nuestros clientes, donde pueden descubrir productos exclusivos y realizar sus pedidos de forma fácil, rápida y segura. %0A{{request.build_absolute_uri}}" target="_blank" style="font-size: 25px;">
+        <i class="bi bi-share-fill"></i></a>
+    {% endif %}
 </h1>
 <h1>
     <a href="#" class="nav-link scrollto cantidades-card" onclick="verCarrito('/{{company.id}}/ver_carrito')" 

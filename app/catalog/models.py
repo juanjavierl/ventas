@@ -138,7 +138,7 @@ class Client(models.Model):
     names = models.CharField(max_length=150, verbose_name='Nombre completo')
     dni = models.IntegerField(null=True, blank=True, verbose_name='Nro. Carnet/Nit (Opcional)')
     gender = models.CharField(max_length=50, choices=GENDER, default=GENDER[0][0], verbose_name='Genero')
-    mobile = models.IntegerField(verbose_name='Celular (WhatsApp)')
+    mobile = models.CharField(max_length=15, verbose_name='Celular (WhatsApp)')
     email = models.EmailField(max_length=100, unique=True, verbose_name='Correo Electrónico')
     date_joined = models.DateField(default=datetime.now, verbose_name='Fecha de registro')
     address = models.CharField(max_length=500, null=True, blank=True, verbose_name='Dirección o referencia exacta*', help_text="Ingrese:Zona,Calle,Nro")

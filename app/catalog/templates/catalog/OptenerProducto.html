@@ -70,29 +70,10 @@
       display: flex;
     }
 
-    .cant input {
+    .cantidades input {
       width: 60px;
       text-align: center;
     }
-
-    .valores {
-      text-align: center;
-      background-color: rgb(167, 182, 182);
-      padding: 4px 10px 5px 10px;
-      height: 30px;
-      font-family: cursive;
-    }
-
-    .valores:hover {
-      background-color: rgb(24, 24, 22);
-      color: white;
-      cursor: pointer;
-    }
-
-    .btn_add .btn_icon {
-      display: none;
-    }
-
     .sale-tag {
       border-radius: 2px;
       font-size: 12px;
@@ -115,7 +96,7 @@
       -moz-appearance: textfield;
     }
   </style>
-  <div class="container" id="team_productos">
+  <div class="portfolio container" id="team_productos">
 
     <div class="row gy-4 productos_por_categorias">
 
@@ -155,7 +136,9 @@
           <h3 class="text-primary text-wrap fw-bold">{{p.name|capfirst}}</h3>
           <ul>
             <li><strong>Categoria</strong>: {{p.category|capfirst}}</li>
-            <li><strong>Código</strong>: {{p.code|default:" - - -"}}</li>
+            {% if p.code %}
+              <li><strong>Código</strong>: {{p.code|default:" - - -"}}</li>
+            {% endif %}      
             <li><strong>Precio</strong>: {{p.price|default:" 0 "}} Bs.
               {% if p.price_before %}
               <span class="text-decoration-line-through text-danger" style="font-size: 14px; padding-left: 30px;">Antes:
@@ -163,9 +146,9 @@
               {% endif %}
             </li>
             <li>
-              <strong>
+              <strong class="mb-1">
                 {% if p.price_before %}
-                <span style="font-size: 14px;" class="badge text-bg-warning text-white">Desc. {{p.porcentage}}%</span>
+                <span style="font-size: 14px;" class="badge bg-warning text-dark">Descuento {{p.porcentage}}%</span>
                 {% endif %}
               </strong>
               {% if p.is_service %}
@@ -174,7 +157,7 @@
             </li>
             <li><strong>Producto</strong>:
               {% if p.stock_actual > 0 %}
-              <span id="passwordHelpBlock" class="form-text text-success">
+              <span id="passwordHelpBlock" class="form-text text-success fw-bold">
                 Disponible <i class="bi bi-check-lg"></i>
                 <i class="bi bi-star-fill" style="color: gold;"></i>
                 <i class="bi bi-star-fill" style="color: gold;"></i>
@@ -188,7 +171,7 @@
               </span>
               {% endif %}
             </li>
-
+            <br>
             <div class="align-items-start">
               <form action="/{{p.id}}/{{company.id}}/detail_product" id="form_pedido" method="post"
                 class="form-row row">
@@ -197,13 +180,11 @@
                   <label for="inputPassword6" class="col-form-label text-dark" style="width: 165px;"><strong> Cantidad:
                     </strong>
                   </label>
-                  <div class="valores menos" style="border-radius: 15px 0px 0px 15px;"> - </div>
-                  <div class="cant">
-                    <input type="number" name="cantidad" placeholder="ejem. 1" value="1" min="1"
-                      max="{{p.stock_actual}}" id="cantidad_id" class="form-control form-control-sm valor_numerico"
-                      required>
-                  </div>
-                  <div class="valores mas" style="border-radius: 0px 15px 15px 0px;"> + </div>
+                  <div class="input-group mb-1" style="width: 100px;">
+                    <button class="btn btn-sm btn-outline-primary menos" type="button" onclick="cambiarValor(-1, '{{forloop.counter0}}')">-</button>
+                    <input type="number" name="cantidad" placeholder="ejem. 1" value="1" min="1" max="{{p.stock_actual}}" id="cantidad_id" class="form-control form-control-sm valor_numerico" required>
+                    <button class="btn btn-sm btn-outline-primary mas" type="button" onclick="cambiarValor(1, '{{forloop.counter0}}')">+</button>
+                </div>
                 </div>
                 <div class="form-check" style="margin-bottom: 10px;">
                   <input class="form-check-input" type="checkbox" name="is_nota" id="defaultCheck1">
@@ -220,46 +201,18 @@
                     <i class="bi bi-cart-fill"></i>
                     Agregar al Carrito
                   </button><br><br>
-                  <a href="/{{company.id}}/catalogo" class="col btn btn-secondary btn-sm tb_text"
+
+                  <div class="btn-group" role="group" aria-label="Basic example">
+                    <a href="/{{company.id}}/catalogo" class="col btn btn-secondary btn-sm tb_text"
                     style="padding-top: 5px;">
                     <i class="bi bi-arrow-left-circle"> Ir Atrás</i>
                   </a>
-
-
-                  <div class="dropdown btn-sm d-flex col">
-                    <button class="btn btn-secondary btn-sm dropdown-toggle btn btn-light text-success" type="button"
-                      id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                      ¿Tiene Alguna Duda?
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                      <!-- <li><a class="dropdown-item text-primary" style="cursor: pointer;" href="javascript: void(0);" onclick="window.open('http://www.facebook.com/sharer.php?u={{request.build_absolute_uri}}','ventanacompartir', 'toolbar=0, status=0, width=650, height=450');">En Facebook</a></li>
-                        <li><a class="dropdown-item text-success" href="javascript: void(0);" onclick="window.open('whatsapp://send?text=Puedes ver: {{p.description}}/?u={{request.build_absolute_uri}}','ventanacompartir', 'toolbar=0, status=0, width=650, height=450');">En whatsapp</a></li> -->
-                      <li>
-                        <a class="dropdown-item text-success"
-                          href="https://api.whatsapp.com/send?phone={{ company.mobile }}&text=¿Está%20disponible%20el%20producto:%20*{{ p.name|title|default:' ' }}*%20(cod:%20{{ p.id }})%3F%0A🔗%20{{ request.build_absolute_uri }}%0A"
-                          target="_blank">Consultar sobre el producto <i class="bi bi-whatsapp"></i></a>
-                      </li>
-                      <li id="status">
-                        <a class="dropdown-item" id="compartir" href="#">Compartir en más lugares</a>
-                      </li>
-                      {% if user.is_authenticated and company.user == request.user %}
-                      <li>
-                        <a class="dropdown-item" href="#" onclick="add_imagen('/{{p.id}}/imgs_products/')"
-                          data-bs-toggle="modal" data-bs-target="#exampleModal">Agregar más Imagenes</a>
-                      </li>
-
-                      {% if images_product %}
-                      <li>
-                        <a class="dropdown-item text-danger" href="#"
-                          onclick="remove_imagen('/{{p.id}}/remode_imgs_products/')" data-bs-toggle="modal"
-                          data-bs-target="#exampleModal">Eliminar Imágenes</a>
-                      </li>
-                      {% endif %}
-
-                      {% endif %}
-
-                    </ul>
+                    <a class="col btn btn-success btn-sm" style="background-color: rgb(8, 196, 118);"
+                    href="https://api.whatsapp.com/send?phone={{ company.mobile }}&text=¿Está%20disponible%20el%20producto:%20*{{ p.name|title|default:' ' }}*%20(cod:%20{{ p.id }})%3F%0A🔗%20{{ request.build_absolute_uri }}%0A"
+                    target="_blank"> comprar por <i class="bi bi-whatsapp"></i></a>
+                    <a class="col btn btn-primary btn-sm" id="compartir" href="#"><i class="bi bi-share-fill"></i></a>
                   </div>
+
                 </div>
               </form><br>
             </div>
@@ -376,27 +329,6 @@
     });
   });
 
-  function add_imagen(urls) {
-    $.ajax({
-      type: 'GET',
-      url: urls,
-      success: function (resp) {
-        // $("#exampleModalLabel").html(name_prod);
-        $(".modal-content").fadeIn(1000).html(resp);
-      }
-    });
-  }
-
-  function remove_imagen(urls) {
-    $.ajax({
-      type: 'GET',
-      url: urls,
-      success: function (resp) {
-        // $("#exampleModalLabel").html(name_prod);
-        $(".modal-content").fadeIn(1000).html(resp);
-      }
-    });
-  }
 /* $('.dropdown').hover(function(){
         $('.dropdown-menu').trigger('click')
         console.log('hover');

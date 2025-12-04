@@ -21,7 +21,7 @@ class Tipo_company(models.Model):
 
     class Meta:
         """Meta definition for Categoria   ."""
-
+        ordering = ['name']
         verbose_name = 'Tipo_company'
         verbose_name_plural = 'Tipo_companys'
     
@@ -96,8 +96,8 @@ class Company(models.Model, ModelMeta):
     description = models.TextField(verbose_name='Descripción de su catalogo (Opcional)', null=True, blank=True, help_text='Escriba una descripción sobre de su negocio')
     ruc = models.CharField(max_length=15, blank=True, null=True, verbose_name='Número de NIT (Opcional)')
     #address = models.CharField(max_length=200, verbose_name='Dirección (Zona, Calle, #)')
-    mobile = models.CharField(max_length=15, verbose_name='Celular (WhatsApp)', help_text="Solo su número Ej. 70556677")
-    category = models.ForeignKey(Tipo_company, on_delete=models.CASCADE, verbose_name='Tipo de Compañia')
+    mobile = models.CharField(max_length=15, verbose_name='Celular (WhatsApp)')
+    category = models.ForeignKey(Tipo_company, on_delete=models.CASCADE, verbose_name='Tipo de Negocio')
     cuidad = models.ForeignKey(Ciudad, on_delete=models.CASCADE, verbose_name='Ciudad')
     #phone = models.CharField(max_length=9, verbose_name='Teléfono convencional')
     #email = models.CharField(max_length=50, verbose_name='Email')
@@ -178,8 +178,8 @@ class Company(models.Model, ModelMeta):
         return item
 
     class Meta:
-        verbose_name = 'Compañia'
-        verbose_name_plural = 'Compañias'
+        verbose_name = 'Negocio'
+        verbose_name_plural = 'Negocios'
         default_permissions = ()
         permissions = (
             ('view_company', 'Can view Empresa'),

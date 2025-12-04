@@ -47,10 +47,12 @@
   <link href="{% static 'select2/css/select2.css' %}" rel="stylesheet" />
   <script src="{% static 'select2/js/select2.js' %}"></script>
 
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/css/intlTelInput.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/intlTelInput.min.js"></script>
   <!-- files by reload date range piker  -->
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+  <script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/daterangepicker.min.js' %}"></script>
+  <link rel="stylesheet" type="text/css" href="{% static 'css/daterangepicker.css' %}" />
   {% block code_meta %}
   {% if dashboard.codigo %}
   <script>
@@ -239,37 +241,7 @@
     const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
     toastBootstrap.show();
   }
-
-  let lightbox = null;
-  function mostrar_por_categoria(urls) {
-    $.ajax({
-      type: 'GET',
-      url: urls,
-      headers: { 'X-Requested-With': 'XMLHttpRequest' },
-      success: function (resp) {
-        // Inyectar HTML y esperar que termine para reinicializar GLightbox
-        $(".productos_por_categorias").fadeOut(200, function () {
-          $(this).html(resp).fadeIn(400, function () {
-
-            // Destruir instancia anterior si existe
-            if (lightbox && typeof lightbox.destroy === 'function') {
-              lightbox.destroy();
-            }
-
-            // Inicializar nuevamente el lightbox
-            lightbox = GLightbox({
-              selector: '.portfolio-lightbox'
-            });
-
-          });
-        });
-
-        // Cierra menú móvil si estaba abierto
-        $(".navbar-mobile i").click();
-      }
-    });
-  }
-
+  
   function form_company(urls) {
     $.ajax({
       type: 'GET',

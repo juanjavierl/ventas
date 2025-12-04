@@ -117,7 +117,7 @@ def validar_form(request):
         if formulario.is_valid():
             return JsonResponse({'formulario':True})
         else:
-            return JsonResponse({'error':'Los Datos con * son requeridos'})
+            return JsonResponse({'error':formulario.errors})
 
 def validar_username(request):
     if request.method == "POST":

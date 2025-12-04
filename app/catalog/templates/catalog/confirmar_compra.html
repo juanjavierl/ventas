@@ -60,6 +60,13 @@
   .container .info {
     margin-bottom: 20px;
   }
+  .iti {
+    width: 100%;
+  }
+
+  .iti input {
+      width: 100%;
+  }
 </style>
 {% load crispy_forms_tags %}
 <section class="container" id="team_productos" style="margin-top: 80px;">
@@ -147,17 +154,21 @@
               </td>
             </tr>
           <tr class="table-info">
-            <th scope="col">#</th>
+            <th scope="col">Imagen</th>
             <th scope="col">Detalle</th>
             <th scope="col">Precio</th>
-            <th scope="col">Cantidad</th>
+            <th scope="col">Cant</th>
             <th scope="col">Sub total</th>
           </tr>
         </thead>
         <tbody>
           {% for i in datos %}
           <tr id="eliminarProducto{{forloop.counter0}}">
-            <td>{{forloop.counter}}</td>
+            <td>
+            {% if i.imagen %}
+              <img src="{{ i.imagen }}" alt="Imagen de {{ i.name }}" style="width: 60px; height: 60px;">
+            {% endif %}
+              </td>
             <td>{{i.name}} {{i.nota}}</td>
             <td>{{i.precio_uni}}</td>
             <td>{{i.cantidad}}</td>
@@ -272,9 +283,16 @@
     return texto.toLowerCase().replace(/\b\w/g, letra => letra.toUpperCase());
   }
   
+  const input = document.querySelector("#id_mobile");
+  const iti = window.intlTelInput(input, {
+      initialCountry: "bo",
+      separateDialCode: true,
+      utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js",
+  });
   $('#form_pedido').submit(function (e) {
   e.preventDefault();
-
+  let number = iti.getNumber(intlTelInputUtils.numberFormat.E164);
+  input.value = number || input.value;  // garantiza que el valor enviado sea completo
   if (validateEmail($("#id_email").val())) {
     $.ajax({
       type: 'POST',
@@ -282,13 +300,21 @@
       data: $(this).serialize(),
       success: function (resp) {
         if (resp.error) {
-          $('.toast-body')
-            .removeClass('alert-success')
-            .addClass('alert-danger')
-            .fadeIn(1000)
-            .html('<strong>' + resp.error + '</strong>');
-          mostrar_notificacion();
-          return;
+            let html = "";
+            for (let campo in resp.error) {
+                let errores = [].concat(resp.error[campo]); // convierte string o lista en array
+                errores.forEach(mensaje => {
+                    html += `<p><strong>${campo}:</strong> ${mensaje}</p>`;
+                });
+            }
+            $('.toast-body')
+                .removeClass('alert-success')
+                .addClass('alert-danger')
+                .fadeIn(300)
+                .html(html);
+
+            mostrar_notificacion();
+            return;
         }
 
         // ✅ Mensaje de éxito
@@ -369,7 +395,7 @@
         // 🟢 Abrir WhatsApp
         let telefono = resp.company_object?.mobile || "";
         if (telefono.trim() !== "") {
-          let ruta = "https://api.whatsapp.com/send?phone=+591" + telefono + "&text=" + mensaje;
+          let ruta = "https://api.whatsapp.com/send?phone=" + telefono + "&text=" + mensaje;
           window.open(ruta, "_blank");
         } else {
           console.warn("⚠️ No se pudo enviar mensaje por WhatsApp: la tienda no tiene número móvil configurado.");

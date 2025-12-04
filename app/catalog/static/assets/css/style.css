@@ -925,8 +925,21 @@ section {
   position: relative;
   overflow: hidden;
   z-index: 1;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(248, 246, 246, 0.959);
   max-width: 180px;
+}
+.portfolio-wrap {
+    display: flex;
+    justify-content: center;   /* Centra horizontal */
+    align-items: center;       /* Centra vertical */
+    height: 150px;             /* Igual a tu max-height */
+    overflow: hidden;
+}
+
+.portfolio-wrap img {
+    max-height: 150px;
+    width: auto;
+    object-fit: contain;       /* Muestra toda la imagen sin recorte */
 }
 
 .portfolio .portfolio-wrap::before {

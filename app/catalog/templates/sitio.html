@@ -49,7 +49,8 @@
     {% include 'menu_from_user.html' %}
 {% endblock menus %}
 
-{% block hero %}  
+  {% block hero %}  
+  {% if company.image %}
     <style>
       #hero{
         width: 100%;
@@ -89,6 +90,13 @@
         </h2>
       </div>
     </section>
+  {% else %}
+    <style>
+      .portfolio {
+        margin-top: 80px;
+      }
+    </style>
+  {% endif %}
 {% endblock hero %}
 
 

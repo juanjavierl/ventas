@@ -174,9 +174,17 @@
 </script>
   
 {% endblock contenido %}
-  
+
+{% block button_whatsap %}
+  {% if not user.is_authenticated %}
+    {% include 'button_whatsap.html' %}
+  {% endif %}
+{% endblock button_whatsap %}
+
 {% block suscipcion_for_email %}
+  {% if not user.is_authenticated %}
     {% include 'buscador_general.html' %}
+  {% endif %}
 {% endblock suscipcion_for_email %}
 
 {% block preg_frecuentes %} 

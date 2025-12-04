@@ -48,7 +48,7 @@
   <div class="card dark card_p single-product" data-aos="fade-up">
 
     {% if p.image %}
-    <div class="col-lg-4 col-md-6 portfolio-item">
+    <div class="col-5 col-lg-4 col-md-5 portfolio-item">
       <div class="portfolio-wrap">
         <img src="/media/{{p.image}}" style="max-height: 150px; width: 100%;" class="img-fluid object-fit-cover" alt="">
         <div class="portfolio-info">
@@ -63,7 +63,7 @@
       </div>
     </div>
     {% else %}
-     <i class="bi bi-box-seam card-img-top icon" alt="..." onclick="detailView('/{{p.id}}/{{company.id}}/detail_product')"></i>
+     <i class="bi bi-image card-img-top icon" alt="..." onclick="detailView('/{{p.id}}/{{company.id}}/detail_product')"></i>
     {% endif %}
     {% if p.is_new %}
     <span class="badge rounded-pill bg-primary sale-tag d-flex">Nuevo</span>
@@ -96,13 +96,19 @@
             </button>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
               <a class="dropdown-item" href="#actualizar" onclick="updateProduct('/{{p.id}}/updateProduct/')"
-                data-bs-toggle="modal" data-bs-target="#exampleModal">Actualizar</a>
-              <a class="dropdown-item text-danger" href="#eliminar" onclick="deleteProduct('/{{p.id}}/deleteProduct/')"
-                data-bs-toggle="modal" data-bs-target="#exampleModal">Eliminar</a>
+                data-bs-toggle="modal" data-bs-target="#exampleModal">Actualizar datos</a>
+              <a class="dropdown-item" href="#" onclick="add_imagen('/{{p.id}}/imgs_products/')"
+                data-bs-toggle="modal" data-bs-target="#exampleModal">Agregar más imagenes</a>
 
               <a class="dropdown-item" href="#inventario" onclick="updateStock('/{{p.id}}/updateStock/')"
-                data-bs-toggle="modal" data-bs-target="#exampleModal">Stock</a>
-
+                data-bs-toggle="modal" data-bs-target="#exampleModal">Stock </a>
+              <hr class="dropdown-divider">
+              <a class="dropdown-item text-danger" href="#eliminar" onclick="deleteProduct('/{{p.id}}/deleteProduct/')"
+                data-bs-toggle="modal" data-bs-target="#exampleModal">Eliminar producto</a>
+              
+              <a class="dropdown-item text-danger" href="#" onclick="remove_imagen('/{{p.id}}/remode_imgs_products/')" 
+                data-bs-toggle="modal" data-bs-target="#exampleModal">Eliminar imágenes</a>
+              
             </div>
             {% endif %}
           </div>
@@ -185,6 +191,26 @@
     });
   }
   function updateStock(urls) {
+    $.ajax({
+      type: 'GET',
+      url: urls,
+      success: function (resp) {
+        // $("#exampleModalLabel").html(name_prod);
+        $(".modal-content").fadeIn(1000).html(resp);
+      }
+    });
+  }
+  function add_imagen(urls) {
+    $.ajax({
+      type: 'GET',
+      url: urls,
+      success: function (resp) {
+        // $("#exampleModalLabel").html(name_prod);
+        $(".modal-content").fadeIn(1000).html(resp);
+      }
+    });
+  }
+  function remove_imagen(urls) {
     $.ajax({
       type: 'GET',
       url: urls,

@@ -11,17 +11,21 @@
         </td>
       </tr>
       <tr class="table-info">
-        <th scope="col">#</th>
+        <th scope="col">Imagen</th>
         <th scope="col">Producto</th>
         <th scope="col">Precio</th>
-        <th scope="col">Cantidad</th>
+        <th scope="col">Cant</th>
         <th scope="col">Sub Total</th>
       </tr>
     </thead>
     <tbody>
       {% for i in datos %}
         <tr id="eliminarProducto{{forloop.counter0}}">
-            <td>{{forloop.counter}}</td>
+            <td>
+            {% if i.imagen %}
+              <img src="{{ i.imagen }}" alt="Imagen de {{ i.name }}" style="width: 60px; height: 60px;">
+            {% endif %}
+              </td>
             <td>{{i.name}}</td>
             <td>{{i.precio_uni}}</td>
             <td>{{i.cantidad}}</td>

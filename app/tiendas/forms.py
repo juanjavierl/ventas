@@ -6,6 +6,9 @@ from django.contrib.auth.forms import User
 from django.forms.models import ModelForm
 from .models import *
 
+from django.core.exceptions import ValidationError
+import phonenumbers
+
 class RegisterForm(UserCreationForm):
     username = forms.CharField(max_length=140, label="Email / Usuario")
     class Meta:
@@ -19,6 +22,17 @@ class formCompany(forms.ModelForm):
     class Meta:
         model = Company
         exclude = ('user','website','date_joined','image','plan', 'status', 'expiration_date')
+        
+    def clean_mobile(self):
+        mobile = self.cleaned_data['mobile']
+        try:
+            parsed = phonenumbers.parse(mobile, None)
+            if not phonenumbers.is_valid_number(parsed):
+                raise ValidationError("Número de teléfono inválido.")
+        except:
+            raise ValidationError("Ingrese un número válido con su código de país.")
+        
+        return mobile
     
 #clase para actualizar la companias de los clientes
 class formCompanyImage(forms.ModelForm):

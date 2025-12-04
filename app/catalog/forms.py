@@ -1,6 +1,8 @@
 from django import forms
 from PIL import Image, UnidentifiedImageError
 from app.catalog.models import *
+from django.core.exceptions import ValidationError
+import phonenumbers
 
 class ClientFormOrder(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -11,6 +13,17 @@ class ClientFormOrder(forms.ModelForm):
         model = Client
         exclude = ('gender','date_joined',)
         #fields = '__all__'
+
+    def clean_mobile(self):
+        mobile = self.cleaned_data['mobile']
+        try:
+            parsed = phonenumbers.parse(mobile, None)
+            if not phonenumbers.is_valid_number(parsed):
+                raise ValidationError("Número de teléfono inválido.")
+        except:
+            raise ValidationError("Ingrese un número válido con su código de país.")
+        
+        return mobile
 
 class formUpdateProducto(forms.ModelForm):
     def __init__(self, *args, **kwargs):

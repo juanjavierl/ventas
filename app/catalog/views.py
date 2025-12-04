@@ -126,7 +126,7 @@ def optenerProducto(request, id_producto, id_company):
         datos['cantidad'] = int(request.POST['cantidad'])
         datos['precio_uni'] = float(p.price)
         datos['total'] = float(int(request.POST['cantidad']) * float(p.price))
-
+        datos['imagen'] = p.image.url if p.image else ''
         tiene_nota = request.POST.get('is_nota',False) == 'on'#verificamos si su pedido tiene una nota
         if tiene_nota:
             datos['nota'] = request.POST['nota']
@@ -170,7 +170,6 @@ def optenerProducto(request, id_producto, id_company):
                     'aviso':optener_avisos_by_company(id_company),
                     'productos':productosMasVistos(id_company),
                     'address':get_address(id_company),
-                    'images_product':Imagen.objects.filter(items_id = int(id_producto)),
                     'code':get_code_meta(id_company)
                 }
     return render(request,'catalog/OptenerProducto.html',context)
@@ -303,8 +302,8 @@ def confirmar_compra(request, id_company):
         # Validaciones
         if not email:
             return JsonResponse({'error': "Por favor ingrese su email."})
-        if not mobile.isdigit():
-            return JsonResponse({'error': "El Nro de Celular debe ser numérico."})
+        if not mobile:
+            return JsonResponse({'error': "Por favor ingrese su número de celular."})
         if not tipo_envio:
             return JsonResponse({'error': "Por favor seleccione el tipo de envío."})
 
@@ -341,10 +340,15 @@ def confirmar_compra(request, id_company):
             return JsonResponse({'error': "Por favor complete sus datos correctamente."})
 
         # --- Obtener o crear cliente ---
-        cliente, creado = Client.objects.get_or_create(
-            email=email,
-            defaults=forms.cleaned_data if forms.is_valid() else {}
-        )
+        # --- Buscar si el cliente ya existe ---
+        cliente = Client.objects.filter(email=email).first()
+        # ✅ Si NO existe → lo validamos y lo registramos
+        if not cliente:
+            if not forms.is_valid():
+                return JsonResponse({'error': forms.errors})
+
+            cliente = forms.save()
+        # ✅ Si YA existe → NO validamos, NO registramos, solo seguimos con la orden
 
         # --- Crear orden ---
         orden = crear_orden(request, cliente.id, id_company, ref)

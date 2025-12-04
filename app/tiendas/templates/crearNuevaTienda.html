@@ -15,6 +15,13 @@
     border: 2px solid #0d6efd;
     background-color: #e7f1ff;
   }
+  .iti {
+    width: 100%;
+  }
+
+  .iti input {
+      width: 100%;
+  }
 </style>
 <div class="modal-header  thead-light" style="background-color: #58bba9;">
   <h5 class="modal-title text-white" id="exampleModalLabel">Registrar Nueva Tienda</h5>
@@ -27,15 +34,14 @@
       {% csrf_token %}
 
       {{form_company|crispy}}
-
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm anterior1"><i class="bi bi-arrow-left-circle"></i>
+          Anterior</button>
+        <button type="submit" class="btn btn-success btn-sm" id="formCompany"><i class="bi bi-shop-window"></i>
+          Siguiente</button>
+      </div>
     </form>
     <p class="text-danger validate_company"></p>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i
-      class="bi bi-arrow-left-circle"></i> Cancelar</button>
-    <a href="#next" type="button" class="btn btn-success btn-sm" id="formCompany"><i class="bi bi-shop-window"></i>
-      Siguiente</a>
   </div>
 </div>
 
@@ -138,8 +144,17 @@
       $(".img_qr").hide();
     });
 
+  const input = document.querySelector("#id_mobile");
+  const iti = window.intlTelInput(input, {
+      initialCountry: "bo",
+      separateDialCode: true,
+      utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js",
+  });
     var datos_registro = {};
-    $("#formCompany").on("click", function () {
+    $("#form_Company").on("submit", function (e) {
+      e.preventDefault();
+      let number = iti.getNumber(intlTelInputUtils.numberFormat.E164);
+      input.value = number || input.value;  // garantiza que el valor enviado sea completo
       $("#exampleModalLabel").text("Paso (3/4) Seleccione un plan ");
     var datos = new FormData(document.getElementById("form_Company"));
     $.ajax({
@@ -151,7 +166,13 @@
       processData: false,
       success: function (resp) {
         if (resp.error) {
-          $(".validate_company").text(resp.error);
+          let html = "";
+          for (let campo in resp.error) {
+              resp.error[campo].forEach(mensaje => {
+                  html += `<p><strong>${campo}:</strong> ${mensaje}</p>`;
+              });
+          }
+          $(".validate_company").html(html);
           $("#exampleModalLabel").text("Paso(2/4) Registrar mi tienda virtual");
         } else {
           $(".planes").fadeIn('slow').show();

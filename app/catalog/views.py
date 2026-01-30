@@ -635,7 +635,7 @@ def imgs_products(request, id_producto):
         if form.is_valid():
             imgsProducto = form.save(commit=False)
             imgsProducto.items_id = (int(id_producto))
-            if Imagen.objects.filter(items_id = int(id_producto)).count() >= 2:
+            if Imagen.objects.filter(items_id = int(id_producto)).count() >= 5:
                 return JsonResponse({'error':'Ya tiene registrado sus imagenes'})
             else:
                 imgsProducto.save()

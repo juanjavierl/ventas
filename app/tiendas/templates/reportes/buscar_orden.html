@@ -54,12 +54,36 @@
             <td>{{orden.total}}</td>
         </tr>
         <tr>
-            <td colspan="3"></td>
-            <td colspan="2" class="fw-bold"><a href="/{{orden.company_id}}/{{orden.id}}/report_pdf" type="button" target="_blank" class="btn btn-success btn-sm"><i class="bi bi-print"></i> Imprimir</a></td>
-        </tr>
+
+        <td colspan="6" class="fw-bold">
+            <div class="d-flex align-items-center gap-2">
+
+                <select class="form-select form-select-sm w-auto" id="tipo-print-{{ orden.id }}">
+                    <option value="ticket" selected>Ticket</option>
+                    <option value="factura">Factura</option>
+                </select>
+
+                <button class="btn btn-primary btn-sm"
+                        onclick="imprimirOrden({{ orden.company_id }}, {{ orden.id }})">
+                    <i class="bi bi-print"></i> Imprimir
+                </button>
+
+            </div>
+        </td>
+    </tr>
+
     </tbody>
 </table>
 {% else %}
     <div class="alert alert-warning text-center text-danger" role="alert">EL REGISTRO NO EXISTE</div>
 {% endif %}
+
+<script>
+    function imprimirOrden(companyId, ordenId) {
+    const tipo = document.getElementById(`tipo-print-${ordenId}`).value;
+
+    const url = `/orden/${companyId}/${ordenId}/print/?tipo=${tipo}`;
+    window.open(url, '_blank');
+}
+</script>
     

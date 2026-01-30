@@ -572,24 +572,40 @@ def eliminar_opciones(request, id_aviso):
         return JsonResponse({'success':"Se Borro el registro. "})
     return render(request, 'notificaciones/eliminar_opciones.html', {'aviso':aviso})
 
-def report_pdf(request, id_company, id_orden):
+def print_orden(request, id_company, id_orden):
+    tipo = request.GET.get('tipo', 'ticket')  # 👈 por defecto ticket
+
+    try:
+        orden = Orden.objects.select_related('company', 'client').get(
+            id=id_orden,
+            company_id=id_company
+        )
+    except Orden.DoesNotExist:
+        raise Http404("Orden no encontrada")
+
+    pedidos = Pedido.objects.filter(orden=orden)
     sucursal = get_address(id_company)
-    company = None
-    pedidos = None
-    cod = int(id_orden)
-    if Orden.objects.filter(id=cod, company_id=int(id_company)).exists():
-        orden = Orden.objects.get(id=cod)
-        company = Company.objects.get(id = int(id_company))
-        pedidos = Pedido.objects.filter(orden_id = orden.id)
-        precio_envio=int(orden.total) - int(orden.subtotal)
+
+    precio_envio = orden.total - orden.subtotal
+    context = {
+        'orden': orden,
+        'company': orden.company,
+        'pedidos': pedidos,
+        'precio_envio': precio_envio,
+        'sucursal': sucursal,
+    }
+    # Elegir template según tipo
+    if tipo == 'factura':
+        template = "reportes/report_order_pdf.html"
     else:
-        precio_envio, orden = None, None
-    dic = {'precio_envio':precio_envio, 'company':company, 'orden':orden, 'pedidos':pedidos, 'sucursal':sucursal}
-    html = render_to_string("reportes/report_order_pdf.html", dic)
+        template = "reportes/ticket_pdf.html"
+
+    html = render_to_string(template, context, request=request)
     response = HttpResponse(content_type="application/pdf")
-    response["Content-Disposition"] = "inline; reporte_orden.pdf"
+    response["Content-Disposition"] = f'inline; filename="{tipo}_orden_{orden.id}.pdf"'
+
     font_config = FontConfiguration()
-    HTML(string=html).write_pdf(response)
+    HTML(string=html).write_pdf(response, font_config=font_config)
     return response
 
 def like_company(request, id_company, id_orden, id_cliente):

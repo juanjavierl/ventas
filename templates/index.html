@@ -116,7 +116,7 @@
   <section id="hero" class="d-flex flex-column justify-content-center align-items-center">
     <div class="container text-center text-md-left" data-aos="fade-up">
       <h1>Crea tu tienda online ahora</h1>
-      <h2>Encuentra las mejores tiendas online de toda Bolivia con AI & SEO disponible 24/7</h2>
+      <h2>Convierte tu idea en un negocio digital que venda solo fácil, rápido y seguro con IA + SEO, 24/7.</h2>
       <a href="#team" class="btn-get-started scrollto"> Ver Ultimas Novedades</a>
       <a href="#" onclick="form_company('/registro_company/')" data-bs-toggle="modal" data-bs-target="#exampleModal"
         class="btn-get-started scrollto"> crear mi tienda online</a>
@@ -128,6 +128,15 @@
     <!-- ======= Services Section ======= -->
     {% block form_buscador %} {% endblock form_buscador %}
     <!-- End Services Section -->
+     <!-- ======= About Section ======= -->
+    
+    {% block acerca %}
+      <section id="about" class="about"><br>
+        {% include 'acerca.html' %}
+      </section>
+    {% endblock acerca %}
+      
+    <!-- End About Section -->
     <!-- ======= Team Section ======= -->
     {% block contenido %}
     <section id="team" class="team" style="margin-top: 10px;">

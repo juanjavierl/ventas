@@ -175,11 +175,9 @@
   
 {% endblock contenido %}
 
-{% block button_whatsap %}
-  {% if not user.is_authenticated %}
-    {% include 'button_whatsap.html' %}
-  {% endif %}
-{% endblock button_whatsap %}
+{% block button_whatsap %} {% endblock button_whatsap %}
+
+{% block acerca %} {% endblock acerca %}
 
 {% block suscipcion_for_email %}
   {% if not user.is_authenticated %}

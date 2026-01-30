@@ -31,7 +31,7 @@ urlpatterns = [
     path('<int:id_banco>/del_infor_banco_by_company', views.del_infor_banco_by_company, name='del_infor_banco_by_company'),
     path('<int:id_aviso>/eliminar_opciones', views.eliminar_opciones, name='eliminar_opciones'),
     
-    path('<int:id_company>/<int:id_orden>/report_pdf', views.report_pdf, name='report_pdf'),
+    path('orden/<int:id_company>/<int:id_orden>/print/',views.print_orden,name='print_orden'),
     path('<int:id_company>/<int:id_orden>/<int:id_cliente>/like', views.like_company, name='like'),
     path('<int:id_company>/report_by_date', views.reportByRange, name='reportByRange'),
     path('<int:id_company>/inventario_productos', views.inventarioProductos, name='inventario_productos'),

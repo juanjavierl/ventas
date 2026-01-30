@@ -9,30 +9,30 @@
           </div>
           <div class="col-lg-3 col-md-6">
             <div class="footer-info">
-              <h4>Contacto</h4>
+              <h3>Contáctanos</h3>
               <p>
                 <strong>Dir.</strong> {{dashboard.address|default:" - - -"|capfirst}}<br>
-                <strong>Celular:</strong> {{dashboard.mobile|default:" - - -"}}<br><br>
+                <strong>Celular:</strong> {{dashboard.mobile|default:" - - -"}}<br>
                
-                <strong>Email:</strong> {{dashboard.email|default:" - - -"}}
+                <strong>Email:</strong> {{dashboard.email|default:" - - -"}} <br>
+                <strong>Tutoriales del sistema</strong> en Tiktok, Youtube
               </p>
             </div>
-          </div>
-
-          <div class="col-lg-5 col-md-6 footer-links">
-            <h4>Nuestros Servicios</h4>
-            <ul>
-              <li><i class="bx bx-chevron-right"></i> <a>Sistema Tiendas Online - ecomerce</a></li>
-              <li><i class="bx bx-chevron-right"></i> <a>Tienda Online más Publicidad Personalizada</a></li>
-              <li><i class="bx bx-chevron-right"></i> <a>Tiendas Online más Punto de venta más Inventario</a></li>
-            </ul>
-            
             <div class="social-links mt-3">
-              Síguenos en: <a href="https://www.facebook.com/amceb.online/" target="_blank" class="facebook"><i class="bx bxl-facebook"></i></a>
+              <a href="https://www.facebook.com/amceb.online/" target="_blank" class="facebook"><i class="bx bxl-facebook"></i></a>
               <a href="https://api.whatsapp.com/send?text=Hola Quisiera mas información sobre el sistema AMCEB, gracias.%0A{{request.get_host}} &phone={{dashboard.mobile}}" target="_blank" class="google-plus"><i class="bx bxl-whatsapp"></i></a>
               <a href="https://www.youtube.com/channel/UCzAi4iRY0j-bRhP9zlQWDRw" target="_blank" class="youtube"><i class="bx bxl-youtube"></i></a>
               <a href="https://www.tiktok.com/@amceb?_t=ZM-8vKg5gKzw87&_r=1" target="_blank" class="tiktok"><i class="bx bxl-tiktok"></i></a>
             </div>
+          </div>
+          <div class="col-lg-5 col-md-6 footer-links">
+            <h3>Nuestros Servicios</h3>
+            <p>Elige un servicio para optener mas información o asesoramiento</p>
+            <ul>
+              <li><i class="bx bx-chevron-right"></i> <a href="https://api.whatsapp.com/send?text=Hola deseo crear mi propia tienda online para mi negocio, con un hosting y dominio propio.%0A mas información &phone={{dashboard.mobile}}" target="_blank" class="google-plus">Crear mi propia Tienda Online</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="https://api.whatsapp.com/send?text=Hola quisiera mi propio sistema de ventas e inventario control total de ventas, compras, gastos, cuentas por pagar cuentas por cobrar reportes y mucho mas.%0A mas información &phone={{dashboard.mobile}}" target="_blank" class="google-plus">Sistema punto de venta e inventario control total</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="https://api.whatsapp.com/send?text=Hola quisiera mi propio sistema de ventas e inventario mas tienda online, control total de ventas, compras, gastos, cuentas por pagar cuentas por cobrar reportes y mucho mas.%0A mas información. &phone={{dashboard.mobile}}" target="_blank" class="google-plus">Sistema punto de venta e Inventario + Tienda Online</a></li>
+            </ul>
           </div>
 
         </div>

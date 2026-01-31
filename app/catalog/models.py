@@ -174,6 +174,7 @@ class Orden(models.Model):
     total = models.DecimalField(max_digits=9, decimal_places=2, default=0.00, verbose_name='Total a pagar')
     creation_date = models.DateTimeField(auto_now_add=True, verbose_name='Fecha y hora de registro')#Fecha de modificacion
     date_joined = models.DateField(default=datetime.now, verbose_name='Fecha de registro')#Fecha de registro
+    status = models.BooleanField(default=False)
     # TODO: Define fields here
 
     class Meta:

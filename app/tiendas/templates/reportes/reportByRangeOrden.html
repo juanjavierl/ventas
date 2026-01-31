@@ -9,6 +9,7 @@
             <th>Celular</th>
             <th>Fecha & hora de pedido</th>
             <th>Total</th>
+            <th>Estado</th>
         </tr>
     </thead>
     <tbody>
@@ -19,7 +20,12 @@
             <td>{{o.client.mobile}}</td>
             <td>{{o.creation_date}}</td>
             <td>{{o.total}}</td>
-           
+            <td>{% if o.status %}
+                <span class="badge rounded-pill bg-success sale-tag d-flex">Autorizada</span>
+                {% else %}
+                <span class="badge rounded-pill bg-warning sale-tag d-flex">Pendiente</span>
+                {% endif %}
+            </td>
         </tr>
        {% endfor %}
     </tbody>

@@ -368,12 +368,11 @@ def confirmar_compra(request, id_company):
                 total=total,
                 nota=item.get('nota', '')
             )
-
-            producto = getProducto(producto_id)
+            """ producto = getProducto(producto_id)
             if not producto.is_service:
                 Product.objects.filter(id=producto_id).update(
                     salida=producto.salida + cantidad
-                )
+                ) """
 
         # --- Vaciar carrito ---
         lista_product = compra.copy()

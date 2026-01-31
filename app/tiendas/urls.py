@@ -47,4 +47,5 @@ urlpatterns = [
     path('<int:id_company>/get_cupom', views.get_cupom, name='get_cupom'),
     path('<int:id_cupom>/delete_cupom', views.delete_cupom, name='delete_cupom'),
     path('<int:id_company>/estado_company/', views.estadoCompany, name='estado_company'),
+    path('autorizar/<int:id_orden>/', views.autorizar_orden, name='autorizar_orden'),
 ]

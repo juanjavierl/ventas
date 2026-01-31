@@ -6,7 +6,8 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, request,HttpResponse
 from django.template.loader import render_to_string, get_template
 from django.core.paginator import Paginator
-from django.db.models import Count, Sum
+from django.db.models import Count, Sum, F
+from django.contrib import messages
 from ventas import settings
 from django.core.mail import EmailMultiAlternatives
 from weasyprint import HTML, CSS
@@ -773,3 +774,39 @@ def estadoCompany(request, id_company):
     except Dominio.DoesNotExist:
         initial_url = request.build_absolute_uri(f'/{company.id}/catalogo')
     return render(request, 'notificaciones/estadoCompany.html',{'company':company, 'initial_url':initial_url})
+
+def autorizar_orden(request, id_orden):
+    orden = get_object_or_404(Orden, id=id_orden)
+
+    # 🔒 Si ya está autorizada, no volver a procesar
+    if orden.status:
+        return render(
+            request,
+            'notificaciones/orden_autorizada.html',
+            {'orden': orden}
+        )
+
+    if request.method == 'POST':
+        # Marcar la orden como autorizada
+        orden.status = True
+        orden.save()
+
+        # Actualizar salidas de productos con F expressions
+        pedidos = Pedido.objects.filter(orden=orden).select_related('product')
+        for pedido in pedidos:
+            producto = pedido.product
+            if not producto.is_service:
+                Product.objects.filter(id=producto.id).update(salida=F('salida') + pedido.cant)
+
+        messages.success(request, "La orden fue autorizada y las salidas actualizadas correctamente.")
+        return render(
+            request,
+            'notificaciones/orden_autorizada.html',
+            {'orden': orden}
+        )
+
+    return render(
+        request,
+        'notificaciones/autorizar_orden.html',
+        {'orden': orden}
+    )

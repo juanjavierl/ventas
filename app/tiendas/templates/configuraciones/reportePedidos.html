@@ -5,9 +5,9 @@
     </button>
 </h2>
 <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
-    <div class="accordion-body row d-flex justify-content-center">
-        <div class="forn-envio col-lg-4 align-items-stretch">
-            <div class="input-group">
+    <div class="accordion-body row d-flex">
+        <div class="forn-envio col-lg-4 col-md-6 col-sm-12">
+            <div>
                 <form action="/{{company.id}}/buscar_orden" method="post" id="form_buscar_orden">
                     {% csrf_token %}
                     <div class="input-group mb-3">
@@ -28,7 +28,7 @@
             </div>
 
         </div>
-        <div class="pedidos col-lg-6 align-items-stretch">
+        <div class="pedidos col-lg-8 col-md-6 col-sm-12 align-items-center">
         </div>
     </div>
 </div>

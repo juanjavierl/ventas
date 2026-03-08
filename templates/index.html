@@ -163,6 +163,14 @@
     {% include 'preguntas_frecuentes.html' %}
     {% endblock preg_frecuentes %}
 
+    <!-- ======= Services Section ======= -->
+    <section id="services" class="services section-bg">
+      <div class="container">
+        {% block servicios %}
+          {% include 'servicios.html' %}
+        {% endblock servicios %}
+      </div>
+    </section><!-- End Services Section -->
     <div class="modal fade" id="exampleModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
       aria-labelledby="staticBackdropLabel" aria-hidden="true">
       <div class="modal-dialog">

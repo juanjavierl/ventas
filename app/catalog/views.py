@@ -14,6 +14,8 @@ from app.tiendas.models import *
 from app.catalog.models import *
 from app.catalog.forms import *
 from app.inicio.views import get_Dashboard
+from django.db.models import F, ExpressionWrapper, IntegerField
+from django.db.models.functions import Coalesce
 # Create your views here.
 def CatalogView(request, id_company):
     template_name = "sitio.html"
@@ -44,7 +46,7 @@ def CatalogView(request, id_company):
             'categorias':categorys,
             'productos':productos,
             'paginator':paginator,
-            'total_compra':len(request.session['compra']),
+            'total_compra':sum(item['cantidad'] for item in request.session['compra']),
             't_pago':calcular_pago(request),
             'company':get_company(id_company),
             'aviso':optener_avisos_by_company(id_company),
@@ -137,7 +139,7 @@ def optenerProducto(request, id_producto, id_company):
             data_cli.append(datos)
             request.session['compra'] = data_cli
             dic = {
-                'total_compra':len(request.session['compra']),
+                'total_compra':sum(item['cantidad'] for item in data_cli),
                 'cantidad':int(request.POST['cantidad']),
                 'producto':p.name.title(),
                 'precio_uni':float(p.price),
@@ -154,17 +156,18 @@ def optenerProducto(request, id_producto, id_company):
                     data_cli[indice]['total'] = float(int(data_cli[indice]['cantidad']) * float(p.price))
                     data_cli[indice] = data_cli[indice]
                     request.session['compra'] = data_cli
+                    dic['total_compra'] = sum(item['cantidad'] for item in data_cli)
                     dic['success'] = p.name.title()," agregado al Carrito."
                     return JsonResponse(dic)
             if not datos in data_cli:#verifica si el producto aun no esta en la sesion
                 data_cli.append(datos)
                 request.session['compra'] = data_cli
-                dic['total_compra'] = len(request.session['compra'])
+                dic['total_compra'] = sum(item['cantidad'] for item in data_cli)
                 dic['success'] = p.name.title()," agregado al Carrito."
                 return JsonResponse(dic)
     else:
         context = { 'p':p,
-                    'total_compra':len(request.session['compra']),
+                    'total_compra':sum(item['cantidad'] for item in data_cli),
                     'company':get_company(id_company),
                     'categorias':categorys_from_productos(productos),
                     'aviso':optener_avisos_by_company(id_company),
@@ -218,7 +221,7 @@ def eliminarProducto(request, id_producto):#el id_producto es el indicen
     request.session['compra'] = productos
     #calcular nuevamente
     data = {
-        'cant_compras':len(request.session['compra']),
+        'cant_compras':sum(item['cantidad'] for item in request.session['compra']),
         't_pago':calcular_pago(request)
     }
     return JsonResponse(data)
@@ -232,7 +235,7 @@ def actualizarCantidad(request):
     #print(productos[int(indice)]['precio_uni'], " X ", productos[int(indice)]['cantidad'])
     request.session['compra'] = productos
     data = {
-        'cant_compras':len(request.session['compra']),
+        'cant_compras':sum(item['cantidad'] for item in request.session['compra']),
         't_pago':calcular_pago(request)
     }
     return JsonResponse(data)
@@ -292,7 +295,7 @@ def confirmar_compra(request, id_company):
     company = get_object_or_404(Company, id=id_company)
     t_pago = calcular_pago(request)
     compra = request.session.get('compra', [])
-    total_compra = len(compra)
+    total_compra = sum(item['cantidad'] for item in compra)
 
     if request.method == 'POST':
         email = request.POST.get('email', '').strip()
@@ -396,7 +399,7 @@ def confirmar_compra(request, id_company):
             't_pago': t_pago,
             'precio_envio': determinarPrecioEnvio(id_company),
             'precio_envio_ciudad': determinarPrecioEnvioCiudad(id_company),
-            'products': len(request.session['compra'])
+            'products': sum(item['cantidad'] for item in compra)
         })
 
     # --- Si no es POST, renderizar vista ---
@@ -493,7 +496,17 @@ def getProducto(id_producto):
     return producto
 
 def productosMasVistos(id_company):
-    productos = Product.objects.filter(stock__gt=0, company_id=id_company, is_promotion=True)
+    #productos = Product.objects.filter(stock__gt=0, company_id=id_company, is_promotion=True)
+    productos = Product.objects.annotate(
+        stock_real=ExpressionWrapper(
+            F('stock') - Coalesce(F('salida'), 0),
+            output_field=IntegerField()
+        )
+    ).filter(
+        stock_real__gt=0,
+        company_id=id_company,
+        is_promotion=True
+    )
     return productos
 
 def determinarPrecioEnvio(id_company):

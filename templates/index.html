@@ -294,6 +294,19 @@
     });
   }
 
+  function actualizarBadge(count) {
+        const badge = document.getElementById("cont_compras");
+
+        if (!badge) return;
+
+        if (count > 0) {
+            badge.style.display = "flex";
+            badge.textContent = count > 99 ? "99+" : count;
+        } else {
+            badge.style.display = "none";
+        }
+    }
+
   $(document).ready(function () {
     $("#id_suscripcion").submit(function (e) {
       e.preventDefault();
@@ -369,7 +382,7 @@
                         </div>
 
                         <div class="d-flex justify-content-center align-items-center mt-auto bg-light rounded py-1 px-2" style="gap: 10px;">
-                          <span class="fw-semibold text-dark" style="font-size: 14px;">Bs. ${p.price}</span>
+                          <span class="fw-semibold text-dark" style="font-size: 14px;">${p.moneda}. ${p.price}</span>
                           <a class="btn btn-outline-primary fw-semibold" 
                             style="font-size: 13px; border-radius: 20px; padding: 1px 8px;" 
                             href="${p.url}">

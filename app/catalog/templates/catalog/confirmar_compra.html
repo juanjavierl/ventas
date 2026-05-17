@@ -6,7 +6,7 @@
 
 {% block company %}
 <a href="/{{company.id}}/catalogo">
-  <marquee behavior="" direction="">{{company.name|title}}</marquee>
+  <marquee behavior="" direction="" style="margin-top: 14px;">{{company.name|title}}</marquee>
 </a>
 {% endblock company %}
 
@@ -148,9 +148,9 @@
                 <div class="alert alert-success" role="alert" style="padding: 0px 10px; text-align: justify;">
                    
                   {% if regla %}
-                   <small><i class="bi bi-star-fill" style="color: gold;"></i> {{regla.regla}}</small>
+                   <small><i class="bi bi-star-fill" style="color: gold;"></i> Resumen de su pedido: {{regla.regla}}</small>
                   {% else %}
-                  <small><i class="bi bi-star-fill" style="color: gold;"></i>¡Ya casi lo tienes! No dejes pasar esta oferta por tiempo limitado: todos los productos tienen descuento, ¡aprovechalos antes de que se acaben!</small>
+                  <small><i class="bi bi-star-fill" style="color: gold;"></i> En buena hora, ¡ya casi lo tienes! Resumen de su pedido</small>
                    {% endif %}
                 </div>
               </td>
@@ -186,7 +186,7 @@
           {% endfor %}
           {% if datos %}
           <tr>
-            <td colspan="5" style="text-align: center;"><strong id="t_p">Importe estimado: Bs. {{t_pago}}</strong></td>
+            <td colspan="5" style="text-align: center;"><strong id="t_p">Importe estimado: {{company.moneda}}. {{t_pago}}</strong></td>
           </tr>
           {% endif %}
         </tbody>
@@ -215,14 +215,14 @@
         success: function (resp) {
           //$("#t_p").text(resp.datos.total);
           if(resp.datos.precio_envio != "0"){
-            $(".menj_valor_envio").text("Costo de envio: Bs. "+ resp.datos.precio_envio).show();
+            $(".menj_valor_envio").text("Costo de envio: {{company.moneda}}. "+ resp.datos.precio_envio).show();
             $('.img_pagoQr').fadeIn(500).show();
             
             if(resp.datos.qr == false){
               $('.img_pagoQr').hide();
             }else{
               $('.img_pagoQr img').attr('src',resp.datos.qr.qr_img);
-              $('#costos').text("Importe: "+ resp.datos.importe + " Precio de envio: "+ resp.datos.precio_envio + " Total a pagar : Bs." + resp.datos.total_pagar);
+              $('#costos').text("Importe: "+ resp.datos.importe + " Precio de envio: "+ resp.datos.precio_envio + " Total a pagar : {{company.moneda}}." + resp.datos.total_pagar);
             }
           
           }else{
@@ -235,7 +235,7 @@
                 $('.img_pagoQr').fadeIn(500).hide();
               }else{
                 $('.img_pagoQr img').attr('src',resp.datos.qr.qr_img);
-                $('#costos').text("Importe: "+ resp.datos.importe + " Precio de envio: "+ resp.datos.precio_envio + " Total a pagar : Bs." + resp.datos.total_pagar);
+                $('#costos').text("Importe: "+ resp.datos.importe + " Precio de envio: "+ resp.datos.precio_envio + " Total a pagar : {{company.moneda}}." + resp.datos.total_pagar);
                 $('.img_pagoQr').fadeIn(500).show();
               }
             }
@@ -348,14 +348,14 @@
             const total = item['total'] ?? (cantidad * precio);
             const nota = item['nota']?.trim() ? " (" + item['nota'] + ")" : "";
 
-            pedido += `• ${nombre}${nota} → ${cantidad} x ${precio} Bs. = *${total} Bs.*%0A`;
+            pedido += `• ${nombre}${nota} → ${cantidad} x ${precio} {{company.moneda}}. = *${total} {{company.moneda}}.*%0A`;
           }
         } else {
           pedido += "_(Sin productos registrados)_ %0A";
         }
 
         // 💰 Totales
-        let sub_total = "%0A💰 *Sub Total:* Bs. " + parseFloat(resp.t_pago || 0).toFixed(2) + "%0A";
+        let sub_total = "%0A💰 *Sub Total:* {{company.moneda}}. " + parseFloat(resp.t_pago || 0).toFixed(2) + "%0A";
         let Envio = "";
         let total = "";
         let lugar = "";
@@ -365,25 +365,25 @@
 
         if (tipo === "tienda") {
           lugar = "🏬 *Retiro en tienda:* %0A📅 " + (resp.lugar.fecha || "Sin fecha") + "%0A";
-          total = "💵 *Total a pagar:* Bs. " + parseFloat(resp.t_pago || 0).toFixed(2) + "%0A";
+          total = "💵 *Total a pagar:* {{company.moneda}}. " + parseFloat(resp.t_pago || 0).toFixed(2) + "%0A";
         } 
         else if (tipo === "domicilio") {
           let envio = parseFloat(resp.precio_envio || 0);
           let total_envio = parseFloat(resp.t_pago || 0) + envio;
           lugar = "🚚 *Envío a domicilio:* %0A📍 " + (resp.lugar.direccion || "Sin dirección") + "%0A";
-          Envio = "📦 *Costo de envío:* Bs. " + envio.toFixed(2) + "%0A";
-          total = "💵 *Total a pagar:* Bs. " + total_envio.toFixed(2) + "%0A";
+          Envio = "📦 *Costo de envío:* {{company.moneda}}. " + envio.toFixed(2) + "%0A";
+          total = "💵 *Total a pagar:* {{company.moneda}}. " + total_envio.toFixed(2) + "%0A";
         } 
         else if (tipo === "ciudad") {
           let envio_c = parseFloat(resp.precio_envio_ciudad || 0);
           let total_envio_c = parseFloat(resp.t_pago || 0) + envio_c;
           lugar = "🛫 *Envío a otra ciudad:* %0A🏙️ Destino: " + (resp.lugar.destino || "Sin destino") + "%0A";
-          Envio = "📦 *Costo de envío:* Bs. " + envio_c.toFixed(2) + "%0A";
-          total = "💵 *Total a pagar:* Bs. " + total_envio_c.toFixed(2) + "%0A";
+          Envio = "📦 *Costo de envío:* {{company.moneda}}. " + envio_c.toFixed(2) + "%0A";
+          total = "💵 *Total a pagar:* {{company.moneda}}. " + total_envio_c.toFixed(2) + "%0A";
         } 
         else {
           lugar = "📍 *Entrega no especificada* %0A";
-          total = "💵 *Total a pagar:* Bs. " + parseFloat(resp.t_pago || 0).toFixed(2) + "%0A";
+          total = "💵 *Total a pagar:* {{company.moneda}}. " + parseFloat(resp.t_pago || 0).toFixed(2) + "%0A";
         }
 
         // 🧾 Mensaje completo

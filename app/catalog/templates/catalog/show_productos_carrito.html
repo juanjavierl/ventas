@@ -3,10 +3,11 @@
       <tr>
         <td colspan="5">
           <div class="alert alert-success" role="alert" style="padding: 0px 10px; text-align: justify;">
-             <small><i class="bi bi-star-fill" style="color: gold;"></i>¡Ya casi lo tienes! No dejes pasar esta oferta por tiempo limitado: todos los productos tienen descuento, ¡aprovechalos antes de que se acaben!</small><br>
-            {% if regla %}
-             <small><i class="bi bi-star-fill" style="color: gold;"></i> {{regla.regla}}</small>
-            {% endif %}
+             {% if regla %}
+                <small><i class="bi bi-star-fill" style="color: gold;"></i> Resumen de su pedido: {{regla.regla}}</small>
+              {% else %}
+                <small><i class="bi bi-star-fill" style="color: gold;"></i> En buena hora, ¡ya casi lo tienes! Resumen de su pedido</small>
+              {% endif %}
           </div>
         </td>
       </tr>
@@ -37,7 +38,7 @@
       {% endfor %}
       {% if datos %}
       <tr>
-        <td colspan="5" style="text-align: center;"><strong id="t_p">Importe estimado: Bs. {{t_pago}}</strong></td>
+        <td colspan="5" style="text-align: center;"><strong id="t_p">Importe estimado: {{company.moneda}}. {{t_pago}}</strong></td>
       </tr>
       {% endif %}
     </tbody>

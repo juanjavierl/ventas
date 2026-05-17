@@ -78,7 +78,7 @@
       </div>
       <div class="cta-section">
         <div>
-          <p style="margin-bottom: 0px;">Bs. {{p.price|default:" 0 "}}</p>
+          <p style="margin-bottom: 0px;">{{company.moneda}}. {{p.price|default:" 0 "}}</p>
           {% if p.price_before %}
           <p class="text-decoration-line-through text-danger" style="font-size: 14px; margin-bottom: 0px;">Antes:
             {{p.price_before}}</p>
@@ -86,9 +86,15 @@
           {% endif %}
 
           <div class="dropdown">
+            
+            {% if p.stock_actual > 0 %}
             <button type="submit" id="id_{{p.id}}"
               onclick="add_item('/{{p.id}}/{{company.id}}/detail_product','{{p.id}}')"
               class="btn btn-primary btn-sm">Agregar</button>
+            {% else %}
+              <button type="button" class="btn btn-primary btn-sm" disabled>Agotado</button>
+            {% endif %}
+              
             {% if user.is_authenticated and company.user == request.user %}
             <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="dropdown" aria-expanded="false"
               aria-haspopup="true">
@@ -163,6 +169,7 @@
           $('.toast-body').fadeIn(1000).html('<strong>'+ resp.success +'</strong>');
           mostrar_notificacion();
           $("#cont_compras").html(resp.total_compra);
+          actualizarBadge(resp.total_compra || 0);
         }
         setTimeout(function () {
           $(".tamanio").fadeIn().html(resp.success).hide();

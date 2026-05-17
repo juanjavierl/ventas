@@ -27,7 +27,7 @@
                         <div class="text-section">
                             <h5 class="card-title text-wrap text-primary fw-bolder">{{p.name|capfirst}}</h5>
                             
-                            <small class="">Bs. {{p.price}} </small>
+                            <small class="">{{company.moneda}} {{p.price}} </small>
                             <small class="text-decoration-line-through text-danger">
                                 {% if p.price_before %}
                                 Antes: {{p.price_before}}
@@ -80,7 +80,7 @@
                     $('.toast-body').fadeIn(1000).html('<strong>'+ resp.success +'</strong>');
                     mostrar_notificacion();
                     $("#cont_compras").html(resp.total_compra);
-
+                    actualizarBadge(resp.total_compra || 0);
                     const path = window.location.pathname;
                     const esConfirmarCompra = /^\/\d+\/confirmar_compra\/?$/.test(path);
                     if(esConfirmarCompra){

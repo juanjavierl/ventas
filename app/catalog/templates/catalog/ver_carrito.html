@@ -53,7 +53,7 @@
           
           {% if datos %}
           <tr>
-            <td colspan="6" style="text-align: center;"><strong data-value="{{t_pago}}" id="t_pago">Importe estimado: Bs. {{t_pago}}</strong></td>
+            <td colspan="6" style="text-align: center;"><strong data-value="{{t_pago}}" id="t_pago">Importe estimado: {{t_pago}} {{company.moneda}}.</strong></td>
           </tr>
           {% endif %}
         </tbody>
@@ -79,7 +79,7 @@
           data:{'cantidad':valor, 'indice':indice},
           success:function(resp){
             //$("#data_dable tbody #t_p").html("Importe estimado: "+resp.t_pago);
-            
+            $("#cont_compras").html(resp.cant_compras);
             const path = window.location.pathname;
             const esConfirmarCompra = /^\/\d+\/confirmar_compra\/?$/.test(path);
             if(esConfirmarCompra){

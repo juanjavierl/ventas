@@ -1,12 +1,13 @@
 #encoding:utf-8
 from django.urls import reverse
 from django.utils.text import slugify
-from app.catalog.images import procesar_imagen_portada
+from app.catalog.images import procesar_imagen_portada, procesar_imagen_logo
 from datetime import datetime, date
 from random import randint
 from django.forms import model_to_dict
 from django.db import models
 from django.contrib.auth.forms import User
+from .choices import MONEY
 from meta.models import ModelMeta
 from ventas import settings
 
@@ -68,7 +69,7 @@ class Ciudad(models.Model):
         return f"/{self.id}/city"
 
 class Plataforma(models.Model):
-    name = models.CharField(max_length=20, verbose_name="Nombre")
+    name = models.CharField(max_length=50, verbose_name="Nombre")
     description = models.CharField(max_length=150, verbose_name="Descripción")
     
     contracts_min = models.CharField(verbose_name="Tiempo de minimo", max_length=50)
@@ -78,9 +79,10 @@ class Plataforma(models.Model):
     price_max = models.IntegerField(verbose_name="Precio")
 
     icono = models.CharField(max_length=100, verbose_name="Icono de Bootstrap", default="bi bi-clipboard2-check")
-    qr_img = models.ImageField(upload_to='img_qr', verbose_name='Img QR de pago', help_text="Imagen que tenga validacion de un año")
+    qr_img = models.ImageField(upload_to='img_qr', null=True, blank=True, verbose_name='Img QR de pago', help_text="Imagen que tenga validacion de un año")
 
-    cantidad = models.IntegerField(verbose_name="Cantidad de registros permitidos")
+    cantidad = models.IntegerField(null=True, blank=True, verbose_name="Cantidad de registros permitidos")
+    ilimitado = models.BooleanField(default=False, verbose_name="Es ilimitado")
     class Meta:
         """Meta definition for Cuidad."""
 
@@ -98,22 +100,27 @@ class Company(models.Model, ModelMeta):
     #address = models.CharField(max_length=200, verbose_name='Dirección (Zona, Calle, #)')
     mobile = models.CharField(max_length=15, verbose_name='Celular (WhatsApp)')
     category = models.ForeignKey(Tipo_company, on_delete=models.CASCADE, verbose_name='Tipo de Negocio')
-    cuidad = models.ForeignKey(Ciudad, on_delete=models.CASCADE, verbose_name='Ciudad')
+    cuidad = models.ForeignKey(Ciudad, on_delete=models.CASCADE, verbose_name='Seleccione su Ciudad')
     #phone = models.CharField(max_length=9, verbose_name='Teléfono convencional')
     #email = models.CharField(max_length=50, verbose_name='Email')
     user = models.ForeignKey(User,on_delete=models.CASCADE)
     website = models.CharField(max_length=250, verbose_name='Link a grupo de WhatsApp (Opcional)', blank=True, null=True, help_text="Tus clientes se uniran mediante este link")
     #iva = models.DecimalField(default=0.00, decimal_places=2, max_digits=9, verbose_name='IVA')
-    image = models.ImageField(null=True, blank=True, upload_to='company/%Y', verbose_name='Imagen de Portada (Opcional)')    
+    moneda = models.CharField(max_length=50, choices=MONEY, default=MONEY[0][0], verbose_name='Seleccione su moneda')
+    image = models.ImageField(null=True, blank=True, upload_to='company/portada/%Y/', verbose_name='Imagen de Portada (Opcional)')
+    logo = models.ImageField(null=True, blank=True, upload_to='company/logo/%Y/', verbose_name='Logo (Opcional)')
     date_joined = models.DateField(default=datetime.now, verbose_name='Fecha de registro')
     plan = models.ForeignKey(Plataforma, on_delete=models.CASCADE, verbose_name="Seleccione un plan")
     expiration_date = models.DateField(verbose_name='Fecha de expiracion (dd/mm/AAAA)')
     status = models.BooleanField(default=True, verbose_name="Estado")
-    is_service = models.BooleanField(default=False, verbose_name='¿Tus ventas sera solo en esta ciudad?', help_text="Ej. restauranes o productos consumibles que dificultan el envío a lugares alejados")
+    is_service = models.BooleanField(default=False, verbose_name='Marque esta opción, solo si su negocio es de tipo servicio.', help_text="Ej. restauranes o productos consumibles que dificultan el envío a lugares alejados")
 
     def save(self, *args, **kwargs):
         if self.image:# Si hay imagen nueva o editada
             procesar_imagen_portada(self, 'image')  # Procesar primero la imagen antes de guardar
+        if self.logo:
+            procesar_imagen_logo(self, 'logo')
+
         super().save(*args, **kwargs)  # Guardar ya procesada
         # si no existe dominio asociado, lo creamos
         # Crear dominio si no existe
@@ -166,15 +173,26 @@ class Company(models.Model, ModelMeta):
         if self.image:
             return f'{settings.MEDIA_URL}{self.image}'
         return f'{settings.STATIC_URL}img/default/empty.png'
+    
+    @property
+    def get_logo(self):
+        if self.logo:
+            return self.logo.url
+
+        if self.image:
+            return self.image.url
+        return f'{settings.STATIC_URL}img/default_store.jpg'
 
     def toJSON(self):
         item = model_to_dict(self)
-        item['image'] = self.get_image()
         item['id'] = int(self.id)
         item['name'] = self.name
         item['mobile'] = self.mobile
         item['description'] = self.description
         item['is_service'] = self.is_service
+        item['moneda'] = self.moneda
+        item['image'] = self.get_image()
+        item['logo'] = self.get_logo()
         return item
 
     class Meta:

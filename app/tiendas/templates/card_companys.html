@@ -66,11 +66,7 @@
     <div class="row col-12 justify-content-center" style="margin-left: 1px;">
       {% for n in companys %}
       <div class="card dark card_c single-product" data-aos="fade-up">
-        {% if n.image %}
-          <img src="/media/{{n.image}}" class="card-img-top" alt="...">
-        {% else %}
-          <i class="bi bi-shop-window icon_img card-img-top" alt="..."></i>
-        {% endif %}
+          <img src="{{n.get_logo}}" class="card-img-top" alt="{{n.name}}">
         <!-- {% if n.is_new %}        
           <span class="badge rounded-pill bg-primary sale-tag d-flex">
             Nuevo
@@ -109,7 +105,10 @@
                 
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                   <a class="dropdown-item" href="#actualizar" onclick="selectOptionCompany('/{{n.id}}/updateCompany/')" 
-                  data-bs-toggle="modal" data-bs-target="#exampleModal">Actualizar</a>
+                  data-bs-toggle="modal" data-bs-target="#exampleModal">Actualizar datos</a>
+                  <a class="dropdown-item" href="#images" onclick="add_images('/{{n.id}}/add_images_company/')"
+                  data-bs-toggle="modal" data-bs-target="#exampleModal">Logo & Portada</a>
+                  
                   <a class="dropdown-item" href="#dominio" onclick="selectOptionCompany('/{{n.id}}/createDonimio/')" 
                   data-bs-toggle="modal" data-bs-target="#exampleModal">Dominio</a>
                   <a class="dropdown-item" href="#status" onclick="selectOptionCompany('/{{n.id}}/estado_company/')" 
@@ -135,26 +134,6 @@
             {% endif %}
         {% endfor %}     
     </div>
-    
-    {% if user.is_authenticated %}
-    <div class="container-fluid alert alert-info">
-      <div class="row">
-        <div class="col-md-4 mb-3">
-          <p><i class="bi bi-star-fill" style="color: gold;"></i> ¡Haz que tu tienda online llegue a todos! Comparte el enlace en tus redes sociales, chats o donde quieras. Tus clientes podrán ver todo lo que ofreces. ¡Promociona tu negocio y aumenta tus ventas!</p>
-        </div>
-        <div class="col-md-4 mb-3">
-          <p><i class="bi bi-star-fill" style="color: gold;"></i> ¡Lleva tu tienda online al siguiente nivel con Facebook Ads (pagada)! Llega a miles de clientes potenciales, aumenta tus ventas y haz crecer tu marca. ¿No sabes por dónde empezar? Nosotros te ayudamos. Contáctanos y empieza a atraer más clientes hoy mismo.
-            <a class="dropdown-item d-inline" style="color: rgb(40, 166, 240);"
-            href="https://api.whatsapp.com/send?text=Quiero Realizar marketing para mi tienda online: {{request.build_absolute_uri}} gracias. &phone={{dashboard.mobile}}"
-            target="_blank"><i class="bi bi-whatsapp"></i> {{dashboard.mobile}}</a>
-          </p>
-        </div>
-        <div class="col-md-4 mb-3">
-          <p><i class="bi bi-star-fill" style="color: gold;"></i> ¿Necesita ayuda con la carga de productos hacia su tienda online? Envíenos un archivo Excel con la información estructurada (nombre del producto, código opcional, descripción, precio, stock) y lo ayudamos a realizar la importación masiva al sistema.</p>
-        </div>
-      </div>
-    </div>
-    {% endif %}
       
   </div>
 </section>
@@ -168,6 +147,17 @@
             url:urls,
             success:function(resp){
               $(".modal-content").html(resp);
+            }
+    });
+  }
+  function add_images(urls){
+    $.ajax({
+            type:'get',
+            url:urls,
+            success:function(resp){
+              $(".modal-content").html(resp);
+              mostrarPreview('logo', 'preview-logo');
+              mostrarPreview('image', 'preview-portada');
             }
     });
   }

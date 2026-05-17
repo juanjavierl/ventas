@@ -66,7 +66,7 @@
         <div class="row align-items-center">
             <div class="col-2">
                 {% if company.logo %}
-                    <img src="{{ company.logo.url }}" alt="Logo" class="img_logo">
+                    <img src="https://amceb.online{{ company.get_logo }}" alt="{{ company.name }}" class="img_logo">
                 {% endif %}
             </div>
             <div class="col-8">
@@ -81,7 +81,8 @@
             Celular: {{ company.mobile }}<br>
             Dirección: {{ sucursal.address|default:'Tienda online' }}<br>
             {% if company.ruc %}NIT: {{ company.ruc }}<br>{% endif %}
-            {{ company.cuidad|title }} - Bolivia
+            Emitido por: {{ user.username }}<br>
+            Ciudad: {{ company.cuidad|title }}
         </div>
 
         <div>
@@ -135,7 +136,7 @@
     <div class="text-center small-footer">
         Gracias por su preferencia, ¡vuelva pronto!<br>
         Fecha y hora de impresión: {% now "d/m/Y G:i:s a" %}<br>
-        Emitido por: {{ user.username }}
+        Sitio web: {{ request.scheme }}://{{ request.get_host }}{{ company.get_meta_url }}
     </div>
     {% else %}
     <p class="text-center text-danger">EL REGISTRO NO EXISTE</p>

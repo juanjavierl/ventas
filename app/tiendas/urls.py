@@ -16,6 +16,7 @@ urlpatterns = [
     path('<int:user_id>/companys/', views.companys_from_user, name='companys_from_user'),
     path('redirigir-a-companys/', views.redirigir_a_companys, name='redirigir_a_companys'),
     path('<int:id_company>/updateCompany/', views.updateCompany, name='updateCompany'),
+    path('<int:id_company>/add_images_company/', views.add_images_company, name='add_images'),
     path('<int:id_company>/deleteCompany/', views.deleteCompany, name='deleteCompany'),
     path('<int:id_company>/createDonimio/', views.create_dominio, name='create_dominio'),
     path('<slug:slug>/', views.redirigir_a_catalogo, name='redirigir_a_catalogo'),

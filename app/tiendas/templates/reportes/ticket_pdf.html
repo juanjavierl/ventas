@@ -98,26 +98,33 @@
                 display: none;
             }
         }
+        .img-logo{
+            display: block;
+            margin: 0 auto;
+            max-width: 120px;
+            max-height: 120px;
+            object-fit: contain;
+        }
     </style>
 </head>
 
 <body>
     <div class="content">
         {% if company.logo %}
-        <img src="{{ company.get_image }}" class="img-logo d-block mx-auto" alt="Logo">
+            <img src="https://amceb.online{{ company.get_logo }}" class="img-logo d-block mx-auto" alt="{{ company.name }}">
         {% endif %}
         <h2 class="head-name">{{ company.name|upper }}</h2>
-
         <div class="head-details text-center">
             Dirección:{{ sucursal.address|default:"Tienda online" }}<br>
             {% if company.ruc %}NIT: {{ company.ruc }}<br>{% endif %}
             Teléfono/Celular: {{ company.phone }} / Cel: {{ company.mobile }}<br>
-            {{ company.cuidad|title }} - Bolivia
+            Emitido por: {{ user.username }}<br>
+            Ciudad:{{ company.cuidad|title }}
         </div>
 
         <div class="head-data">
             <b>Ticket N°</b> {{ orden.id }}<br>
-            <b>Fecha:</b> {{ orden.creation_date|date:"d/m/Y H:i" }}<br>
+            <b>Fecha:</b> {{ orden.creation_date|date:"d/m/Y H:i A" }}<br>
             <b>Cliente:</b> {{ orden.client|title }}<br>
             {% if orden.client.dni %}
             <b>Nit/C.I:</b> {{ orden.client.dni }}<br>
@@ -161,9 +168,10 @@
         </table>
 
         <div class="footer">
-            Emitido por: {{ user.username }}<br>
             Gracias por su compra, ¡lo esperamos pronto!<br>
-            Impreso: {% now "d/m/Y H:i:s" %}
+            Sitio web: {{ request.scheme }}://{{ request.get_host }}{{ company.get_meta_url }}<br>
+            fecha de impresión: {% now "d/m/Y H:i A" %}
+
         </div>
     </div>
 </body>

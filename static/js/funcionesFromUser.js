@@ -28,7 +28,7 @@ function updateTotalPago(urls, valor_option){
         }
       });
 }
-let buscadorCargado = false;
+var buscadorCargado = false;
 function mostrar_buscador(id_company) {
     const contenedor = $(".form_buscador_product");
     if (!buscadorCargado) {

@@ -93,7 +93,7 @@ def registro_company(request):
         return redirect('/')
     form_user = RegisterForm()
     form_company = formCompany()
-    planes = Plataforma.objects.all().order_by('-id')
+    planes = Plataforma.objects.filter(ilimitado=False).order_by('-id')
     dic = {
         'form_user':form_user,
         'form_company':form_company,
@@ -210,6 +210,7 @@ def datos_registro(request):
         company.user_id = int(user.id)
         #company.image =  datos['company_data']['image']#no se puedo guardar la imagen
         company.is_service = datos['company_data']['is_service']
+        company.moneda = datos['company_data']['moneda']
         company.plan_id = datos['plan_data']['plan_name']
         company.expiration_date = datetime.now().date() + timedelta(days=7)
         company.save()
@@ -249,6 +250,7 @@ def new_store(request):
         company.user_id = int(request.user.id)
         #company.image =  datos['company_data']['image']#no se puedo guardar la imagen
         company.is_service = datos['company_data']['is_service']
+        company.moneda = datos['company_data']['moneda']
         company.plan_id = datos['plan_data']['plan_name']
         company.expiration_date = datetime.now().date() + timedelta(days=7)
         company.save()
@@ -294,6 +296,18 @@ def updateCompany(request, id_company):
         form=formCompanyImage(instance=company)
         return render(request,'updateCompany.html',{'form':form,'company':company})
 
+def add_images_company(request, id_company):
+    company = Company.objects.get(id=id_company)
+    if request.method == 'POST':
+        form = CompanyPortadaLogoForm(request.POST,request.FILES,instance=company)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'success': True, 'companys_from_user': request.user.id})
+
+    else:
+        form = CompanyPortadaLogoForm(instance=company)
+        return render(request,'add_images_company.html',{'form': form,'company': company})
+    
 def create_dominio(request, id_company):
     company = get_object_or_404(Company, id=id_company)
     # Recuperamos o creamos un dominio temporal
@@ -390,7 +404,7 @@ def configuraciones_company(request, id_company):
         'form_regla':Form_condiciones(),
         'categorias':categorys_from_productos(productos),
         'company':get_company(id_company, request.user),  # ya hace validación y 404
-        'total_compra':len(request.session['compra']),
+        'total_compra':sum(item['cantidad'] for item in request.session['compra']),
         'precio':get_precio_envios(id_company),
         'avisos':Aviso.objects.filter(company_id = int(id_company))[:1],
         'banco':Banco.objects.filter(company_id = int(id_company))[:1],
@@ -625,7 +639,7 @@ def like_company(request, id_company, id_orden, id_cliente):
             ruta = str(id_company)+"/catalogo"
             dic = {
                 'categorias':categorys_from_productos(productosDeCatalogo(request, id_company)),
-                'total_compra':len(request.session['compra']),
+                'total_compra':sum(item['cantidad'] for item in request.session['compra']),
                 't_pago':calcular_pago(request),
                 'company':get_company(id_company),
                 'aviso':optener_avisos_by_company(id_company),
@@ -642,7 +656,7 @@ def like_company(request, id_company, id_orden, id_cliente):
             dic = {
                 'categorias':categorys_from_productos(productosDeCatalogo(request, id_company)),
                 'productos':productosDeCatalogo(request, id_company),
-                'total_compra':len(request.session['compra']),
+                'total_compra':sum(item['cantidad'] for item in request.session['compra']),
                 't_pago':calcular_pago(request),
                 'company':get_company(id_company),
                 'aviso':optener_avisos_by_company(id_company),

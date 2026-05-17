@@ -82,7 +82,7 @@ def verPlanes(request):
         return redirect('/')
     idCompany = int(request.GET.get('id_company', 0))
     if idCompany == 0:
-        planes = Plataforma.objects.all()
+        planes = Plataforma.objects.filter(ilimitado=False).order_by('-id')
         company = False
     else:
         company = Company.objects.get(id = idCompany)
@@ -191,6 +191,7 @@ class ChatBotView(View):
             {
                 "name": p.name.title(),
                 "price": str(p.price),
+                "moneda": p.company.moneda,
                 "image_url": p.image.url if p.image else "",
                 "url": f"/{p.id}/{p.company.id}/detail_product",
                 "description": (p.description[:100] + "...") if p.description and len(p.description) > 80 else p.description or "",

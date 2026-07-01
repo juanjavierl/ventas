@@ -57,8 +57,43 @@ class FormHuvicacion(forms.ModelForm):
 class PrecioForm(forms.ModelForm):
     class Meta:
         model = Precio_envio
-        exclude = ('date_joined','company')
+        exclude = ('date_joined', 'company')
+    def clean(self):
+        cleaned_data = super().clean()
 
+        precio = cleaned_data.get('precio')
+        precio_ciudad = cleaned_data.get('precio_ciudad')
+        por_pagar = cleaned_data.get('por_pagar')
+
+        if por_pagar:
+            # Si es por pagar, los precios deben quedar vacíos
+            if precio not in (None, ''):
+                self.add_error(
+                    'precio',
+                    'Debe dejar este campo vacío cuando selecciona "Por pagar".'
+                )
+
+            if precio_ciudad not in (None, ''):
+                self.add_error(
+                    'precio_ciudad',
+                    'Debe dejar este campo vacío cuando selecciona "Por pagar".'
+                )
+
+        else:
+            # Si no es por pagar, ambos precios son obligatorios
+            if precio in (None, ''):
+                self.add_error(
+                    'precio',
+                    'Debe ingresar el precio de envío a domicilio.'
+                )
+
+            if precio_ciudad in (None, ''):
+                self.add_error(
+                    'precio_ciudad',
+                    'Debe ingresar el precio de envío a otra ciudad.'
+                )
+        return cleaned_data
+    
 class FormCupon(forms.ModelForm):
     descuento = forms.IntegerField(
         min_value=0,
@@ -109,3 +144,8 @@ from django import forms
 class AdminEmailForm(forms.Form):
     subject = forms.CharField(label="Asunto", max_length=200)
     message = forms.CharField(label="Mensaje", widget=forms.Textarea)
+
+class FormPromocion(forms.ModelForm):
+    class Meta:
+        model = Promocion
+        exclude = ('company','status',)

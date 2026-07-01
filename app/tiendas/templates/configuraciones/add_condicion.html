@@ -45,7 +45,6 @@
                     $('.toast-body').addClass('alert alert-success');
                     $('.toast-body').fadeIn(1000).html(resp.success);
                     mostrar_notificacion();
-                    $('#add_regla_forms')[0].reset();
                     $.ajax({
                         type: 'get',
                         url: '/{{company.id}}/get_condiciones',

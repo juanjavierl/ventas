@@ -23,6 +23,7 @@ urlpatterns = [
     path('<int:id_company>/add_huvicacion/', views.add_huvicacion, name='add_huvicacion'),
     path('<int:id_company>/configuraciones', views.configuraciones_company, name='configuraciones'),
     path('<int:id_company>/precio_envio', views.precio_envio, name='precio_envio'),
+    path('<int:id_company>/mostrar_precio/', views.mostrar_precio, name='mostrar_precio'),
     path('<int:id_company>/buscar_orden', views.buscar_orden, name='buscar_orden'),
     path('<int:id_company>/add_avisos', views.add_avisos, name='add_avisos'),
     path('<int:id_company>/get_opciones', views.get_opciones, name='get_opciones'),
@@ -49,4 +50,6 @@ urlpatterns = [
     path('<int:id_cupom>/delete_cupom', views.delete_cupom, name='delete_cupom'),
     path('<int:id_company>/estado_company/', views.estadoCompany, name='estado_company'),
     path('autorizar/<int:id_orden>/', views.autorizar_orden, name='autorizar_orden'),
+
+    path('add_promocion/<int:id_company>', views.add_promocion, name='add_promocion'),
 ]

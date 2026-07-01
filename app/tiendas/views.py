@@ -397,11 +397,12 @@ def configuraciones_company(request, id_company):
 
     productos = Product.objects.filter(stock__gt=0, company_id=int(id_company)).order_by('-id')
     dic = {
-        'form_huvicacion':FormHuvicacion(),
-        'form_ban':FormBanco(),
-        'form_precio':PrecioForm(),
-        'form_avisos':Form_avisos(),
-        'form_regla':Form_condiciones(),
+        'form_huvicacion':FormHuvicacion(instance=Sucursal.objects.filter(company_id = int(id_company)).first()),
+        'form_ban':FormBanco(instance=Banco.objects.filter(company_id = int(id_company)).first()),
+        'form_precio':PrecioForm(instance=Precio_envio.objects.filter(company_id = int(id_company)).first()),
+        'form_avisos':Form_avisos(instance=Aviso.objects.filter(company_id = int(id_company)).first()),
+        'form_regla':Form_condiciones(instance=Condicion.objects.filter(company_id = int(id_company)).first()),
+        'forms_promocion':FormPromocion(instance=Promocion.objects.filter(company_id = int(id_company)).first()),
         'categorias':categorys_from_productos(productos),
         'company':get_company(id_company, request.user),  # ya hace validación y 404
         'total_compra':sum(item['cantidad'] for item in request.session['compra']),
@@ -414,7 +415,6 @@ def configuraciones_company(request, id_company):
         'ordens':ped,
         'clientes':Client.objects.all().order_by('-id'),
         'address':get_address(id_company),
-        'form_cupom':FormCupon(),
         'cupom':Cupon.objects.filter(company_id = int(id_company))[:1]
     }
     return render(request,'configuraciones_company.html', dic)
@@ -427,18 +427,22 @@ def get_precio_envios(id_company):
     return precio
 
 def precio_envio(request, id_company):
-    company = get_object_or_404(Company, id = int(id_company))
+    company = get_object_or_404(Company, id=int(id_company))
     if request.method == 'POST':
-        form_precio = PrecioForm(request.POST, instance=company)
+        precio = Precio_envio.objects.filter(company=company).first()
+        form_precio = PrecioForm(request.POST, instance=precio)
         if form_precio.is_valid():
-            preci = Precio_envio()
-            preci.precio = request.POST['precio']
-            preci.precio_ciudad = request.POST['precio_ciudad']
-            preci.company_id = company.id
-            preci.save()
-            return JsonResponse({'success':'Registro Exitoso.', 'precio':preci.precio,'precio_ciudad':preci.precio_ciudad, 'id_precio':preci.id})
+            obj = form_precio.save(commit=False)
+            # Solo si es un registro nuevo
+            obj.company = company
+            obj.save()
+            return JsonResponse({'success': 'Registro Exitoso.'})
         else:
-            return JsonResponse({'error':'El dato no es válido.'})
+            return JsonResponse({'errors': form_precio.errors.get_json_data()})
+
+def mostrar_precio(request, id_company):
+    precio = Precio_envio.objects.get(company_id = int(id_company))
+    return render(request, 'configuraciones/mostrar_precio.html',{'precio':precio})
 
 def buscar_orden(request, id_company):
     if request.method == 'POST':
@@ -824,3 +828,13 @@ def autorizar_orden(request, id_orden):
         'notificaciones/autorizar_orden.html',
         {'orden': orden}
     )
+
+def add_promocion(request, id_company):
+    company = get_object_or_404(Company, id = int(id_company)) 
+    if request.method == 'POST':
+        form_promocion = FormPromocion(request.POST, instance=company)
+        if form_promocion.is_valid():
+            form_promocion.save()
+        return JsonResponse({'success':'Registro exitoso.'})
+    else:
+        return JsonResponse({'error':'Ya existe el registro.'})

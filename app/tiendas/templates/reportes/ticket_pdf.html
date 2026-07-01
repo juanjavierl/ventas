@@ -115,9 +115,9 @@
         {% endif %}
         <h2 class="head-name">{{ company.name|upper }}</h2>
         <div class="head-details text-center">
-            Dirección:{{ sucursal.address|default:"Tienda online" }}<br>
+            Sucursal:{{ sucursal.address|default:"Tienda online" }}<br>
             {% if company.ruc %}NIT: {{ company.ruc }}<br>{% endif %}
-            Teléfono/Celular: {{ company.phone }} / Cel: {{ company.mobile }}<br>
+            Teléfono/Celular: {{ company.mobile }}<br>
             Emitido por: {{ user.username }}<br>
             Ciudad:{{ company.cuidad|title }}
         </div>

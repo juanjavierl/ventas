@@ -1,0 +1,43 @@
+{% load crispy_forms_tags %}
+<h2 class="accordion-header">
+    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+        data-bs-target="#collapseNine" aria-expanded="false" aria-controls="collapseNine">
+        <strong>Agrega una seccion de Ofertas (Opcional)</strong>
+    </button>
+</h2>
+<div id="collapseNine" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+    <div class="accordion-body row d-flex justify-content-center">
+        <div class="forn-envio col-lg-5 align-items-stretch">
+            <div class="input-group">
+                <form action="/add_promocion/{{company.id}}" method="post" id="add_ofertas_forms">
+                    {% csrf_token %}
+                    {{forms_promocion|crispy}}
+                    <button type="submit" class="btn btn-primary btn-sm">Registrar</button>
+                </form>
+            </div>
+        </div>
+        <div class="info_ofertas col-lg-5 d-flex align-items-stretch" id="info_ofertas">
+            
+        </div>
+    </div>
+</div>
+<script>
+    $('#add_ofertas_forms').submit(function(e) {
+        e.preventDefault();
+        var formData = new FormData(this);
+        $.ajax({
+            type: 'POST',
+            url: $(this).attr('action'),
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                $('#info_ofertas').html(response);
+                $('#add_ofertas_forms')[0].reset();
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+            }
+        });
+    });
+</script>

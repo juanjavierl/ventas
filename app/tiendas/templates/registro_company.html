@@ -328,7 +328,7 @@
     return false;
   });
   $("#form_Qrr").on('click', function () {
-    $("#form_Qrr").html("Iniciando Sesión...!");
+    $("#form_Qrr").html("Iniciando Sesión...!").prop('disabled', true);
     $.ajax({
       type: 'POST',
       url: '/register_data/',
@@ -339,7 +339,8 @@
       success: function (resp) {
         //console.log(resp.user_id);
         if(resp.error){
-          $(".validate_img_qr").html(resp.error)
+          $(".validate_img_qr").html(resp.error);
+          $("#form_Qrr").html("Aceptar & Registrar").prop('disabled', false);
         }
         else{
           window.location.href = "/" + resp.user_id + "/companys/";

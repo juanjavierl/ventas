@@ -43,7 +43,7 @@
     });
     $('.modal-body #login_forms').on('submit', function(e){
       e.preventDefault();
-      $("#btn_sesion").html("Iniciando...!");
+      $("#btn_sesion").html("Iniciando...!").prop('disabled', true);
       $.ajax({
             type:'POST',
             url:$("#login_forms").attr('action'),
@@ -52,7 +52,7 @@
             success:function(resp){
               if(resp.error){
                 $(".invalid").text(resp.error);
-                $("#btn_sesion").html("<i class='bi bi-person'></i> Iniciar Sesión");
+                $("#btn_sesion").html("<i class='bi bi-person'></i> Iniciar Sesión").prop('disabled', false);
               }
               else{
                 window.location.href='/'+resp.user_id+'/companys';

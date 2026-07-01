@@ -78,8 +78,8 @@
     <div class="d-flex justify-content-between mb-3 detalles_p border p-2 rounded shadow-sm">
         <div>
             <strong>Datos de la Empresa:</strong><br>
-            Celular: {{ company.mobile }}<br>
-            Dirección: {{ sucursal.address|default:'Tienda online' }}<br>
+            Teléfono/Celular: {{ company.mobile }}<br>
+            Sucursal: {{ sucursal.address|default:'Tienda online' }}<br>
             {% if company.ruc %}NIT: {{ company.ruc }}<br>{% endif %}
             Emitido por: {{ user.username }}<br>
             Ciudad: {{ company.cuidad|title }}

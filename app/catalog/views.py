@@ -116,7 +116,7 @@ def optenerProducto(request, id_producto, id_company):
     try:
         data_cli = request.session['compra']
     except:
-        request.session['compra'] = []
+        data_cli = request.session.get('compra', [])
     if request.method == 'POST':
         if not request.POST['cantidad'].isdigit():
             return JsonResponse({'error': "La cantidad debe ser numerico."})
@@ -173,7 +173,8 @@ def optenerProducto(request, id_producto, id_company):
                     'aviso':optener_avisos_by_company(id_company),
                     'productos':productosMasVistos(id_company),
                     'address':get_address(id_company),
-                    'code':get_code_meta(id_company)
+                    'code':get_code_meta(id_company),
+                    'images_product':Imagen.objects.filter(items_id = int(id_producto))
                 }
     return render(request,'catalog/OptenerProducto.html',context)
 
@@ -296,7 +297,6 @@ def confirmar_compra(request, id_company):
     t_pago = calcular_pago(request)
     compra = request.session.get('compra', [])
     total_compra = sum(item['cantidad'] for item in compra)
-
     if request.method == 'POST':
         email = request.POST.get('email', '').strip()
         mobile = request.POST.get('mobile', '').strip()
@@ -332,12 +332,12 @@ def confirmar_compra(request, id_company):
         elif tipo_envio == 'domicilio':
             ref = 'domicilio'
             lugar = {'direccion': request.POST.get('address', ''), 'tipo': 'domicilio'}
-            precio_envio = determinarPrecioEnvio(id_company)
+            precio_envio = obtener_datos_envio(request, id_company)['precio_envio']
 
         elif tipo_envio == 'ciudad':
             ref = 'ciudad'
             lugar = {'destino': request.POST.get('destino', ''), 'tipo': 'ciudad'}
-            precio_envio = determinarPrecioEnvioCiudad(id_company)
+            precio_envio = obtener_datos_envio(request, id_company)['precio_envio']
 
         else:
             return JsonResponse({'error': "Por favor complete sus datos correctamente."})
@@ -397,8 +397,8 @@ def confirmar_compra(request, id_company):
             'lugar': lugar,
             'lista': lista_product,
             't_pago': t_pago,
-            'precio_envio': determinarPrecioEnvio(id_company),
-            'precio_envio_ciudad': determinarPrecioEnvioCiudad(id_company),
+            'precio_envio': obtener_datos_envio(request, id_company)['precio_envio'],
+            'precio_envio_ciudad': obtener_datos_envio(request, id_company)['precio_envio'],
             'products': sum(item['cantidad'] for item in compra)
         })
 
@@ -421,75 +421,6 @@ def confirmar_compra(request, id_company):
         'limite': limite.strftime("%Y-%m-%dT%H:%M")
     }
     return render(request, 'catalog/confirmar_compra.html', dic)
-
-def confirmarCita(request, id_company, id_producto):
-    p = get_object_or_404(Product,id = id_producto)
-    company = get_object_or_404(Company, id = id_company)
-    datos={}
-    data_cli = []
-    datos['id_producto'] = int(p.id)
-    datos['name'] = p.name.title()
-    datos['cantidad'] = 1
-    datos['precio_uni'] = 0.0
-    datos['total'] = 0.0
-    data_cli.append(datos)
-
-    if request.method == 'POST':
-        if not request.POST['dni'].isdigit():
-            return JsonResponse({'error': "El Nro de Nit/CI debe ser numérico."})
-        if not request.POST['mobile'].isdigit():
-            return JsonResponse({'error': "El Nro de Celular debe ser numérico."})
-
-        d = datetime.strptime(request.POST['date_time']+":00", '%Y-%m-%dT%H:%M:%S')
-        if d < datetime.now():
-            return JsonResponse({'error':"Error: La fecha debe ser mayor o igual a hoy"})
-        else:
-            dias={0:'Lunes',1:'Martes',2:'Miercoles',3:'Jueves',4:'Viernes',5:'Sabado',6:'Domingo'}
-            dia = dias[d.weekday()]
-            fecha = datetime.strftime(d, dia + ' %d/%m/%y hora: %H:%M %p')
-            lugar = {'fecha':fecha,'date':'date'}
-        forms=ClientFormOrder(request.POST)
-        if Client.objects.filter(dni = int(request.POST['dni'])).exists():
-            cliente = Client.objects.get(dni = int(request.POST['dni']))
-            orden = crear_orden(request, cliente.id, id_company)
-
-            pedido = Pedido.objects.create(orden_id = int(orden.id),product_id=int(datos['id_producto']),cant=int(datos['cantidad']),price=float(datos['precio_uni']),total=float(int(datos['cantidad']) * float(datos['precio_uni'])))
-            pedido.save()
-        else:
-            if forms.is_valid():
-                cliente = forms.save(commit=False)
-                cliente.save()
-                orden = crear_orden(request, cliente.id, id_company)
-                pedido = Pedido.objects.create(orden_id = int(orden.id),product_id=int(datos['id_producto']),cant=int(datos['cantidad']),price=float(datos['precio_uni']),total=float(int(datos['cantidad']) * float(datos['precio_uni'])))
-                pedido.save()
-        try:
-            lugar = get_address(id_company).toJSON()
-        except:
-            lugar = False
-        return JsonResponse(
-                            {
-                                'company':company.name,
-                                'company_object':company.toJSON(),
-                                'cel_company':company.mobile,
-                                'cliente_object':cliente.toJSON(),
-                                'orden':orden.id,
-                                'lista':data_cli,
-                                'lugar':lugar,
-                                'success':"Tu cita se completo exitosamente gracias."
-                            }
-                        )
-    dic = {
-        'form':ClientFormOrder(),
-        'company':get_company(id_company),
-        'categorias':categorys_from_productos(productosMasVistos(id_company)),
-        'datos':data_cli,
-        'productos':productosMasVistos(id_company),
-        'precio_envio':determinarPrecioEnvio(id_company),
-        'aviso':optener_avisos_by_company(id_company),
-        'address':get_address(id_company),
-        'producto':p
-    }
-    return render(request,'catalog/confirmar_cita.html',dic)
 
 def getProducto(id_producto):
     producto = Product.objects.get(id = id_producto)
@@ -667,36 +598,52 @@ def deleteImgProduct(request, id_img):
     image.delete()
     return JsonResponse({'success':'Se Elimino la Imagen'})
 
-def getPrecioEnvio(request, id_company):
-    datos = {}
+def obtener_datos_envio(request, id_company):
     opcion = request.GET.get('opcion', 'domicilio')
-    datos['total'] = calcular_pago(request)#total a pagar de todo el carrito
-    
-    if getBanco(id_company):
-        datos['qr'] = getBanco(id_company).toJSON()#estoy traendo toda la funcion toJSON del models
-    else:
-        datos['qr'] = False
 
-    if opcion == "domicilio":
-        if determinarPrecioEnvio(id_company):
-            datos['precio_envio'] = determinarPrecioEnvio(id_company)
-            datos['total_pagar'] = int(calcular_pago(request)) + int(determinarPrecioEnvio(id_company))
-        else:
-            datos['precio_envio'] = 0
-            datos['total_pagar'] = calcular_pago(request)
-    elif opcion == "ciudad":
-        if determinarPrecioEnvioCiudad(id_company):
-            datos['precio_envio'] = determinarPrecioEnvioCiudad(id_company)
-            datos['total_pagar'] = int(calcular_pago(request)) + int(determinarPrecioEnvioCiudad(id_company))
-        else:
-            datos['precio_envio'] = 0
-            datos['total_pagar'] = calcular_pago(request)
-    else:
-        datos['precio_envio'] = 0
-        datos['total_pagar'] = calcular_pago(request)
-    
-    datos['importe'] = calcular_pago(request)
-    return JsonResponse({'datos':datos})
+    total = calcular_pago(request)
+
+    banco = getBanco(id_company)
+    config = Precio_envio.objects.filter(company_id=id_company).first()
+
+    datos = {
+        'total': total,
+        'importe': total,
+        'qr': banco.toJSON() if banco else False,
+        'precio_envio': 0,
+        'tipo_envio': 'gratis',
+        'total_pagar': total,
+    }
+
+    # Si el cliente recoge en tienda
+    if opcion == 'tienda':
+        return datos
+
+    # Existe configuración de envío
+    if config:
+
+        # Envío por pagar
+        if config.por_pagar:
+            datos['precio_envio'] = 'Por Pagar'
+            datos['tipo_envio'] = 'por_pagar'
+
+        # Precio fijo a domicilio
+        elif opcion == 'domicilio' and config.precio is not None:
+            datos['precio_envio'] = config.precio
+            datos['tipo_envio'] = 'fijo'
+            datos['total_pagar'] = total + config.precio
+
+        # Precio fijo a otra ciudad
+        elif opcion == 'ciudad' and config.precio_ciudad is not None:
+            datos['precio_envio'] = config.precio_ciudad
+            datos['tipo_envio'] = 'fijo'
+            datos['total_pagar'] = total + config.precio_ciudad
+
+    return datos
+
+def getPrecioEnvio(request, id_company):
+    datos = obtener_datos_envio(request, id_company)
+    return JsonResponse({'datos': datos})
 
 def form_sheart_product(request):
     company = Company.objects.get(id = int(request.GET['id_company']))

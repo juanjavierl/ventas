@@ -17,7 +17,7 @@
                 </form>
             </div>
         </div>
-        <div class="info_banco col-lg-5 align-items-stretch">
+        <div class="info_banco col-lg-5 align-items-stretch table-responsive">
             {% for a in banco %}
             <li><strong>Institución financiera: </strong> {{a.name|title}}</li>
             <li><strong>A nombre de : </strong> {{a.destinatario|title}}</li>
@@ -50,7 +50,6 @@
                     $('.toast-body').addClass('alert alert-success');
                     $('.toast-body').fadeIn(1000).html(resp.success);
                     mostrar_notificacion();
-                    $('#form_banco_envio')[0].reset();
                     $.ajax({
                         type: 'get',
                         url: '/{{company.id}}/infor_banco',

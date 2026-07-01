@@ -113,7 +113,7 @@ class Company(models.Model, ModelMeta):
     plan = models.ForeignKey(Plataforma, on_delete=models.CASCADE, verbose_name="Seleccione un plan")
     expiration_date = models.DateField(verbose_name='Fecha de expiracion (dd/mm/AAAA)')
     status = models.BooleanField(default=True, verbose_name="Estado")
-    is_service = models.BooleanField(default=False, verbose_name='Marque esta opción, solo si su negocio es de tipo servicio.', help_text="Ej. restauranes o productos consumibles que dificultan el envío a lugares alejados")
+    is_service = models.BooleanField(default=False, verbose_name='Marque esta opción, solo si su negocio es de comida.')
 
     def save(self, *args, **kwargs):
         if self.image:# Si hay imagen nueva o editada
@@ -174,14 +174,9 @@ class Company(models.Model, ModelMeta):
             return f'{settings.MEDIA_URL}{self.image}'
         return f'{settings.STATIC_URL}img/default/empty.png'
     
-    @property
     def get_logo(self):
         if self.logo:
-            return self.logo.url
-
-        if self.image:
-            return self.image.url
-        return f'{settings.STATIC_URL}img/default_store.jpg'
+            return f'{settings.MEDIA_URL}{self.image}'
 
     def toJSON(self):
         item = model_to_dict(self)
@@ -275,8 +270,9 @@ class Sucursal(models.Model):
 
 class Precio_envio(models.Model):
     company = models.OneToOneField(Company, on_delete=models.CASCADE, verbose_name='Negocio')
-    precio = models.IntegerField(verbose_name='Precio de envio a domicilio')
-    precio_ciudad = models.IntegerField(verbose_name='Precio de envio a otra ciudad')
+    precio = models.IntegerField(blank=True, null=True,verbose_name='Precio de envio a domicilio')
+    precio_ciudad = models.IntegerField(blank=True, null=True,verbose_name='Precio de envio a otra ciudad')
+    por_pagar = models.BooleanField(default=False, verbose_name='Envio Por pagar', help_text='El cliente pagará el costo del envío y no es necesario registrar precios.')
     date_joined = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -288,6 +284,7 @@ class Precio_envio(models.Model):
         item['id'] = int(self.id)
         item['precio'] = self.precio
         item['precio_ciudad'] = self.precio_ciudad
+        item['por_pagar'] = self.por_pagar
         item['date_joined'] = self.date_joined.strftime('%Y-%m-%d')
         return item
 
@@ -391,3 +388,27 @@ class Dominio(models.Model):
 
     def __str__(self):
         return f"{self.company.name} - {self.slug}"
+
+class Promocion(models.Model):
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, verbose_name='Negocio')
+    titulo = models.CharField(max_length=100, verbose_name='Titulo de la promoción', help_text="Ejem. promoción de fin de año.")
+    descripcion = models.TextField(verbose_name='Descripción de la promoción', max_length=255)
+    fecha_inicio = models.DateField(verbose_name='Fecha de inicio de la promoción')
+    fecha_fin = models.DateField(verbose_name='Fecha de fin de la promoción')
+    status = models.BooleanField(default=True, verbose_name='Estado de la promoción', help_text="Indica si la promoción está activa o no.")
+    def __str__(self):
+        return f"{self.titulo} - {self.company.name}"
+    
+    class Meta:
+        verbose_name = 'Promoción'
+        verbose_name_plural = 'Promociones'
+
+    def toJSON(self):
+        item = model_to_dict(self)
+        item['company'] = self.company.name
+        item['titulo'] = self.titulo
+        item['descripcion'] = self.descripcion
+        item['fecha_inicio'] = self.fecha_inicio.strftime('%Y-%m-%d')
+        item['fecha_fin'] = self.fecha_fin.strftime('%Y-%m-%d')
+        item['status'] = self.status
+        return item

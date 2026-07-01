@@ -2,7 +2,7 @@
 <h2 class="accordion-header">
     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
         data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
-        <strong>Avisos de Catalogo (Opcional)</strong>
+        <strong>Agregue Avisos a su Catalogo (Opcional)</strong>
     </button>
 </h2>
 <div id="collapseFour" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
@@ -16,7 +16,7 @@
                 </form>
             </div>
         </div>
-        <div class="info_avisos col-lg-5 align-items-stretch">
+        <div class="info_avisos col-lg-5 align-items-stretch table-responsive">
             {% for a in avisos %}
             <li><strong>Tiempo de Entregas: </strong> {{a.Tiempo_entrega}}</li>
             <li><strong>Envios : </strong> {{a.envios}}</li>
@@ -62,7 +62,6 @@
                     $('.toast-body').addClass('alert alert-success');
                     $('.toast-body').fadeIn(1000).html(resp.success);
                     mostrar_notificacion();
-                    $('#add_avisos_forms')[0].reset();
                     $.ajax({
                         type: 'get',
                         url: '/{{company.id}}/get_opciones',

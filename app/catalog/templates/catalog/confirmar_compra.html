@@ -1,5 +1,5 @@
 {% extends 'index.html' %}
-
+{% load extras %}
 {% block titulo %}
 {{company.name|title|truncatechars:25}}
 {% endblock titulo %}
@@ -148,7 +148,7 @@
                 <div class="alert alert-success" role="alert" style="padding: 0px 10px; text-align: justify;">
                    
                   {% if regla %}
-                   <small><i class="bi bi-star-fill" style="color: gold;"></i> Resumen de su pedido: {{regla.regla}}</small>
+                   <small><i class="bi bi-star-fill" style="color: gold;"></i>{{regla.regla|urlize_mode:"ver_mas,br"}}</small>
                   {% else %}
                   <small><i class="bi bi-star-fill" style="color: gold;"></i> En buena hora, ¡ya casi lo tienes! Resumen de su pedido</small>
                    {% endif %}
@@ -208,69 +208,122 @@
     $("#destino").hide();
 
     $("#tipo_envio").change(function () {
+      const opcion = $(this).val();
       $.ajax({
-        type: 'GET',
-        url: "/{{company.id}}/getPrecioEnvio",
-        data:{'opcion':$(this).val()},
-        success: function (resp) {
-          //$("#t_p").text(resp.datos.total);
-          if(resp.datos.precio_envio != "0"){
-            $(".menj_valor_envio").text("Costo de envio: {{company.moneda}}. "+ resp.datos.precio_envio).show();
-            $('.img_pagoQr').fadeIn(500).show();
-            
-            if(resp.datos.qr == false){
-              $('.img_pagoQr').hide();
-            }else{
-              $('.img_pagoQr img').attr('src',resp.datos.qr.qr_img);
-              $('#costos').text("Importe: "+ resp.datos.importe + " Precio de envio: "+ resp.datos.precio_envio + " Total a pagar : {{company.moneda}}." + resp.datos.total_pagar);
-            }
-          
-          }else{
-            if(resp.datos.precio_envio == "0" && $("#tipo_envio").val() == "tienda"){
-              $(".menj_valor_envio").text('Una vez confirmado puede pasar a recoger.').show();
+          type: 'GET',
+          url: "/{{company.id}}/getPrecioEnvio",
+          data: {opcion: opcion},
+          success: function (resp) {
+              const datos = resp.datos;
+              /* Mostrar mensaje del envío */
+              if (datos.tipo_envio === "por_pagar") {
 
-            }else{
-              $(".menj_valor_envio").text('Envio Gratis').show();
-              if(resp.datos.qr == false){
-                $('.img_pagoQr').fadeIn(500).hide();
-              }else{
-                $('.img_pagoQr img').attr('src',resp.datos.qr.qr_img);
-                $('#costos').text("Importe: "+ resp.datos.importe + " Precio de envio: "+ resp.datos.precio_envio + " Total a pagar : {{company.moneda}}." + resp.datos.total_pagar);
-                $('.img_pagoQr').fadeIn(500).show();
+                  $(".menj_valor_envio").text("Costo de envío: Por Pagar").show();
+
+              } else if (datos.tipo_envio === "fijo") {
+
+                  $(".menj_valor_envio").text("Costo de envío: {{company.moneda}}. " + datos.precio_envio).show();
+
+              } else {
+
+                  // gratis
+                  $(".menj_valor_envio").hide().text('');
+
+                  /* Mostrar mensaje del envío */
+                  switch (datos.tipo_envio) {
+
+                      case "por_pagar":
+                          $(".menj_valor_envio")
+                              .text("Costo de envío: Por Pagar")
+                              .show();
+                          break;
+
+                      case "fijo":
+                          $(".menj_valor_envio")
+                              .text("Costo de envío: {{company.moneda}}. " + datos.precio_envio)
+                              .show();
+                          break;
+
+                      case "gratis":
+
+                          if (opcion === "tienda") {
+                              $(".menj_valor_envio")
+                                  .text("Una vez confirmado puede pasar a recoger.")
+                                  .show();
+                          } else {
+                              $(".menj_valor_envio")
+                                  .text("Envío Gratis")
+                                  .show();
+                          }
+                          break;
+                  }
               }
-            }
-          }
-        }
-      });
-      if ($(this).val() == "tienda") {
-        $("#div_id_fecha").fadeIn(1000).show().find("input").focus();
-        $("#div_id_address, #destino").hide(500);
-        $("#div_id_fecha").css("margin-bottom", "20px");
-        
-        $('.img_pagoQr').fadeOut(1000).hide();
-        $('#date_time').attr('required', 'true');
-        $('#id_address, #destino').removeAttr('required');
-      }
-      if ($(this).val() == "domicilio") {
-        $("#div_id_fecha, #destino").hide(500);
-        $("#div_id_address").fadeIn(1000).show().find("input").focus();
-   
-        $('#id_address').attr('required', 'true');
-        $('#date_time, #destino').removeAttr('required');
 
-        $("#destino").css("margin-bottom", "20px");
-        $("#btn_compra").css("margin-top", "20px");
+              /* Mostrar QR */
+              const mostrarQR = (datos.tipo_envio === 'fijo' || datos.tipo_envio === 'por_pagar');
+
+                if (mostrarQR && datos.qr) {
+
+                    $('.img_pagoQr img')
+                        .attr('src', datos.qr.qr_img);
+
+                    $('.img_pagoQr').fadeIn(500);
+
+                } else {
+
+                    $('.img_pagoQr').hide();
+                }
+
+              /* Mostrar resumen */
+              let resumen = `Importe: ${datos.importe}`;
+
+              if (opcion !== 'tienda') {
+                  let textoEnvio = datos.precio_envio;
+
+                  if (datos.tipo_envio === 'gratis') {
+                      textoEnvio = 'Gratis';
+                  }
+
+                  resumen += ` · Envío: ${textoEnvio}`;
+              }
+
+              resumen += ` · Total: {{company.moneda}} ${datos.total_pagar}`;
+
+              $('#costos').text(resumen);
+          }
+      });
+
+      /* Mostrar campos según el tipo de entrega */
+      $("#div_id_fecha, #div_id_address, #destino").hide(500);
+
+      $('#date_time, #id_address, #destino').removeAttr('required');
+
+      if (opcion === "tienda") {
+          $(".menj_valor_envio").text('Una vez confirmado puede pasar a recoger.').show();
+          $("#div_id_fecha").fadeIn(1000).find("input").focus();
+
+          $('#date_time').attr('required', true);
+
+          $('.img_pagoQr').fadeOut(500);
+
       }
-      if ($(this).val() == "ciudad") {
-        $("#div_id_address, #div_id_fecha").hide(500);
-        $("#destino").fadeIn(1000).show();
-        $("#destino").focus();
-        
-        $('#destino').attr('required', 'true');
-        $('#id_address, #date_time').removeAttr('required');
-        $("#destino").css("margin-bottom", "20px");
+      else if (opcion === "domicilio") {
+
+          $("#div_id_address").fadeIn(1000).find("input").focus();
+
+          $('#id_address').attr('required', true);
+
+          $("#btn_compra").css("margin-top", "20px");
       }
-    });
+      else if (opcion === "ciudad") {
+
+          $("#destino").fadeIn(1000).focus();
+
+          $('#destino').attr('required', true);
+
+          $("#destino").css("margin-bottom", "20px");
+      }
+  });
 
     if ("{{ total_compra }}" == "0"){
       $(".form_msj").hide();
@@ -292,6 +345,7 @@
       utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js",
   });
   $('#form_pedido').submit(function (e) {
+  $('#form_pedido button[type="submit"]').html("Enviando...!").prop('disabled', true); // Deshabilitar el botón para evitar múltiples envíos
   e.preventDefault();
   let number = iti.getNumber(intlTelInputUtils.numberFormat.E164);
   input.value = number || input.value;  // garantiza que el valor enviado sea completo
@@ -316,6 +370,7 @@
                 .html(html);
 
             mostrar_notificacion();
+            $('#form_pedido button[type="submit"]').html("Registrar Pedido & Confirmar por Whatsapp").prop('disabled', false);
             return;
         }
 

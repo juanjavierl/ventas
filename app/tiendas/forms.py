@@ -149,3 +149,17 @@ class FormPromocion(forms.ModelForm):
     class Meta:
         model = Promocion
         exclude = ('company','status',)
+    
+    widgets = {
+        'fecha_inicio': forms.TextInput(attrs={
+            'class': 'form-control',
+            'id': 'id_fecha_inicio',
+            'autocomplete': 'off'
+        }),
+        'fecha_fin': forms.TextInput(attrs={
+            'class': 'form-control',
+            'id': 'id_fecha_fin',
+            'autocomplete': 'off'
+        }),
+    }
+    

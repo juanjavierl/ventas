@@ -22,6 +22,43 @@
     </div>
 </div>
 <script>
+    $(function () {
+    $('#id_fecha_inicio').daterangepicker({
+        singleDatePicker: true,
+        autoApply: true,
+        autoUpdateInput: true,
+        minDate: moment(),
+        locale: {
+            format: 'DD/MM/YYYY',
+            applyLabel: 'Aceptar',
+            cancelLabel: 'Cancelar',
+            daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
+            monthNames: [
+                'Enero', 'Febrero', 'Marzo', 'Abril',
+                'Mayo', 'Junio', 'Julio', 'Agosto',
+                'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+            ],
+            firstDay: 1
+        }
+    });
+    $('#id_fecha_fin').daterangepicker({
+        singleDatePicker: true,
+        autoApply: true,
+        minDate: moment(),
+        locale: {
+            format: 'DD/MM/YYYY',
+            applyLabel: 'Aceptar',
+            cancelLabel: 'Cancelar',
+            daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
+            monthNames: [
+                'Enero', 'Febrero', 'Marzo', 'Abril',
+                'Mayo', 'Junio', 'Julio', 'Agosto',
+                'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+            ],
+            firstDay: 1
+        }
+    });
+});
     $('#add_ofertas_forms').submit(function(e) {
         e.preventDefault();
         var formData = new FormData(this);
@@ -32,7 +69,7 @@
             processData: false,
             contentType: false,
             success: function(response) {
-                $('#info_ofertas').html(response);
+                $('#info_ofertas').html(response.success);
                 $('#add_ofertas_forms')[0].reset();
             },
             error: function(xhr, status, error) {

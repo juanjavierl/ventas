@@ -52,4 +52,6 @@ urlpatterns = [
     path('autorizar/<int:id_orden>/', views.autorizar_orden, name='autorizar_orden'),
 
     path('add_promocion/<int:id_company>', views.add_promocion, name='add_promocion'),
+    path('get_promocion/<int:id_company>', views.get_promocion, name='get_promocion'),
+    path('delete_promocion/<int:id_promocion>', views.delete_promocion, name='delete_promocion'),
 ]

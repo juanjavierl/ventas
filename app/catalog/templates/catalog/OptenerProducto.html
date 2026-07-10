@@ -173,7 +173,7 @@
             </li>
             <br>
             <div class="align-items-start">
-              <form action="/{{p.id}}/{{company.id}}/detail_product" id="form_pedido" method="post"
+              <form action="/{{company.id}}/{{p.id}}/detail_product" id="form_pedido" method="post"
                 class="form-row row">
                 {% csrf_token %}
                 <div class="col cantidades form-group">

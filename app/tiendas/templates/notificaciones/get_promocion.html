@@ -1,0 +1,30 @@
+{% for promocion in promociones %}
+     <li>Promoción: {{ promocion.titulo }}</li>
+     <p>
+        <a href="#" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" 
+        onclick="elimnarOpciones('/delete_promocion/{{promocion.id}}')"><i class="bi bi-trash"></i> Eliminar </a></p>
+    </a>
+     </p>
+{% empty %}
+    <p>No hay promociones disponibles.</p>
+{% endfor %}
+<script>
+    function elimnarOpciones(urls) {
+        $.ajax({
+            type: 'GET',
+            url: urls,
+            success: function (resp) {
+                if (resp.error) {
+                    $(".invalid_ct").html(resp.error);
+                } else {
+                    $(".modal-content").html(resp);
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                $('.toast-body').addClass('alert alert-danger');
+                $('.toast-body').fadeIn(1000).html(thrownError);
+                mostrar_notificacion();
+            }
+        });
+        return false;
+    }

@@ -394,7 +394,7 @@ def configuraciones_company(request, id_company):
     for p in pedidos:
         if not p in ped:
             ped.append(p)
-
+    print(Promocion.objects.filter(company_id=int(id_company))[:1])
     productos = Product.objects.filter(stock__gt=0, company_id=int(id_company)).order_by('-id')
     dic = {
         'form_huvicacion':FormHuvicacion(instance=Sucursal.objects.filter(company_id = int(id_company)).first()),
@@ -415,7 +415,8 @@ def configuraciones_company(request, id_company):
         'ordens':ped,
         'clientes':Client.objects.all().order_by('-id'),
         'address':get_address(id_company),
-        'cupom':Cupon.objects.filter(company_id = int(id_company))[:1]
+        'promociones': Promocion.objects.filter(company_id=int(id_company))[:1]
+
     }
     return render(request,'configuraciones_company.html', dic)
 
@@ -830,11 +831,32 @@ def autorizar_orden(request, id_orden):
     )
 
 def add_promocion(request, id_company):
-    company = get_object_or_404(Company, id = int(id_company)) 
+    company = get_object_or_404(Company, id=id_company)
+
     if request.method == 'POST':
-        form_promocion = FormPromocion(request.POST, instance=company)
+        form_promocion = FormPromocion(request.POST)
+
         if form_promocion.is_valid():
-            form_promocion.save()
-        return JsonResponse({'success':'Registro exitoso.'})
-    else:
-        return JsonResponse({'error':'Ya existe el registro.'})
+            promocion = form_promocion.save(commit=False)
+            promocion.company = company
+            promocion.save()
+
+            return JsonResponse({'success': 'Registro Exitoso.'})
+
+        return JsonResponse({'error': form_promocion.errors})
+
+    return JsonResponse({'error': 'Método no permitido'})
+    
+def get_promocion(request, id_company):
+    try:
+        promocion = Promocion.objects.filter(company_id = int(id_company))
+    except:
+        promocion = False
+    return render(request, 'notificaciones/get_promocion.html', {'promocion':promocion})
+
+def delete_promocion(request, id_promocion):
+    promocion = get_object_or_404(Promocion, id = int(id_promocion))
+    if request.method == 'POST':
+        promocion.delete()
+        return JsonResponse({'success':"Se Borro el registro. "})
+    return render(request, 'notificaciones/delete_promocion.html', {'promocion':promocion})

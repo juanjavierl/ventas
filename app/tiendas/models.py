@@ -390,12 +390,24 @@ class Dominio(models.Model):
         return f"{self.company.name} - {self.slug}"
 
 class Promocion(models.Model):
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, verbose_name='Negocio')
+    company = models.OneToOneField(Company, on_delete=models.CASCADE, verbose_name='Negocio')
     titulo = models.CharField(max_length=100, verbose_name='Titulo de la promoción', help_text="Ejem. promoción de fin de año.")
     descripcion = models.TextField(verbose_name='Descripción de la promoción', max_length=255)
     fecha_inicio = models.DateField(verbose_name='Fecha de inicio de la promoción')
     fecha_fin = models.DateField(verbose_name='Fecha de fin de la promoción')
+    descuento = models.FloatField(verbose_name='Porcentaje de descuento', help_text="Ingrese el porcentaje del descuento %")
     status = models.BooleanField(default=True, verbose_name='Estado de la promoción', help_text="Indica si la promoción está activa o no.")
+    
+    def save(self, *args, **kwargs):
+        if self.imagen1:
+            procesar_imagen_portada(self, 'imagen1')
+        if self.imagen2:
+            procesar_imagen_portada(self, 'imagen2')
+        if self.imagen3:
+            procesar_imagen_portada(self, 'imagen3')
+        super().save(*args, **kwargs)
+
+
     def __str__(self):
         return f"{self.titulo} - {self.company.name}"
     
@@ -411,4 +423,8 @@ class Promocion(models.Model):
         item['fecha_inicio'] = self.fecha_inicio.strftime('%Y-%m-%d')
         item['fecha_fin'] = self.fecha_fin.strftime('%Y-%m-%d')
         item['status'] = self.status
+        item['descuento'] = self.descuento
+        item['imagen1'] = self.imagen1.url if self.imagen1 else None
+        item['imagen2'] = self.imagen2.url if self.imagen2 else None
+        item['imagen3'] = self.imagen3.url if self.imagen3 else None
         return item

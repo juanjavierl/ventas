@@ -56,23 +56,23 @@
             <a href="/media/{{p.image}}" data-gallery="portfolioGallery" class="portfolio-lightbox"
               title="{{p.name|capfirst}}"><i class="bx bx-plus"></i></a>
 
-            <a href="/{{p.id}}/{{company.id}}/detail_product" title="Mas detalles"><i class="bx bx-link"></i></a>
+            <a href="/{{company.id}}/{{p.id}}/detail_product" title="Mas detalles"><i class="bx bx-link"></i></a>
               
           </div>
         </div>
       </div>
     </div>
     {% else %}
-     <i class="bi bi-image card-img-top icon" alt="..." onclick="detailView('/{{p.id}}/{{company.id}}/detail_product')"></i>
+     <i class="bi bi-image card-img-top icon" alt="..." onclick="detailView('/{{company.id}}/{{p.id}}/detail_product')"></i>
     {% endif %}
     {% if p.is_new %}
     <span class="badge rounded-pill bg-primary sale-tag d-flex">Nuevo</span>
     {% endif %}
     <div class="card-body" style="padding: 0px;">
-      <div class="text-section" onclick="detailView('/{{p.id}}/{{company.id}}/detail_product')" style="cursor: pointer;">
+      <div class="text-section" onclick="detailView('/{{company.id}}/{{p.id}}/detail_product')" style="cursor: pointer;">
         <h5 class="card-title text-wrap text-primary fw-bolder">{{p.name|capfirst}}</h5>
         <p class="card-text text-break text-wrap fst-italic">{{p.description|urlize_mode:"ocultar,nobr"|default:" - - - "|capfirst|truncatewords:5}}
-          <a href="/{{p.id}}/{{company.id}}/detail_product" style="font-size: 14px;"><i class="bx bx-link"></i></a>
+          <a href="/{{company.id}}/{{p.id}}/detail_product" style="font-size: 14px;"><i class="bx bx-link"></i></a>
         </p>
         <p class="card-text">Categoria: <small class="text-muted">{{p.category|title}}</small></p>
       </div>
@@ -89,7 +89,7 @@
             
             {% if p.stock_actual > 0 %}
             <button type="submit" id="id_{{p.id}}"
-              onclick="add_item('/{{p.id}}/{{company.id}}/detail_product','{{p.id}}')"
+              onclick="add_item('/{{company.id}}/{{p.id}}/detail_product','{{p.id}}')"
               class="btn btn-primary btn-sm">Agregar</button>
             {% else %}
               <button type="button" class="btn btn-primary btn-sm" disabled>Agotado</button>

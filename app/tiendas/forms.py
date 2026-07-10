@@ -150,16 +150,25 @@ class FormPromocion(forms.ModelForm):
         model = Promocion
         exclude = ('company','status',)
     
-    widgets = {
-        'fecha_inicio': forms.TextInput(attrs={
-            'class': 'form-control',
-            'id': 'id_fecha_inicio',
-            'autocomplete': 'off'
-        }),
-        'fecha_fin': forms.TextInput(attrs={
-            'class': 'form-control',
-            'id': 'id_fecha_fin',
-            'autocomplete': 'off'
-        }),
-    }
+        widgets = {
+            'fecha_inicio': forms.TextInput(attrs={
+                'class': 'form-control',
+                'id': 'id_fecha_inicio',
+                'autocomplete': 'off'
+            }),
+            'fecha_fin': forms.TextInput(attrs={
+                'class': 'form-control',
+                'id': 'id_fecha_fin',
+                'autocomplete': 'off'
+            }),
+            'descuento': forms.NumberInput(attrs={
+                'class': 'form-range',
+                'id': 'id_descuento',
+                'type': 'range',
+                'min': '0',
+                'max': '100',
+                'step': '1',
+                'autocomplete': 'off'
+            }),
+        }
     

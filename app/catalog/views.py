@@ -108,7 +108,7 @@ def get_company(id_company, user=None):
 
     return company
 
-def optenerProducto(request, id_producto, id_company):
+def optenerProducto(request, id_company, id_producto):
     productos = Product.objects.filter(company_id = int(id_company))
     p = get_object_or_404(Product,id = id_producto)
     datos = {}

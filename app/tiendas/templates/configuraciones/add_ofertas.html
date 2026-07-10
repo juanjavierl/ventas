@@ -17,64 +17,102 @@
             </div>
         </div>
         <div class="info_ofertas col-lg-5 d-flex align-items-stretch" id="info_ofertas">
-            
+            {% include 'notificaciones/get_promocion.html' %}
         </div>
     </div>
 </div>
 <script>
-    $(function () {
-    $('#id_fecha_inicio').daterangepicker({
-        singleDatePicker: true,
-        autoApply: true,
-        autoUpdateInput: true,
-        minDate: moment(),
-        locale: {
-            format: 'DD/MM/YYYY',
-            applyLabel: 'Aceptar',
-            cancelLabel: 'Cancelar',
-            daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
-            monthNames: [
-                'Enero', 'Febrero', 'Marzo', 'Abril',
-                'Mayo', 'Junio', 'Julio', 'Agosto',
-                'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-            ],
-            firstDay: 1
+    $(document).ready(function () {
+        // Quita el alert que impide la carga normal de la página
+        // alert("Script for add_ofertas.html is running.");
+
+        // Asegura que los elementos existen antes de usarlos
+        const slider = $('#id_descuento');
+        const valor = $('#id_descuento_helptext');
+
+        if (slider.length && valor.length) {
+            // Mostrar el valor inicial
+            valor.text('Descuento: ' + slider.val() + '%');
+            // Actualizar mientras se mueve
+            slider.on('input', function () {
+                valor.text('Descuento: ' + $(this).val() + '%');
+            });
+        }
+
+        // Activa los calendarios solo si los elementos existen
+        if ($('#id_fecha_inicio').length) {
+            $('#id_fecha_inicio').daterangepicker({
+                singleDatePicker: true,
+                autoApply: true,
+                autoUpdateInput: true,
+                minDate: moment(),
+                locale: {
+                    format: 'DD/MM/YYYY',
+                    applyLabel: 'Aceptar',
+                    cancelLabel: 'Cancelar',
+                    daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
+                    monthNames: [
+                        'Enero', 'Febrero', 'Marzo', 'Abril',
+                        'Mayo', 'Junio', 'Julio', 'Agosto',
+                        'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+                    ],
+                    firstDay: 1
+                }
+            });
+        }
+        if ($('#id_fecha_fin').length) {
+            $('#id_fecha_fin').daterangepicker({
+                singleDatePicker: true,
+                autoApply: true,
+                minDate: moment(),
+                locale: {
+                    format: 'DD/MM/YYYY',
+                    applyLabel: 'Aceptar',
+                    cancelLabel: 'Cancelar',
+                    daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
+                    monthNames: [
+                        'Enero', 'Febrero', 'Marzo', 'Abril',
+                        'Mayo', 'Junio', 'Julio', 'Agosto',
+                        'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+                    ],
+                    firstDay: 1
+                }
+            });
         }
     });
-    $('#id_fecha_fin').daterangepicker({
-        singleDatePicker: true,
-        autoApply: true,
-        minDate: moment(),
-        locale: {
-            format: 'DD/MM/YYYY',
-            applyLabel: 'Aceptar',
-            cancelLabel: 'Cancelar',
-            daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
-            monthNames: [
-                'Enero', 'Febrero', 'Marzo', 'Abril',
-                'Mayo', 'Junio', 'Julio', 'Agosto',
-                'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-            ],
-            firstDay: 1
-        }
-    });
-});
-    $('#add_ofertas_forms').submit(function(e) {
-        e.preventDefault();
-        var formData = new FormData(this);
-        $.ajax({
-            type: 'POST',
-            url: $(this).attr('action'),
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function(response) {
-                $('#info_ofertas').html(response.success);
-                $('#add_ofertas_forms')[0].reset();
+    $('#add_ofertas_forms').on('submit', async function (e) {
+    e.preventDefault();
+    const datos = new FormData(form);
+    $.ajax({
+      type: 'POST',
+      url: $(form).attr('action'),
+      data: datos,
+      success: function (resp) {
+        if (resp.success) {
+          $('.toast-body').removeClass('alert-danger').addClass('alert-success').fadeIn(1000).html('<strong>' + resp.success + '</strong>');
+          form.reset();
+          mostrar_notificacion();
+          $.ajax({
+            type: 'GET',
+            url: '/get_promocion/{{company.id}}',
+            success: function (data) {
+                $('#info_ofertas').html(data);
             },
-            error: function(xhr, status, error) {
-                console.error('Error:', error);
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("Error al obtener la información de la promoción. Por favor, intente de nuevo.\nDetalles: " + thrownError);
             }
-        });
+          });
+        } else {
+          $('.toast-body').removeClass('alert-success').addClass('alert-danger').fadeIn(1000).html('<strong>' + resp.error + '</strong>');
+          mostrar_notificacion();
+        }
+      },
+      error: function (xhr, ajaxOptions, thrownError) {
+        alert("Error al enviar el formulario. Por favor, intente de nuevo.\nDetalles: " + thrownError);
+      },
+      complete: function () {
+        botonSubmit.prop('disabled', false).html('<i class="bi bi-save"></i> Registrando...');
+      }
     });
+  });
 </script>

@@ -193,7 +193,7 @@ class ChatBotView(View):
                 "price": str(p.price),
                 "moneda": p.company.moneda,
                 "image_url": p.image.url if p.image else "",
-                "url": f"/{p.id}/{p.company.id}/detail_product",
+                "url": f"/{p.company.id}/{p.id}/detail_product",
                 "description": (p.description[:100] + "...") if p.description and len(p.description) > 80 else p.description or "",
                 "ciudad": p.company.cuidad.ciudad if p.company and p.company.cuidad else "---",
             }

@@ -14,7 +14,7 @@ def procesar_imagen(model_instance, campo_imagen):
 
     # Límites deseados
     min_width, min_height = 600, 400
-    max_width, max_height = 901, 500
+    max_width, max_height = 901, 600
     max_file_size_kb = 150
 
     # Tamaño original del archivo en KB (en memoria)
@@ -66,7 +66,7 @@ def procesar_imagen_portada(model_instance, campo_imagen):
 
     # Límites deseados
     min_width, min_height = 1200, 900
-    max_width, max_height = 1600, 1200
+    max_width, max_height = 1920, 1280
     max_file_size_kb = 200
 
     # Tamaño original del archivo en KB (en memoria)

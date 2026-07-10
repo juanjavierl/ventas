@@ -67,7 +67,7 @@ class Product(models.Model):
         return self.get_image()
 
     def get_meta_url(self):
-        return f'/{self.id}/{self.company.id}/detail_product'
+        return f'/{self.company.id}/{self.id}/detail_product'
 
     def get_full_name(self):
         return f'{self.name} ({self.code}) ({self.category.name})'

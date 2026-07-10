@@ -44,7 +44,7 @@ class ProductSitemap(Sitemap):
         return Product.objects.filter(company__status=True)
 
     def location(self, obj):
-        return f'/{obj.id}/{obj.company.id}/detail_product'
+        return f'/{obj.company.id}/{obj.id}/detail_product'
 
 class TipoCompanySitemap(Sitemap):
     changefreq = "monthly"

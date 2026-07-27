@@ -1,115 +1,209 @@
-{% extends 'index.html' %}
+{% extends 'dashboard/base_dashboard.html' %}
+{% load static %}
 
-{% block titulo %}
+{% block title %}
 {{company.name|title|truncatechars:26}}
-{% endblock titulo %}
+{% endblock title %}
 
-{% block company %}
-<a href="/{{company.id}}/catalogo">
-    <marquee behavior="" direction="">{{company.name|title}}</marquee>
-</a>
-{% endblock company %}
+{% block css %}
+<style>
+    .dashboard-company-hero {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        border: 1px solid #e5e7eb;
+        border-radius: .75rem;
+    }
 
-{% block carrito %}
-{% include 'catalog/carrito.html' with total_compra=total_compra %}
-{% endblock carrito %}
+    .dashboard-section-card {
+        border: 1px solid #e5e7eb;
+        border-radius: .75rem;
+        box-shadow: 0 10px 25px rgba(15, 23, 42, .04);
+    }
 
-{% block menus %}
-{% include 'menu_from_user.html' %}
-{% endblock menus %}
+    .dashboard-section-card .card-header {
+        background: #ffffff;
+        border-bottom: 1px solid #e5e7eb;
+        border-radius: .75rem .75rem 0 0;
+    }
 
-{% block hero %} {% endblock hero %}
+    .dashboard-config-card .accordion-header {
+        display: none;
+    }
 
-{% block contenido %}
+    .dashboard-config-card .accordion-collapse {
+        display: block !important;
+    }
 
-<section id="team_productos" class="team" style="margin-top: 80px;">
-    <div class="container-fluid productos_por_categorias" data-aos="fade-up">
+    .dashboard-config-card .accordion-body {
+        padding: 0;
+    }
+</style>
+{% endblock css %}
 
-        <div class="accordion" id="accordionExample">
-            <div class="accordion-item">
-                {% include 'configuraciones/reportePedidos.html' %}
-            </div>
-        
-            <div class="accordion-item">
-                {% include 'configuraciones/precioEnvios.html' %}
-            </div>
-                
-            <div class="accordion-item">
-                {% include 'configuraciones/registroBanco.html' %}
-            </div>
+{% block dashboard_sidebar %}
+<div class="dashboard-sidebar-heading">Configuraciones</div>
+<div class="nav nav-pills flex-column gap-1" id="dashboard-config-tabs" role="tablist" aria-orientation="vertical">
+    <button class="nav-link active" id="orders-tab" data-bs-toggle="pill" data-bs-target="#orders-panel" type="button" role="tab" aria-controls="orders-panel" aria-selected="true">
+        <i class="bi bi-receipt"></i> Reporte de Pedidos
+    </button>
+    <button class="nav-link" id="shipping-tab" data-bs-toggle="pill" data-bs-target="#shipping-panel" type="button" role="tab" aria-controls="shipping-panel" aria-selected="false">
+        <i class="bi bi-truck"></i> Precios de Envio
+    </button>
+    <button class="nav-link" id="bank-tab" data-bs-toggle="pill" data-bs-target="#bank-panel" type="button" role="tab" aria-controls="bank-panel" aria-selected="false">
+        <i class="bi bi-bank"></i> Banco & RQ
+    </button>
+    <button class="nav-link" id="notices-tab" data-bs-toggle="pill" data-bs-target="#notices-panel" type="button" role="tab" aria-controls="notices-panel" aria-selected="false">
+        <i class="bi bi-megaphone"></i> Avisos
+    </button>
+    <button class="nav-link" id="inventory-tab" data-bs-toggle="pill" data-bs-target="#inventory-panel" type="button" role="tab" aria-controls="inventory-panel" aria-selected="false">
+        <i class="bi bi-box-seam"></i> Inventario
+    </button>
+    <button class="nav-link" id="customers-tab" data-bs-toggle="pill" data-bs-target="#customers-panel" type="button" role="tab" aria-controls="customers-panel" aria-selected="false">
+        <i class="bi bi-people"></i> Clientes
+    </button>
+    <button class="nav-link" id="map-tab" data-bs-toggle="pill" data-bs-target="#map-panel" type="button" role="tab" aria-controls="map-panel" aria-selected="false">
+        <i class="bi bi-geo-alt"></i> Mapa del negocio
+    </button>
+    <button class="nav-link" id="rules-tab" data-bs-toggle="pill" data-bs-target="#rules-panel" type="button" role="tab" aria-controls="rules-panel" aria-selected="false">
+        <i class="bi bi-file-earmark-text"></i> Terminos
+    </button>
+    <button class="nav-link" id="offers-tab" data-bs-toggle="pill" data-bs-target="#offers-panel" type="button" role="tab" aria-controls="offers-panel" aria-selected="false">
+        <i class="bi bi-tags"></i> Descuentos
+    </button>
+</div>
+{% endblock dashboard_sidebar %}
 
-            <div class="accordion-item">
-                {% include 'configuraciones/avisoCatalogo.html' %}
-            </div>
-            <div class="accordion-item">
-                {% include 'configuraciones/inventarioProductos.html' %}
-            </div>
-            <div class="accordion-item">
-                {% include 'configuraciones/listaClientes.html' %}
-            </div>
+{% block content %}
 
-            <div class="accordion-item">
-                {% include 'configuraciones/add_mapa.html' %}
-            </div>
+<section id="team_productos" class="team">
+    <div class="container-fluid productos_por_categorias px-0">
+        <div class="tab-content" id="dashboard-config-tabs-content">
+                    <div class="tab-pane fade show active" id="orders-panel" role="tabpanel" aria-labelledby="orders-tab" tabindex="0">
+                        <div class="card dashboard-section-card">
+                            <div class="card-header py-3">
+                                <h2 class="h5 mb-1"><i class="bi bi-receipt text-success"></i> Reporte de Pedidos</h2>
+                                <p class="text-muted small mb-0">Busca ordenes y genera reportes por rango de fechas.</p>
+                            </div>
+                            <div class="card-body dashboard-config-card">
+                                {% include 'configuraciones/reportePedidos.html' %}
+                            </div>
+                        </div>
+                    </div>
 
-            <div class="accordion-item">
-                {% include 'configuraciones/add_condicion.html' %}
-            </div>
-            <div class="accordion-item">
-                {% include 'configuraciones/add_ofertas.html' %}
-            </div>
+                    <div class="tab-pane fade" id="shipping-panel" role="tabpanel" aria-labelledby="shipping-tab" tabindex="0">
+                        <div class="card dashboard-section-card">
+                            <div class="card-header py-3">
+                                <h2 class="h5 mb-1"><i class="bi bi-truck text-success"></i> Precio de Envio</h2>
+                                <p class="text-muted small mb-0">Configura costos de envio visibles durante la compra.</p>
+                            </div>
+                            <div class="card-body dashboard-config-card">
+                                {% include 'configuraciones/precioEnvios.html' %}
+                            </div>
+                        </div>
+                    </div>
 
+                    <div class="tab-pane fade" id="bank-panel" role="tabpanel" aria-labelledby="bank-tab" tabindex="0">
+                        <div class="card dashboard-section-card">
+                            <div class="card-header py-3">
+                                <h2 class="h5 mb-1"><i class="bi bi-bank text-success"></i> Banco</h2>
+                                <p class="text-muted small mb-0">Registra datos bancarios y QR para pagos.</p>
+                            </div>
+                            <div class="card-body dashboard-config-card">
+                                {% include 'configuraciones/registroBanco.html' %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="notices-panel" role="tabpanel" aria-labelledby="notices-tab" tabindex="0">
+                        <div class="card dashboard-section-card">
+                            <div class="card-header py-3">
+                                <h2 class="h5 mb-1"><i class="bi bi-megaphone text-success"></i> Avisos del Catalogo</h2>
+                                <p class="text-muted small mb-0">Administra mensajes informativos para tus clientes.</p>
+                            </div>
+                            <div class="card-body dashboard-config-card">
+                                {% include 'configuraciones/avisoCatalogo.html' %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="inventory-panel" role="tabpanel" aria-labelledby="inventory-tab" tabindex="0">
+                        <div class="card dashboard-section-card">
+                            <div class="card-header py-3">
+                                <h2 class="h5 mb-1"><i class="bi bi-box-seam text-success"></i> Inventario de Productos</h2>
+                                <p class="text-muted small mb-0">Consulta productos con stock, agotados o el inventario completo.</p>
+                            </div>
+                            <div class="card-body dashboard-config-card">
+                                {% include 'configuraciones/inventarioProductos.html' %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="customers-panel" role="tabpanel" aria-labelledby="customers-tab" tabindex="0">
+                        <div class="card dashboard-section-card">
+                            <div class="card-header py-3">
+                                <h2 class="h5 mb-1"><i class="bi bi-people text-success"></i> Lista de Clientes</h2>
+                                <p class="text-muted small mb-0">Revisa clientes vinculados a pedidos registrados.</p>
+                            </div>
+                            <div class="card-body dashboard-config-card">
+                                {% include 'configuraciones/listaClientes.html' %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="map-panel" role="tabpanel" aria-labelledby="map-tab" tabindex="0">
+                        <div class="card dashboard-section-card">
+                            <div class="card-header py-3">
+                                <h2 class="h5 mb-1"><i class="bi bi-geo-alt text-success"></i> Mapa del Negocio</h2>
+                                <p class="text-muted small mb-0">Registra o administra la ubicacion de tu tienda.</p>
+                            </div>
+                            <div class="card-body dashboard-config-card">
+                                {% include 'configuraciones/add_mapa.html' %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="rules-panel" role="tabpanel" aria-labelledby="rules-tab" tabindex="0">
+                        <div class="card dashboard-section-card">
+                            <div class="card-header py-3">
+                                <h2 class="h5 mb-1"><i class="bi bi-file-earmark-text text-success"></i> Terminos y Condiciones</h2>
+                                <p class="text-muted small mb-0">Define las condiciones de venta que vera el cliente.</p>
+                            </div>
+                            <div class="card-body dashboard-config-card">
+                                {% include 'configuraciones/add_condicion.html' %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="offers-panel" role="tabpanel" aria-labelledby="offers-tab" tabindex="0">
+                        <div class="card dashboard-section-card">
+                            <div class="card-header py-3">
+                                <h2 class="h5 mb-1"><i class="bi bi-tags text-success"></i> Descuentos</h2>
+                                <p class="text-muted small mb-0">Crea, actualiza o elimina Descuentos destacadas del catalogo.</p>
+                            </div>
+                            <div class="card-body dashboard-config-card">
+                                {% include 'configuraciones/add_ofertas.html' %}
+                            </div>
+                        </div>
+                    </div>
         </div>
     </div>
 </section>
-<script>
-    $('#add_hivicacion_forms').on('submit', function (e) {
-        e.preventDefault();
-        $.ajax({
-            type: 'POST',
-            url: $(this).attr('action'),
-            data: $(this).serialize(),
-            success: function (resp) {
-                if (resp.error) {
-                    $(".invalid_ct").html(resp.error);
-                } else {
 
-                    $(".btn-close").click();
-                }
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-                alert("Error:" + thrownError);
-            }
-        });
-    });
-    
-</script>
-{% endblock contenido %}
-
-{% block preg_frecuentes %} {% endblock preg_frecuentes %}
-{% block suscipcion_for_email %} {% endblock suscipcion_for_email %}
-{% block productos_mas_vistos %}    {% endblock productos_mas_vistos %}
-
-{% block acerca %} {% endblock acerca %}
-
-{% block button_whatsap %}
-{% include 'button_whatsap.html' %}
-{% endblock button_whatsap %}
-
-{% block servicios %} {% endblock servicios %}
-
-{% block google_adsense %}{% endblock google_adsense %}
-    
-{% block contact %}
-<!-- ======= Contact Section ======= -->
-<section id="contact" class="contact">
-    <div class="container">
-        {% include 'contact.html' with company=company %}
+<div class="modal fade" id="exampleModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content"></div>
     </div>
-</section>
-<!-- End Contact Section -->
-{% endblock contact %}
+</div>
+{% endblock content %}
 
-{% block footer_catalog %}
-  {% include 'footer_tienda.html' %}
-{% endblock footer_catalog %}
+{% block js %}
+<script>
+    const APP = {
+        companyId: "{{ company.id }}",
+        csrfToken: "{{ csrf_token }}"
+    };
+    </script>
+    
+<script src="{% static 'js/dashboard/configuraciones_company.js' %}"></script>
+
+{% endblock js %}

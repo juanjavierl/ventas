@@ -1,0 +1,302 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <link href="{% static 'assets/img/favicon.png' %}" rel="icon">
+  <title>{% block title %}Panel de Administracion{% endblock title %}</title>
+  
+  <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/daterangepicker.css' %}">
+  <script src="{% static 'js/jquery-2.2.4.min.js' %}"></script>
+  <script src="{% static 'js/moment.min.js' %}"></script>
+  <script src="{% static 'js/daterangepicker.min.js' %}"></script>
+  <style>
+    :root {
+      --dashboard-sidebar-width: 280px;
+      --dashboard-topbar-height: 64px;
+      --dashboard-border: #e5e7eb;
+      --dashboard-muted: #6b7280;
+      --dashboard-bg: #f6f7f9;
+      --dashboard-sidebar-bg: #111827;
+      --dashboard-sidebar-link: #d1d5db;
+      --dashboard-sidebar-active: #ffffff;
+      --dashboard-accent: #198754;
+    }
+
+    body {
+      min-height: 100vh;
+      background: var(--dashboard-bg);
+      color: #1f2937;
+    }
+
+    .dashboard-shell {
+      min-height: 100vh;
+    }
+
+    .dashboard-sidebar {
+      width: var(--dashboard-sidebar-width);
+      background: var(--dashboard-sidebar-bg);
+      color: var(--dashboard-sidebar-link);
+    }
+
+    .dashboard-brand {
+      height: var(--dashboard-topbar-height);
+      border-bottom: 1px solid rgba(255, 255, 255, .08);
+    }
+
+    .dashboard-brand a {
+      color: #ffffff;
+      text-decoration: none;
+    }
+
+    .dashboard-sidebar .nav-link {
+      color: var(--dashboard-sidebar-link);
+      border-radius: .5rem;
+      padding: .65rem .85rem;
+      display: flex;
+      align-items: center;
+      gap: .65rem;
+    }
+
+    .dashboard-sidebar .nav-link:hover,
+    .dashboard-sidebar .nav-link.active {
+      color: var(--dashboard-sidebar-active);
+      background: rgba(255, 255, 255, .1);
+    }
+
+    .dashboard-sidebar .nav-link i {
+      font-size: 1.05rem;
+    }
+
+    .dashboard-sidebar-heading {
+      color: #9ca3af;
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: .85rem .85rem .35rem;
+    }
+
+    .dashboard-sidebar .nav-link.sub-link {
+      font-size: .9rem;
+      padding-left: 2.2rem;
+    }
+
+    .dashboard-content {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .dashboard-topbar {
+      min-height: var(--dashboard-topbar-height);
+      background: #ffffff;
+      border-bottom: 1px solid var(--dashboard-border);
+    }
+
+    .dashboard-main {
+      padding: 1.5rem;
+    }
+
+    .dashboard-footer {
+      color: var(--dashboard-muted);
+      border-top: 1px solid var(--dashboard-border);
+      background: #ffffff;
+    }
+
+    .sidebar-backdrop {
+      display: none;
+    }
+
+    @media (max-width: 991.98px) {
+      .dashboard-sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 1040;
+        transform: translateX(-100%);
+        transition: transform .2s ease-in-out;
+      }
+
+      .dashboard-sidebar.show {
+        transform: translateX(0);
+      }
+
+      .sidebar-backdrop.show {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 1030;
+        background: rgba(17, 24, 39, .45);
+      }
+
+      .dashboard-main {
+        padding: 1rem;
+      }
+    }
+  </style>
+
+  {% block css %}{% endblock css %}
+</head>
+<body>
+  <div class="dashboard-shell d-flex">
+    <aside class="dashboard-sidebar d-flex flex-column" id="dashboardSidebar">
+      <div class="dashboard-brand d-flex align-items-center px-3">
+        <a href="#" class="d-flex align-items-center gap-2 fw-semibold">
+          <i class="bi bi-shop-window"></i>
+          <span>Panel Propietario</span>
+        </a>
+      </div>
+
+      <nav class="flex-grow-1 overflow-auto p-3">
+        {% block dashboard_sidebar %}
+        <ul class="nav nav-pills flex-column gap-1">
+          <li class="nav-item">
+            <a class="nav-link active" href="#">
+              <i class="bi bi-speedometer2"></i>
+              <span>Resumen</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">
+              <i class="bi bi-box-seam"></i>
+              <span>Productos</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">
+              <i class="bi bi-receipt"></i>
+              <span>Pedidos</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">
+              <i class="bi bi-graph-up-arrow"></i>
+              <span>Reportes</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">
+              <i class="bi bi-gear"></i>
+              <span>Configuracion</span>
+            </a>
+          </li>
+        </ul>
+        {% endblock dashboard_sidebar %}
+      </nav>
+    </aside>
+
+    <div class="sidebar-backdrop" id="dashboardSidebarBackdrop"></div>
+
+    <div class="dashboard-content d-flex flex-column">
+      <header class="dashboard-topbar navbar navbar-expand bg-white px-3">
+        <button class="btn btn-outline-secondary d-lg-none me-2" type="button" id="dashboardSidebarToggle" aria-label="Abrir menu">
+          <i class="bi bi-list"></i>
+        </button>
+
+        <div class="d-flex flex-column">
+            <a href="/{{company.id}}/catalogo" class="text-decoration-none" target="_blank">
+                          <i class="bi bi-box-arrow-up-right"></i> Ver catalogo publico
+                      </a>
+        </div>
+
+       
+      </header>
+
+      <main class="dashboard-main flex-grow-0">
+        {% block content %}{% endblock content %}
+      </main>
+
+      <footer class="dashboard-footer py-3 px-4 small">
+        <div class="d-flex flex-column flex-sm-row justify-content-between gap-2">
+          <span>Panel de Administracion</span>
+          <span>&copy; {% now "Y" %}</span>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <div class="modal fade" id="dashboardModal" tabindex="-1" aria-labelledby="dashboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="dashboardModalLabel">Panel de Administracion</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-content-placeholder"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <strong class="me-auto">Aviso</strong>
+        <small>hace 1 segundo</small>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body alert alert-success">
+
+      </div>
+    </div>
+  </div>
+  
+  <script src="{% static 'assets/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  
+  
+  <script>
+    function mostrar_notificacion() {
+
+      const toast = document.getElementById('liveToast');
+
+      if (!toast) {
+          console.error("No existe #liveToast");
+          return;
+      }
+
+      bootstrap.Toast.getOrCreateInstance(toast).show();
+
+    }
+    (function () {
+      const sidebar = document.getElementById('dashboardSidebar');
+      const backdrop = document.getElementById('dashboardSidebarBackdrop');
+      const toggle = document.getElementById('dashboardSidebarToggle');
+      const toastButton = document.getElementById('dashboardToastButton');
+      const toastElement = document.getElementById('dashboardToast');
+
+      function closeSidebar() {
+        sidebar.classList.remove('show');
+        backdrop.classList.remove('show');
+      }
+
+      if (toggle) {
+        toggle.addEventListener('click', function () {
+          sidebar.classList.toggle('show');
+          backdrop.classList.toggle('show');
+        });
+      }
+
+      if (backdrop) {
+        backdrop.addEventListener('click', closeSidebar);
+      }
+
+      if (toastButton && toastElement) {
+        const toast = new bootstrap.Toast(toastElement);
+        toastButton.addEventListener('click', function () {
+          toast.show();
+        });
+      }
+    })();
+  </script>
+  {% if not address %}
+  <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDO2fkiN4Ys2r8D5IEQAP4S4N0nqQ6Y6KQ&callback=initMap"></script>
+  {% endif %}
+ 
+  {% block js %}{% endblock js %}
+</body>
+</html>

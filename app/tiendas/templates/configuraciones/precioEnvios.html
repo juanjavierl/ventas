@@ -22,62 +22,12 @@
     </div>
 </div>
 <script>
-    $('#form_precio_envio').on('submit', function (e) {
-        e.preventDefault();
-        $.ajax({
-            type: 'POST',
-            url: $(this).attr('action'),
-            data: $(this).serialize(),
-            success: function (resp) {
-                let mensaje = '';
-                if (resp.errors) {
-                    for (const campo in resp.errors) {
-                        resp.errors[campo].forEach(function(error) {
-                            mensaje += error.message + '<br>';
-                        });
-                    }
-                    $('.toast-body').addClass('alert alert-danger');
-                    $('.toast-body').fadeIn(1000).html(mensaje);
-                    mostrar_notificacion();
-                } else {
-                    $(".precios_env").html("");
-                    $('.toast-body').addClass('alert alert-success');
-                    $('.toast-body').fadeIn(1000).html(resp.success);
-                    mostrar_notificacion();
-                    $.ajax({
-                        type: 'get',
-                        url: '/{{company.id}}/mostrar_precio',
-                        success: function (respuesta) {
-                            $('#delete_precio').html(respuesta);
-                        }
-
-                    });
-                }
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-                $('.toast-body').addClass('alert alert-danger');
-                $('.toast-body').fadeIn(1000).html("verifique si tiene internet");
-                mostrar_notificacion();
-            }
-        });
-    });
-
-    function del_precio(urls) {
-        $.ajax({
-            type: 'get',
-            url: urls,
-            success: function (resp) {
-                if (resp.error) {
-                    $(".invalid_ct").html(resp.error);
-                } else {
-
-                    $(".modal-content").html(resp);
-                }
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-                alert("Error:" + thrownError);
-            }
-        });
-        return false;
+$("#id_por_pagar").change(function () {
+    if ($(this).is(":checked")) {
+        $('#id_precio').val("");
+        $('#id_precio_ciudad').val("");
+    } else {
+        console.log("Desmarcado");
     }
+});
 </script>

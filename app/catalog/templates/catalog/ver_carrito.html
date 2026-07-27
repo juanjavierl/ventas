@@ -9,7 +9,7 @@
     }
 </style>
 <div class="modal-header  thead-light" style="background-color: #58bba9;">
-    <h5 class="modal-title text-white" id="exampleModalLabel">Mi lista de pedidos</h5>
+    <h5 class="modal-title text-white" id="exampleModalLabel">Mi pedido</h5>
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <div class="modal-body table-responsive">
@@ -67,7 +67,31 @@
   </div>
 {% endif %}
 <script>
-
+  function updateTotalPago(urls, valor_option){
+    // Remover alert("ejecuto"); si no es necesario.
+    $.ajax({
+        type: 'GET',
+        url: urls,
+        data: {'opcion': valor_option},
+        success: function(resp){
+            // Validaciones de propiedades que podrían no existir.
+            // Según el backend esperado por tu contexto debe ser resp.datos: {subtotal, precio_envio, desc, total}
+            if(resp && resp.datos){
+                var datos = resp.datos;
+                let textoEnvio = datos.precio_envio;
+                if(datos.tipo_envio === "gratis") textoEnvio = 'Gratis';
+                let resumen = `Total: {{company.moneda}} ${datos.subtotal} <br> Costo de envío: {{company.moneda}} ${textoEnvio} <br> Desc. : {{company.moneda}} ${datos.desc} <br> Total a pagar: {{company.moneda}} ${datos.total}`;
+                $('#costos').html(resumen);
+            }else{
+                $('#costos').html('<span class="text-danger">Error al obtener totales</span>');
+            }
+        },
+        error: function(xhr, status, error){
+            $('#costos').html('<span class="text-danger">Error en la solicitud</span>');
+            console.error("Error en updateTotalPago:", error);
+        }
+    });
+}
   function cambiarValor(valor, indice) {
       let input = document.getElementById("cantidad_"+indice);
       let nuevoValor = parseInt(input.value) + valor;
@@ -78,6 +102,7 @@
           url:'/actualizarCantidad/',
           data:{'cantidad':valor, 'indice':indice},
           success:function(resp){
+            console.log(resp);
             //$("#data_dable tbody #t_p").html("Importe estimado: "+resp.t_pago);
             $("#cont_compras").html(resp.cant_compras);
             const path = window.location.pathname;

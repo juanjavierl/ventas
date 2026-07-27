@@ -34,35 +34,23 @@
 $("#btnConfirmar").on("click", function(e) {
     e.preventDefault();
 
-    // 1. Crear objeto con checkboxes
-    let valoresSeleccionados = {};
-    $("#reporte_form_datos input[type=checkbox]").each(function() {
-        valoresSeleccionados[$(this).attr("name")] = $(this).is(":checked");
+    // Obtiene los checkboxes marcados dentro del formulario
+    const seleccionados = [];
+    $("#reporte_form_datos input[type=checkbox]:checked").each(function() {
+        seleccionados.push(encodeURIComponent($(this).attr("name")));
     });
 
-    // 2. Crear formulario temporal
-    let $form = $('<form>', {
-        action: "/{{ company_id }}/{{ criterio }}/productos_pdf", // tu ruta
-        method: "GET",
-        target: "_blank" // abrir en nueva pestaña
-    }).appendTo('body');
+    // Armamos la URL con los parámetros seleccionados, solo los seleccionados en 'on'
+    // y conservamos compatibilidad con la ruta base
+    const baseUrl = "/{{ company_id }}/{{ criterio }}/productos_pdf";
+    let queryString = "";
 
-    // 4. Agregar los valores del objeto como inputs hidden
-    for (let key in valoresSeleccionados) {
-        $form.append(
-            $('<input>', {
-                type: 'hidden',
-                name: key,
-                value: valoresSeleccionados[key] ? 'on' : ''
-            })
-        );
+    if (seleccionados.length > 0) {
+        queryString = "?" + seleccionados.map(n => n + "=on").join("&");
     }
 
-    // 5. Enviar el formulario
-    $form.submit();
-
-    // 6. Eliminar el formulario temporal
-    $form.remove();
+    // Abrimos la URL armada en una nueva pestaña/ventana
+    window.open(baseUrl + queryString, "_blank");
 });
 
 </script>

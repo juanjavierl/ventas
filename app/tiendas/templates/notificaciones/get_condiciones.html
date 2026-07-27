@@ -1,7 +1,21 @@
-{% for regla in reglas %}
-    <li>
-        Terminos y condiciones para su venta : <br> <strong>{{regla.regla}}.</strong> <a href="#"
-            type="button" data-bs-toggle="modal" data-bs-target="#exampleModal"
-            onclick="del_regla('/{{regla.id}}/delete_regla')">Eliminar</a>
-    </li>
-{% endfor %}
+{% load extras %}
+<ul class="list-group mb-3">
+    {% for regla in reglas %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span>
+                <i class="bi bi-clipboard-check text-primary me-2"></i>
+                <strong>{{ regla.regla|urlize_mode:"ver_mas,br" }}</strong>
+            </span>
+            <a 
+                href="#" 
+                class="btn btn-outline-danger btn-sm ms-2"
+                type="button" 
+                data-bs-toggle="modal" 
+                data-bs-target="#exampleModal" 
+                onclick="del_regla('/{{regla.id}}/delete_regla')"
+            >
+                <i class="bi bi-trash"></i> Eliminar
+            </a>
+        </li>
+    {% endfor %}
+</ul>

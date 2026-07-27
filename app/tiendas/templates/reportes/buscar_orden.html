@@ -14,9 +14,22 @@
             <td class="label">Cliente:</td>
             <td>{{orden.client.names|title}}</td>
         </tr>
+        <tr>
+            <td class="label">Tipo de venta:</td>
+            {% if orden.tipo_venta == "tienda" %}
+                <td>Recojo en tienda</td>
+            {% elif orden.tipo_venta == "domicilio" %}
+                <td>Envío a domicilio  - Direccion: {{orden.client.address}} </td>
+            {% elif orden.tipo_venta == "ciudad" %}
+                <td>Envío a la ciudad de: {{orden.client.address}}</td>
+            {% else %}
+                <td>{{orden.tipo_venta|title}}</td>
+            {% endif %}
+   
+        </tr>
     </tbody>
 </table>
-<table class="table table-striped table-bordered table-responsive table-sm">
+<table class="table table-striped table-bordered table-responsive table-sm table-hover">
     <thead class="table-dark">
         <tr>
             <th>#</th>
@@ -43,21 +56,35 @@
         
         <tr>
             <td colspan="5" class="text-end fw-bold">Subtotal</td>
-            <td>{{orden.subtotal}}</td>
+            <td>{{ orden.subtotal|default:"0.00" }}</td>
         </tr>
         <tr>
-            <td colspan="5" class="text-end fw-bold">Precio de Envio</td>
-            <td>{{precio_envio}}</td>
+            <td colspan="5" class="text-end fw-bold">Descuento</td>
+            <td>
+                {% if orden.dscto %}
+                    {{ orden.dscto }}
+                {% else %}
+                    0.00
+                {% endif %}
+            </td>
         </tr>
         <tr>
-            <td colspan="5" class="text-end fw-bold">Total</td>
-            <td>{{orden.total}}</td>
+            <td colspan="5" class="text-end fw-bold">Precio de Envío</td>
+            <td>
+                {{ orden.precio_envio }}
+               
+            </td>
+        </tr>
+        <tr>
+            <td colspan="5" class="text-end fw-bold">Total a Pagar</td>
+            <td>{{ orden.total|default:"0.00" }}</td>
         </tr>
         <tr>
 
         <td colspan="6" class="fw-bold">
             {% if orden.status == False %}
-            <a href="#" onclick="form_company('/autorizar/{{orden.id}}/')" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal">Desea confirmar esta orden?</a>
+            <a href="#" onclick="form_company('/autorizar/{{orden.id}}/')" class="btn btn-success btn-sm" 
+            data-bs-toggle="modal" data-bs-target="#exampleModal">¿Desea autorizar esta orden?</a>
             {% else %}
             <div class="d-flex align-items-center">
                 <small class="text-success text-muted">La orden esta autorizada </small>

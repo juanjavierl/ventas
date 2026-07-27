@@ -17,66 +17,7 @@
             </div>
         </div>
         <div class="info_avisos col-lg-5 align-items-stretch table-responsive">
-            {% for a in avisos %}
-            <li><strong>Tiempo de Entregas: </strong> {{a.Tiempo_entrega}}</li>
-            <li><strong>Envios : </strong> {{a.envios}}</li>
-            <li><strong>Pedidos : </strong> {{a.pedidos}}</li>
-            <li><strong>Contra Entrega: </strong> {{a.pide_ahora}}</li>
-            <p style="text-align: center;"><a href="#" type="button" data-bs-toggle="modal"
-                    data-bs-target="#exampleModal"
-                    onclick="elimnarOpciones('/{{a.id}}/eliminar_opciones')"> Eliminar </a></p>
-            {% endfor %}
+            {% include 'notificaciones/get_opciones.html' %}
         </div>
     </div>
 </div>
-<script>
-    function elimnarOpciones(urls) {
-        $.ajax({
-            type: 'GET',
-            url: urls,
-            success: function (resp) {
-                if (resp.error) {
-                    $(".invalid_ct").html(resp.error);
-                } else {
-
-                    $(".modal-content").html(resp);
-                }
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-                $('.toast-body').addClass('alert alert-danger');
-                $('.toast-body').fadeIn(1000).html(thrownError);
-                mostrar_notificacion();
-            }
-        });
-        return false;
-    }
-
-    $('#add_avisos_forms').on('submit', function (e) {
-        e.preventDefault();
-        $.ajax({
-            type: 'POST',
-            url: $(this).attr('action'),
-            data: $(this).serialize(),
-            success: function (resp) {
-                if (resp) {
-                    $('.toast-body').addClass('alert alert-success');
-                    $('.toast-body').fadeIn(1000).html(resp.success);
-                    mostrar_notificacion();
-                    $.ajax({
-                        type: 'get',
-                        url: '/{{company.id}}/get_opciones',
-                        success: function (resp) {
-                            $('.info_avisos').html(resp);
-                        }
-
-                    });
-                }
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-                $('.toast-body').addClass('alert alert-danger');
-                $('.toast-body').fadeIn(1000).html("Ya tiene avisos registros");
-                mostrar_notificacion();
-            }
-        });
-    });
-</script>

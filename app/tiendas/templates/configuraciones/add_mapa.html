@@ -23,11 +23,12 @@
             </div>
         </div>
         {% else %}
-        <div class="alert alert-success info_map_registro" role="alert">
+        <div class="alert info_map_registro" role="alert">
             <p>
                 <strong>Direccion registrada:{{address.address}} <br> Fecha y hora registro: {{address.date_joined}}</strong>
-                <strong><a style="color: red;" href="#" type="button" data-bs-toggle="modal"
+                <strong><a href="#" type="button" data-bs-toggle="modal"
                     data-bs-target="#exampleModal"
+                    class="btn btn-outline-danger btn-sm"
                     onclick="del_address_comp('/{{address.id}}/del_address_comp')"> Eliminar </a></strong>
             </p>
         </div>
@@ -35,104 +36,3 @@
         
     </div>
 </div>
-<script>
-    class Localizacion{
-        constructor(callback){
-            if(navigator.geolocation){
-                navigator.geolocation.getCurrentPosition((position) => {
-                    this.latitude = position.coords.latitude;
-                    this.longitude = position.coords.longitude;
-                    callback();
-                });
-            }else{
-                alert("Tu navegador no soporta geolocalizacion")
-            }
-        }
-    }
-
-    function initMap() {
-        const ubicacion = new Localizacion(()=>{
-            const mylatLng = {lat: ubicacion.latitude,lng: ubicacion.longitude}
-
-            $("#id_latitud").val(ubicacion.latitude);
-            $("#id_longitud").val(ubicacion.longitude);
-            const options = {
-                center: mylatLng,
-                zoom: 15
-            }
-            var map = document.getElementById('map');
-            const mapa = new google.maps.Map(map, options);
-            
-            const marker = new google.maps.Marker({
-            //const marker = new google.maps.marker.AdvancedMarkerElement({
-                map: mapa,
-                position:mylatLng,
-                title:'Mi ubicación',
-                draggable: true,
-            });
-            google.maps.event.addListener(marker, 'position_changed',function(){
-                getMarkerCoords(marker);
-            });
-            function getMarkerCoords(marker){
-                var markerCoords = marker.getPosition();
-                $('#id_latitud').val(markerCoords.lat);
-                $('#id_longitud').val(markerCoords.lng);
-            }
-
-        });
-    }
-    $('#form_add_mapa').on('submit', function (e) {
-        e.preventDefault();
-        $.ajax({
-            type: 'POST',
-            url: $(this).attr('action'),
-            data: $(this).serialize(),
-            success: function (resp) {
-                if (resp.success) {
-                    $('.toast-body').addClass('alert alert-success');
-                    $('.toast-body').fadeIn(1000).html(resp.success);
-                    mostrar_notificacion();
-                    $('#form_add_mapa')[0].reset();
-                    $.ajax({
-                        type: 'get',
-                        url: '/{{company.id}}/info_address_company',
-                        success: function (resp) {
-                            $('.info_map_registro').fadeIn(1000).html(resp.address);
-                        }
-                    });
-
-                } else {
-                    $('.toast-body').addClass('alert alert-danger');
-                    $('.toast-body').fadeIn(1000).html('Ya existe un registro');
-                    mostrar_notificacion();
-                }
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-                $('.toast-body').addClass('alert alert-danger');
-                $('.toast-body').fadeIn(1000).html('Ya existe un registro');
-                mostrar_notificacion('Ya existe un registro');
-            }
-        });
-    });
-
-    function del_address_comp(urls) {
-        $.ajax({
-            type: 'GET',
-            url: urls,
-            success: function (resp) {
-                if (resp.error) {
-                    $(".invalid_ct").html(resp.error);
-                } else {
-
-                    $(".modal-content").html(resp);
-                }
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-                $('.toast-body').addClass('alert alert-danger');
-                $('.toast-body').fadeIn(1000).html(thrownError);
-                mostrar_notificacion();
-            }
-        });
-        return false;
-    }
-</script>

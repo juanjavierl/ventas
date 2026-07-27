@@ -5,9 +5,9 @@
     </button>
 </h2>
 <div id="collapseFaif" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
-    <div class="accordion-body row d-flex no-gutters justify-content-center">
+    <div class="accordion-body row no-gutters justify-content-center">
         
-            <div class="col-lg-4 col-md-6 col-sm-12">
+            <div class="col-12">
                 <div class="input-group">
                     <form action="/{{company.id}}/inventario_productos" method="POST" id="filterProduct">
                         {% csrf_token %}
@@ -23,28 +23,8 @@
                 </div>
             </div>
        
-        <div class=" inventarioProductos col-lg-8 col-md-6 col-sm-12 align-items-center table-responsive">
+        <div class=" inventarioProductos col-12 align-items-center table-responsive">
 
         </div>
     </div>
 </div>
-<script>
-    $("#invProduct").change(function(){
-        $.ajax({
-            type: 'POST',
-            url: $('#filterProduct').attr('action'),
-            data: $("#filterProduct").serialize(),
-            success: function (resp) {
-                if (resp) {
-                    $('.inventarioProductos').fadeIn('slow').html(resp);
-                }
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-                $('.toast-body').addClass('alert alert-danger');
-                $('.toast-body').fadeIn(1000).html(thrownError);
-                mostrar_notificacion();
-            }
-        });
-        return false;
-    });
-</script>

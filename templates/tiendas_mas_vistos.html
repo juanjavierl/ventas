@@ -13,7 +13,12 @@
         <div class="swiper-slide">
             <div class="card dark card_c single-product h-100 shadow-sm">
                 
-                <img src="{{ p.get_logo }}" class="card-img-top object-fit-cover" alt="{{ p.name }}">
+                {% if p.get_logo %}
+                    <img src="{{ p.get_logo }}" class="card-img-top object-fit-cover" alt="{{ p.name }} Logo">
+                {% elif p.image %}
+                    <img src="{{ p.get_image }}" class="card-img-top object-fit-cover" alt="{{ p.name }} Portada">
+                {% endif %}
+         
                 
                 <div class="card-body d-flex flex-column">
                     <h5 class="card-title text-primary fw-bolder text-truncate">{{p.name|capfirst|truncatewords:3}}</h5>

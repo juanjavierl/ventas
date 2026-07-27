@@ -1,4 +1,12 @@
 {% load extras %}
+<style>
+  @media (max-width: 600px) {
+     #mostrar_map {
+         width: 90%;  /* El div ocupa el 90% del ancho en pantallas pequeñas */
+         font-size: 16px;  /* Tamaño de fuente más pequeño */
+     }
+ }
+</style>
       <div class="section-title" data-aos="fade-up">
         <h2>Contáctanos</h2>
       </div>
@@ -74,19 +82,9 @@
           </div>
         </div>
       </div>
-      {% endif %}
-        
       <br>
-      <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDO2fkiN4Ys2r8D5IEQAP4S4N0nqQ6Y6KQ&callback=initMap">
+      <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDO2fkiN4Ys2r8D5IEQAP4S4N0nqQ6Y6KQ&loading=async&callback=initMap">
       </script>
-      <style>
-         @media (max-width: 600px) {
-            #mostrar_map {
-                width: 90%;  /* El div ocupa el 90% del ancho en pantallas pequeñas */
-                font-size: 16px;  /* Tamaño de fuente más pequeño */
-            }
-        }
-      </style>
       <script>
         var map, marker;
 
@@ -108,6 +106,7 @@
             });
         }
     </script>
+      {% endif %}
 <!--       <div class="row mt-3 justify-content-center container" data-aos="fade-up" style="box-shadow: 0 7px 7px rgb(0 0 0 / 18%);">
         <div class="col-lg-8 justify-content-center">
           <form class="form-row">

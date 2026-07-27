@@ -1,12 +1,12 @@
 #encoding:utf-8
 import os
+from tabnanny import verbose
 from .images import procesar_imagen
 from random import randint
 from datetime import datetime
 from django.db.models import Sum, FloatField
 from django.db.models.functions import Coalesce
 from django.forms import model_to_dict
-
 from ventas import settings
 from app.catalog.choices import GENDER
 
@@ -172,6 +172,7 @@ class Orden(models.Model):
     subtotal = models.DecimalField(max_digits=9, decimal_places=2, default=0.00,verbose_name='Sub Total')
     dscto = models.DecimalField(max_digits=9, decimal_places=2, default=0.00, verbose_name='Descuento')
     total = models.DecimalField(max_digits=9, decimal_places=2, default=0.00, verbose_name='Total a pagar')
+    tipo_venta = models.CharField(max_length=20, verbose_name="Tipo de venta")
     creation_date = models.DateTimeField(auto_now_add=True, verbose_name='Fecha y hora de registro')#Fecha de modificacion
     date_joined = models.DateField(default=datetime.now, verbose_name='Fecha de registro')#Fecha de registro
     status = models.BooleanField(default=False)
@@ -192,8 +193,41 @@ class Orden(models.Model):
         item['company'] = self.company.name
         item['client'] = self.client.names
         item['sub_total'] = self.subtotal
-        item['total'] = self.total
+        item['desc'] = self.dscto
+        item['total'] = self.total,
+        item['precio_envio'] = self.precio_envio
         return item
+
+    @property
+    def precio_envio(self):
+        """
+        Retorna el precio de envío según el tipo de venta.
+
+        - Sin registro -> 0
+        - Tienda -> 0
+        - Por pagar -> "Por pagar"
+        - Domicilio -> precio o 0
+        - Ciudad -> precio_ciudad o 0
+        """
+
+        try:
+            envio = self.company.precio_envio
+        except Precio_envio.DoesNotExist:
+            return 0
+
+        if self.tipo_venta == "tienda":
+            return 0
+
+        if envio.por_pagar:
+            return "Por pagar"
+
+        if self.tipo_venta == "domicilio":
+            return envio.precio or 0
+
+        if self.tipo_venta == "ciudad":
+            return envio.precio_ciudad or 0
+
+        return 0
 
 class Pedido(models.Model):
     orden = models.ForeignKey(Orden, on_delete=models.CASCADE)

@@ -176,7 +176,7 @@ class Company(models.Model, ModelMeta):
     
     def get_logo(self):
         if self.logo:
-            return f'{settings.MEDIA_URL}{self.image}'
+            return f'{settings.MEDIA_URL}{self.logo}'
 
     def toJSON(self):
         item = model_to_dict(self)
@@ -395,18 +395,9 @@ class Promocion(models.Model):
     descripcion = models.TextField(verbose_name='Descripción de la promoción', max_length=255)
     fecha_inicio = models.DateField(verbose_name='Fecha de inicio de la promoción')
     fecha_fin = models.DateField(verbose_name='Fecha de fin de la promoción')
-    descuento = models.FloatField(verbose_name='Porcentaje de descuento', help_text="Ingrese el porcentaje del descuento %")
+    descuento = models.IntegerField(verbose_name='Porcentaje de descuento', help_text="Ingrese el porcentaje del descuento %")
     status = models.BooleanField(default=True, verbose_name='Estado de la promoción', help_text="Indica si la promoción está activa o no.")
-    
-    def save(self, *args, **kwargs):
-        if self.imagen1:
-            procesar_imagen_portada(self, 'imagen1')
-        if self.imagen2:
-            procesar_imagen_portada(self, 'imagen2')
-        if self.imagen3:
-            procesar_imagen_portada(self, 'imagen3')
-        super().save(*args, **kwargs)
-
+    compra_mayores = models.IntegerField(verbose_name="Por la compra mayor a", help_text="Ingresa 0 para todas las compras")
 
     def __str__(self):
         return f"{self.titulo} - {self.company.name}"
@@ -414,6 +405,21 @@ class Promocion(models.Model):
     class Meta:
         verbose_name = 'Promoción'
         verbose_name_plural = 'Promociones'
+    
+    @property
+    def promocion_vigente(self):
+        hoy = date.today()
+
+        return (
+            self.status and
+            self.fecha_inicio <= hoy <= self.fecha_fin
+        )
+
+    def aplica(self, monto_compra):
+        return (
+            self.promocion_vigente and
+            monto_compra >= self.compra_mayores
+        )
 
     def toJSON(self):
         item = model_to_dict(self)
@@ -424,7 +430,4 @@ class Promocion(models.Model):
         item['fecha_fin'] = self.fecha_fin.strftime('%Y-%m-%d')
         item['status'] = self.status
         item['descuento'] = self.descuento
-        item['imagen1'] = self.imagen1.url if self.imagen1 else None
-        item['imagen2'] = self.imagen2.url if self.imagen2 else None
-        item['imagen3'] = self.imagen3.url if self.imagen3 else None
         return item

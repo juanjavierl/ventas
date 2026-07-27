@@ -87,8 +87,8 @@
         {{ form|crispy }}
         <label for="">Tipo de entrega* </label>
         <select class="form-select" id="tipo_envio" name="tipo_envio" aria-label="Small select example">
-          <option value="tienda">Recogeré en la tienda</option>
-          <option value="domicilio">Enviame a mi domicilio</option>
+          <option value="tienda">Recogeré en tienda</option>
+          <option value="domicilio">Envio domicilio</option>
           
           {% if not company.is_service %}
           <option value="ciudad">Envio a otra Ciudad</option>
@@ -120,13 +120,14 @@
           </span>
         </div>
 
-        <div class="text-center img_pagoQr" style="margin-bottom: 10px;">
-          <div class="text-center" role="alert" style="padding: 0px; margin-top: 10px;">
+        <div class="img_pagoQr" style="margin-bottom: 10px;">
+          <div role="alert" style="padding: 0px; margin-top: 10px;">
             <i class="bi bi-check-lg"></i> <small class="text-success">Escanea el siguiente código QR para completar su pedido:</small><br>
-            <strong id="costos"></strong><br>
+            
             <small>Una vez realizado el pago, preciona el boton confirmar.</small>
           </div>
-          <img class="img-fluid rounded img_qr_company" src="" alt="" style="width: 300px; height: 350px;">
+          <img class="img-fluid d-block mx-auto rounded img_qr_company" src="" alt="" style="width: 300px; height: 350px;">
+          <strong id="costos" class="text-start"></strong><br>
         </div>
 
         <div class="modal-footer" id="btn_compra">
@@ -145,13 +146,27 @@
           
             <tr>
               <td colspan="5">
-                <div class="alert alert-success" role="alert" style="padding: 0px 10px; text-align: justify;">
-                   
-                  {% if regla %}
-                   <small><i class="bi bi-star-fill" style="color: gold;"></i>{{regla.regla|urlize_mode:"ver_mas,br"}}</small>
-                  {% else %}
-                  <small><i class="bi bi-star-fill" style="color: gold;"></i> En buena hora, ¡ya casi lo tienes! Resumen de su pedido</small>
-                   {% endif %}
+                <div class="bg-light border-start border-end border-4 border-success rounded-3 px-3 py-2 mb-3">
+
+                    {% if company.promocion and company.promocion.promocion_vigente and t_pago >= company.promocion.compra_mayores %}
+                    <div class="fw-semibold text-success mb-1">
+                        <i class="bi bi-stars text-warning"></i>
+                        Esta compra aplica un descuento del <span class="text-danger">{{ company.promocion.descuento }}%</span>
+                    </div>
+                    {% endif %}
+
+                    {% if regla %}
+                    <small class="text-secondary">
+                        <i class="bi bi-cart-check"></i>
+                        {{ regla.regla|urlize_mode:"ver_mas,br" }}
+                    </small>
+                    {% else %}
+                    <small class="text-secondary">
+                        <i class="bi bi-cart-check"></i>
+                        Estás a un paso de completar tu pedido.
+                    </small>
+                    {% endif %}
+
                 </div>
               </td>
             </tr>
@@ -168,7 +183,7 @@
           <tr id="eliminarProducto{{forloop.counter0}}">
             <td>
             {% if i.imagen %}
-              <img src="{{ i.imagen }}" alt="Imagen de {{ i.name }}" style="width: 60px; height: 60px;">
+              <img src="{{ i.imagen }}" alt="{{ i.name }}" style="width: 60px; height: 60px;border-radius:5px;">
             {% endif %}
               </td>
             <td>{{i.name}} {{i.nota}}</td>
@@ -260,22 +275,28 @@
               }
 
               /* Mostrar QR */
-              const mostrarQR = (datos.tipo_envio === 'fijo' || datos.tipo_envio === 'por_pagar');
+              // Mostrar el QR solo si la compañía tiene configurado el precio de envío y NO es recojo en tienda
+              // (tipo_envio !== 'gratis' || opcion !== 'tienda') && datos.qr configurado
+              // En la lógica de backend, si no hay precio de envío configurado no existirá qr
+              // Pero podemos dejar explícito que solo si NO es recojo en tienda mostramos el QR.
 
-                if (mostrarQR && datos.qr) {
+              const mostrarQR = (opcion !== 'tienda') && !!datos.qr;
 
-                    $('.img_pagoQr img')
-                        .attr('src', datos.qr.qr_img);
+              if (mostrarQR) {
 
-                    $('.img_pagoQr').fadeIn(500);
+                  $('.img_pagoQr img')
+                      .attr('src', datos.qr.qr_img);
 
-                } else {
+                  $('.img_pagoQr').fadeIn(500);
 
-                    $('.img_pagoQr').hide();
-                }
+              } else {
+
+                  $('.img_pagoQr').hide();
+              }
+           
 
               /* Mostrar resumen */
-              let resumen = `Importe: ${datos.importe}`;
+              let resumen = `Total: {{company.moneda}} ${datos.subtotal}`;
 
               if (opcion !== 'tienda') {
                   let textoEnvio = datos.precio_envio;
@@ -284,12 +305,12 @@
                       textoEnvio = 'Gratis';
                   }
 
-                  resumen += ` · Envío: ${textoEnvio}`;
+                  resumen += ` <br> Costo de envío: {{company.moneda}} ${textoEnvio}`;
               }
+              resumen += ` <br> Desc. : {{company.moneda}} ${datos.desc}`;
+              resumen += ` <br> Total a pagar: {{company.moneda}} ${datos.total}`;
 
-              resumen += ` · Total: {{company.moneda}} ${datos.total_pagar}`;
-
-              $('#costos').text(resumen);
+              $('#costos').html(resumen);
           }
       });
 
@@ -355,6 +376,7 @@
       url: $(this).attr("action"),
       data: $(this).serialize(),
       success: function (resp) {
+        console.log(resp);
         if (resp.error) {
             let html = "";
             for (let campo in resp.error) {
@@ -386,73 +408,81 @@
         $('#form_pedido')[0].reset();
         $("#cont_compras").html(resp.products);
 
-        // 🛍️ Encabezado del pedido
-        let datos = "🛍️ *CONFIRMACIÓN DE PEDIDO* %0A";
-        datos += "------------------------------------ %0A";
-        datos += "*Nro de Pedido:* " + (resp.orden?.id || "—") + "%0A";
-        datos += "*Cliente:* " + capitalizarTexto(resp.cliente_object?.names || "—") + "%0A";
-        datos += "------------------------------------ %0A";
+        // 🛍️ Encabezado del pedido y cliente
+        let textoWhatsapp = "🛍️ *CONFIRMACIÓN DE PEDIDO* %0A";
+        textoWhatsapp += "------------------------------------ %0A";
+        textoWhatsapp += "*Nro de Pedido:* " + (resp.orden?.id || "—") + "%0A";
+        textoWhatsapp += "*Cliente:* " + capitalizarTexto(resp.cliente_object?.names || "—") + "%0A";
+        textoWhatsapp += "------------------------------------ %0A";
 
-        // 📦 Detalles del pedido
-        let pedido = "📦 *Detalles del pedido:* %0A";
+        // 📦 Detalles de productos
+        textoWhatsapp += "📦 *Detalles del pedido:* %0A";
+        let total_items = 0;
+        let total_gravado = 0;
         if (resp.lista && resp.lista.length > 0) {
           for (let item of resp.lista) {
             const nombre = item['name'] || "Producto sin nombre";
-            const cantidad = item['cantidad'] || 0;
-            const precio = item['price'] ?? item['precio_uni'] ?? 0;
-            const total = item['total'] ?? (cantidad * precio);
+            const cantidad = parseInt(item['cantidad'] || 0);
+            const precio = parseFloat(item['price'] ?? item['precio_uni'] ?? 0);
+            const total = parseFloat(item['total'] ?? (cantidad * precio));
             const nota = item['nota']?.trim() ? " (" + item['nota'] + ")" : "";
 
-            pedido += `• ${nombre}${nota} → ${cantidad} x ${precio} {{company.moneda}}. = *${total} {{company.moneda}}.*%0A`;
+            textoWhatsapp += `• ${nombre}${nota} → ${cantidad} x ${precio} {{company.moneda}} = *${total} {{company.moneda}}*%0A`;
+            total_items += cantidad;
+            total_gravado += total;
           }
         } else {
-          pedido += "_(Sin productos registrados)_ %0A";
+          textoWhatsapp += "_(Sin productos registrados)_ %0A";
         }
 
-        // 💰 Totales
-        let sub_total = "%0A💰 *Sub Total:* {{company.moneda}}. " + parseFloat(resp.t_pago || 0).toFixed(2) + "%0A";
-        let Envio = "";
-        let total = "";
-        let lugar = "";
-
-        // 🏬 Tipo de entrega/envío
-        const tipo = resp.lugar?.tipo || "";
-
-        if (tipo === "tienda") {
-          lugar = "🏬 *Retiro en tienda:* %0A📅 " + (resp.lugar.fecha || "Sin fecha") + "%0A";
-          total = "💵 *Total a pagar:* {{company.moneda}}. " + parseFloat(resp.t_pago || 0).toFixed(2) + "%0A";
-        } 
-        else if (tipo === "domicilio") {
-          let envio = parseFloat(resp.precio_envio || 0);
-          let total_envio = parseFloat(resp.t_pago || 0) + envio;
-          lugar = "🚚 *Envío a domicilio:* %0A📍 " + (resp.lugar.direccion || "Sin dirección") + "%0A";
-          Envio = "📦 *Costo de envío:* {{company.moneda}}. " + envio.toFixed(2) + "%0A";
-          total = "💵 *Total a pagar:* {{company.moneda}}. " + total_envio.toFixed(2) + "%0A";
-        } 
-        else if (tipo === "ciudad") {
-          let envio_c = parseFloat(resp.precio_envio_ciudad || 0);
-          let total_envio_c = parseFloat(resp.t_pago || 0) + envio_c;
-          lugar = "🛫 *Envío a otra ciudad:* %0A🏙️ Destino: " + (resp.lugar.destino || "Sin destino") + "%0A";
-          Envio = "📦 *Costo de envío:* {{company.moneda}}. " + envio_c.toFixed(2) + "%0A";
-          total = "💵 *Total a pagar:* {{company.moneda}}. " + total_envio_c.toFixed(2) + "%0A";
-        } 
-        else {
-          lugar = "📍 *Entrega no especificada* %0A";
-          total = "💵 *Total a pagar:* {{company.moneda}}. " + parseFloat(resp.t_pago || 0).toFixed(2) + "%0A";
+        // 💰 Subtotal y Descuento
+        textoWhatsapp += "%0A💰 *Subtotal:* " + resp.company_object.moneda + total_gravado.toFixed(2) + "%0A";
+        let descuento_val = parseFloat(resp.orden?.desc ?? resp.desc ?? 0);
+        if (!isNaN(descuento_val) && descuento_val > 0) {
+          textoWhatsapp += "🎁 *Descuento aplicado:*" + resp.company_object.moneda + descuento_val.toFixed(2) + "%0A";
         }
 
-        // 🧾 Mensaje completo
-        let mensaje = datos + pedido + sub_total + Envio + total + "%0A" + lugar;
-        mensaje += "------------------------------------ %0A";
-        mensaje += "🕒 *Fecha de Pedido:* " + (new Date().toLocaleString('es-BO')) + "%0A";
-        mensaje += "📞 *Tienda:* " + (resp.company_object?.name || "Sin nombre") + "%0A";
-        mensaje += "------------------------------------ %0A";
-        mensaje += "✅ ¡Gracias por tu compra! %0A";
+        // 📦 Costo de envío y tipo
+        const tipoEntrega = resp.lugar?.tipo || "";
+        let costo_envio = 0;
+        if (tipoEntrega === "domicilio") {
+          costo_envio = parseFloat(resp.precio_envio || 0);
+          textoWhatsapp += "🚚 *Envío a domicilio*%0A";
+          textoWhatsapp += "📍 Dirección: " + (resp.lugar.direccion || "Sin dirección") + "%0A";
+          textoWhatsapp += "📦 *Costo de envío:* " + resp.company_object.moneda + resp.orden.precio_envio + "%0A";
+        } else if (tipoEntrega === "ciudad") {
+          costo_envio = parseFloat(resp.precio_envio_ciudad || 0);
+          textoWhatsapp += "🛫 *Envío a otra ciudad*%0A";
+          textoWhatsapp += "🏙️ Destino: " + (resp.lugar.destino || "Sin destino") + "%0A";
+          textoWhatsapp += "📦 *Costo de envío:* " + resp.company_object.moneda + resp.orden.precio_envio + "%0A";
+        } else if (tipoEntrega === "tienda") {
+          textoWhatsapp += "🏬 *Retiro en tienda*%0A";
+          textoWhatsapp += "📅 " + (resp.lugar.fecha || "Sin fecha") + "%0A";
+        } else {
+          textoWhatsapp += "📍 *Entrega no especificada*%0A";
+        }
+
+        // 💵 TOTAL FINAL
+        let totalFinal = 0;
+        let totalPedido = parseFloat(resp.orden?.total ?? resp.t_pago ?? 0);
+        if (!isNaN(totalPedido) && totalPedido > 0) {
+           totalFinal = totalPedido;
+        } else {
+           // calcular manualmente en caso de ausencia de total
+           totalFinal = total_gravado - (descuento_val || 0) + (costo_envio || 0);
+        }
+        textoWhatsapp += "------------------------------------ %0A";
+        textoWhatsapp += "💵 *TOTAL A PAGAR:* " + resp.company_object.moneda + totalFinal.toFixed(2) + "%0A";
+        textoWhatsapp += "------------------------------------ %0A";
+        textoWhatsapp += "🕒 *Fecha del Pedido:* " + (new Date().toLocaleString('es-BO')) + "%0A";
+        textoWhatsapp += "📞 *Tienda:* " + (resp.company_object?.name || "Sin nombre") + "%0A";
+        textoWhatsapp += "------------------------------------ %0A";
+        textoWhatsapp += "✅ ¡Gracias por tu compra!%0A";
 
         // 🟢 Abrir WhatsApp
         let telefono = resp.company_object?.mobile || "";
         if (telefono.trim() !== "") {
-          let ruta = "https://api.whatsapp.com/send?phone=" + telefono + "&text=" + mensaje;
+          let ruta = "https://api.whatsapp.com/send?phone=" + telefono + "&text=" + textoWhatsapp;
           window.open(ruta, "_blank");
         } else {
           console.warn("⚠️ No se pudo enviar mensaje por WhatsApp: la tienda no tiene número móvil configurado.");
@@ -477,7 +507,7 @@
         mostrar_notificacion();
       }
     });
-  } 
+  }
   else {
     $('.toast-body')
       .removeClass('alert-success')

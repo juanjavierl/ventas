@@ -66,7 +66,11 @@
     <div class="row col-12 justify-content-center" style="margin-left: 1px;">
       {% for n in companys %}
       <div class="card dark card_c single-product" data-aos="fade-up">
-          <img src="{{n.get_logo}}" class="card-img-top" alt="{{n.name}}">
+          {% if n.logo %}
+              <img src="{{ n.get_logo }}" class="card-img-top object-fit-cover" alt="{{ n.name }} Logo">
+          {% elif n.image %}
+              <img src="{{ n.image.url }}" class="card-img-top object-fit-cover" alt="{{ n.name }} Portada">
+          {% endif %}
         <!-- {% if n.is_new %}        
           <span class="badge rounded-pill bg-primary sale-tag d-flex">
             Nuevo

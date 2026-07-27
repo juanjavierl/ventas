@@ -16,6 +16,7 @@ from app.catalog.forms import *
 from app.inicio.views import get_Dashboard
 from django.db.models import F, ExpressionWrapper, IntegerField
 from django.db.models.functions import Coalesce
+from decimal import Decimal
 # Create your views here.
 def CatalogView(request, id_company):
     template_name = "sitio.html"
@@ -53,9 +54,17 @@ def CatalogView(request, id_company):
             'dashboard':get_Dashboard(),
             'date_expiration':date_expiration,
             'address':get_address(id_company),
-            'code':get_code_meta(id_company)
+            'code':get_code_meta(id_company),
+            'promocion':get_promacion(id_company)
         }
         return render(request,template_name, dic)
+
+def get_promacion(id_company):
+    try:
+        promocion = Promocion.objects.get(company_id = int(id_company))
+    except:
+        promocion = False
+    return promocion
 
 def get_address(id_company):
     try:
@@ -350,7 +359,15 @@ def confirmar_compra(request, id_company):
             if not forms.is_valid():
                 return JsonResponse({'error': forms.errors})
 
-            cliente = forms.save()
+            # Si es envío a otra ciudad, registrar el atributo ref en address del cliente antes de guardar
+            if ref == 'ciudad':
+                # Creamos una instancia, no la guardamos aún
+                cliente = forms.save(commit=False)
+                cliente.address =  request.POST.get('destino', '')
+                cliente.save()
+            else:
+                cliente = forms.save()
+   
         # ✅ Si YA existe → NO validamos, NO registramos, solo seguimos con la orden
 
         # --- Crear orden ---
@@ -397,8 +414,6 @@ def confirmar_compra(request, id_company):
             'lugar': lugar,
             'lista': lista_product,
             't_pago': t_pago,
-            'precio_envio': obtener_datos_envio(request, id_company)['precio_envio'],
-            'precio_envio_ciudad': obtener_datos_envio(request, id_company)['precio_envio'],
             'products': sum(item['cantidad'] for item in compra)
         })
 
@@ -456,20 +471,76 @@ def determinarPrecioEnvioCiudad(id_company):
         p_envio = 0
         return p_envio#QUIERO ENVIAR SOLO EL PRECIO AL TEMPLATE
 
-def crear_orden(request, id_cliente, id_company, ref = 'tienda'):
+def crear_orden(request, id_cliente, id_company, ref='tienda'):
+    """
+    Registra la orden para el cliente, calcula envío y aplica promoción según el tipo de entrega.
+    Reglas:
+      - Si es recojo en tienda, el envío es 0.
+      - Si es domicilio o ciudad, verifica si hay precio registrado, o si es "por pagar" (None o 0).
+      - Calcula si aplica descuento dependiendo del monto total de la compra y las condiciones de la compañía.
+    """
+    
+    # Obtiene la compañía y posibles reglas de descuento/promo
+    company = get_company(id_company)
+    subtotal = float(calcular_pago(request))
+
+    # Determinar precio de envío según tipo (ref)
+    pr_envio = 0
+    tipo_envio = None   # Para guardar si es por pagar/por definir
+
     if ref == 'tienda':
         pr_envio = 0
+        tipo_envio = 'tienda'
     elif ref == 'domicilio':
-        pr_envio = determinarPrecioEnvio(id_company)
+        precio_envio = determinarPrecioEnvio(id_company)
+        if precio_envio and precio_envio > 0:
+            pr_envio = float(precio_envio)
+            tipo_envio = 'domicilio'
+        else:
+            # Envío por pagar o no disponible
+            pr_envio = 0
+            tipo_envio = 'domicilio_por_pagar'
     elif ref == 'ciudad':
-        pr_envio = determinarPrecioEnvioCiudad(id_company)
+        precio_envio_ciudad = determinarPrecioEnvioCiudad(id_company)
+        if precio_envio_ciudad and precio_envio_ciudad > 0:
+            pr_envio = float(precio_envio_ciudad)
+            tipo_envio = 'ciudad'
+        else:
+            pr_envio = 0
+            tipo_envio = 'ciudad_por_pagar'
     else:
         pr_envio = 0
+        tipo_envio = 'otro'
+
+    # Calcular el total preliminar
+    subtotal_con_envio = subtotal + pr_envio
+
+    # Buscar si la company tiene una promoción activa/configurada
+    descuento = 0
+    promocion = getattr(company, "promocion", None)
+
+    if promocion and promocion.aplica(subtotal) :
+        monto_minimo = getattr(promocion, "monto_minimo", 0) or 0
+        porcentaje_descuento = getattr(promocion, "descuento", 0) or 0
+        # Se aplica el descuento sólo si se supera el mínimo
+        if subtotal_con_envio >= monto_minimo:
+            descuento = subtotal_con_envio * (porcentaje_descuento / 100)
+        else:
+            descuento = 0
+    else:
+        descuento = 0
+
+    # El total de la orden es subtotal+envio-descuento
+    total = subtotal_con_envio - descuento
+
+    # Registrar la orden
     orden = Orden()
     orden.client_id = int(id_cliente)
     orden.company_id = int(id_company)
-    orden.subtotal = float(calcular_pago(request))
-    orden.total = float(calcular_pago(request)) + pr_envio
+    orden.subtotal = Decimal(str(subtotal_con_envio))
+    orden.dscto = Decimal(str(descuento))
+    orden.total = Decimal(str(total))
+    orden.tipo_venta = ref
     orden.save()
     return orden
 
@@ -601,18 +672,27 @@ def deleteImgProduct(request, id_img):
 def obtener_datos_envio(request, id_company):
     opcion = request.GET.get('opcion', 'domicilio')
 
-    total = calcular_pago(request)
-
+    subtotal = calcular_pago(request)
     banco = getBanco(id_company)
     config = Precio_envio.objects.filter(company_id=id_company).first()
+    desc_promocion = Promocion.objects.filter(company_id = id_company).first()
+
+    # La lógica original tenía error porque 'total' estaba inicializado a 0 y nunca se usó subtotal para comparar.
+    # Corregimos para comparar subtotal (que es el total real antes de descuento) con compra_mayores
+    if desc_promocion and desc_promocion.aplica(subtotal):
+        desc = subtotal * desc_promocion.descuento / 100
+        total = subtotal - desc
+    else:
+        desc = 0
+        total = subtotal
 
     datos = {
-        'total': total,
-        'importe': total,
+        'subtotal': subtotal,  # total sin descuento
+        'desc': desc,          # descuento calculado
+        'total': total,        # total menos el desc
         'qr': banco.toJSON() if banco else False,
         'precio_envio': 0,
         'tipo_envio': 'gratis',
-        'total_pagar': total,
     }
 
     # Si el cliente recoge en tienda
@@ -631,13 +711,15 @@ def obtener_datos_envio(request, id_company):
         elif opcion == 'domicilio' and config.precio is not None:
             datos['precio_envio'] = config.precio
             datos['tipo_envio'] = 'fijo'
-            datos['total_pagar'] = total + config.precio
+            datos['total'] = total + config.precio
+            datos['desc'] = desc
 
         # Precio fijo a otra ciudad
         elif opcion == 'ciudad' and config.precio_ciudad is not None:
             datos['precio_envio'] = config.precio_ciudad
             datos['tipo_envio'] = 'fijo'
-            datos['total_pagar'] = total + config.precio_ciudad
+            datos['total'] = total + config.precio_ciudad
+            datos['desc'] = desc
 
     return datos
 

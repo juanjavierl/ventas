@@ -9,14 +9,12 @@
         {% else %}
         <h2>Agrega tus pedidos al carrito</h2>
         {% endif %}
+
+        {% if promocion and promocion.promocion_vigente %}
+          {% include 'catalog/baner_promocion.html' %}
+        {% endif %}
       {% else %}
       <h2>lo siento aún no hay contenido disponible</h2>
-      {% endif %}
-
-      {% if company.is_service %}
-      <p>Los mejores servicios & especialidades los  encuentras en: <strong>{{company.name|title}}</strong></p>
-      {% else %}
-      <p>Los mejores productos & servicios los encuentras en: <strong>{{company.name|title}}</strong></p>
       {% endif %}
 
       {% if user.is_authenticated and date_expiration %}

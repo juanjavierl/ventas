@@ -28,7 +28,8 @@
                   $(".invalid").text(resp.error);
                 }
                 else{
-                  $('.info_ofertas').html(resp.success);
+                  $('.info_ofertas').html("");
+
                   setTimeout(function () {
                     $(".btn-close").click();
                   }, 800);

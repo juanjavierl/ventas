@@ -1,9 +1,83 @@
-
 {% for a in avisos %}
-    <li><strong>Tiempo de Entregas: </strong> {{a.Tiempo_entrega}}</li>
-    <li><strong>Envios : </strong> {{a.envios}}</li>
-    <li><strong>Pedidos : </strong> {{a.pedidos}}</li>
-    <li><strong>Contra Entrega: </strong> {{a.pide_ahora}}</li>
-    <p style="text-align: center;"><a href="#" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="elimnarOpciones('/{{a.id}}/eliminar_opciones')"> Eliminar </a></p>
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body">
+
+        <h6 class="card-title fw-bold text-primary mb-3">
+            <i class="bi bi-megaphone-fill me-2"></i>
+            Información de entregas
+        </h6>
+
+        <ul class="list-group list-group-flush">
+
+            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <span>
+                    <i class="bi bi-clock-history me-2"></i>
+                    Tiempo de entrega
+                </span>
+                <span class="badge bg-primary rounded-pill">
+                    {{ a.Tiempo_entrega }}
+                </span>
+            </li>
+
+            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <span>
+                    <i class="bi bi-truck text-success me-2"></i>
+                    Envíos
+                </span>
+                <span class="text-muted">
+                    {{ a.envios }}
+                </span>
+            </li>
+
+            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <span>
+                    <i class="bi bi-cart-check text-warning me-2"></i>
+                    Pedidos
+                </span>
+                <span class="text-muted">
+                    {{ a.pedidos }}
+                </span>
+            </li>
+
+            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <span>
+                    <i class="bi bi-cash-coin text-success me-2"></i>
+                    Pago contra entrega
+                </span>
+
+                {% if a.pide_ahora %}
+                    <span class="badge bg-success">
+                        Disponible
+                    </span>
+                {% else %}
+                    <span class="badge bg-secondary">
+                        No disponible
+                    </span>
+                {% endif %}
+            </li>
+
+        </ul>
+
+        <div class="text-end mt-3">
+            <button type="button"
+                    class="btn btn-outline-danger btn-sm"
+                    data-bs-toggle="modal"
+                    data-bs-target="#exampleModal"
+                    onclick="elimnarOpciones('/{{a.id}}/eliminar_opciones')">
+
+                <i class="bi bi-trash me-1"></i>
+                Eliminar
+            </button>
+        </div>
+
+    </div>
+</div>
+
+{% empty %}
+
+<div class="alert alert-light border text-center">
+    <i class="bi bi-info-circle text-primary fs-4 d-block mb-2"></i>
+    <strong>No existen avisos registrados.</strong>
+</div>
+
 {% endfor %}
-    

@@ -138,29 +138,40 @@ class formCompanyDominio(forms.ModelForm):
         if Dominio.objects.filter(slug=slug).exists():
             raise forms.ValidationError("El dominio ya existe.")
         return slug
-    
-from django import forms
 
 class AdminEmailForm(forms.Form):
     subject = forms.CharField(label="Asunto", max_length=200)
     message = forms.CharField(label="Mensaje", widget=forms.Textarea)
 
 class FormPromocion(forms.ModelForm):
-    class Meta:
-        model = Promocion
-        exclude = ('company','status',)
-    
-        widgets = {
-            'fecha_inicio': forms.TextInput(attrs={
+    fecha_inicio = forms.DateField(
+        input_formats=['%d/%m/%Y'],
+        widget=forms.DateInput(
+            format='%d/%m/%Y',
+            attrs={
                 'class': 'form-control',
                 'id': 'id_fecha_inicio',
                 'autocomplete': 'off'
-            }),
-            'fecha_fin': forms.TextInput(attrs={
+            }
+        )
+    )
+
+    fecha_fin = forms.DateField(
+        input_formats=['%d/%m/%Y'],
+        widget=forms.DateInput(
+            format='%d/%m/%Y',
+            attrs={
                 'class': 'form-control',
                 'id': 'id_fecha_fin',
                 'autocomplete': 'off'
-            }),
+            }
+        )
+    )
+
+    class Meta:
+        model = Promocion
+        exclude = ('company', 'status')
+        widgets = {
             'descuento': forms.NumberInput(attrs={
                 'class': 'form-range',
                 'id': 'id_descuento',

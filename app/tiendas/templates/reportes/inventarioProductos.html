@@ -1,8 +1,8 @@
 
 {% if productos %}
-    <h2 class="text-center">Reporte Stock de Productos</h2>
+    <h3 class="text-center">Inventario de Productos</h3>
 
-    <table class="table table-bordered table-striped table-sm">
+    <table class="table table-bordered table-striped table-sm table-hover">
         <thead class="thead-dark">
             <tr>
                 <th>Código</th>
@@ -40,8 +40,7 @@
         </div>
         <div>
             <strong class="me-2">Imprime tu catálogo:</strong>
-            <a href="#" 
-               onclick="imprimirLista('/{{ id_company }}/{{ criterio }}/reporte_form')" 
+            <a href="#"  onclick="imprimirLista('/{{ id_company }}/{{ criterio }}/reporte_form')" 
                data-bs-toggle="modal" 
                data-bs-target="#exampleModal" 
                class="btn btn-success btn-sm">
@@ -54,18 +53,3 @@
         No hay productos
     </div>
 {% endif %}
-
-<script>
-    function imprimirLista(urls){
-        $.ajax({
-            type: 'get',
-            url: urls,
-            success: function (resp) {
-                $(".modal-content").html(resp);
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-                alert("Error:" + thrownError);
-            }
-        });
-    }
-</script>

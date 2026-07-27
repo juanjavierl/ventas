@@ -362,18 +362,29 @@ def deleteCompany(request, id_company):
 
 def add_huvicacion(request, id_company):
     company = Company.objects.get(id=id_company)
-    try:  
-        if request.method == 'POST':
-            form = FormHuvicacion(request.POST, instance=company)
-            ubicacion = Sucursal()
-            ubicacion.company_id = int(id_company)
-            ubicacion.address = request.POST['address']
-            ubicacion.latitud = request.POST['latitud']
-            ubicacion.longitud = request.POST['longitud']
-            ubicacion.save()
-            return JsonResponse({'success':'Registro exitoso.'})
-    except:
-        return JsonResponse({'error':'Ys existe el registro.'})
+    # Verificar si ya existe una dirección registrada para la empresa
+    ubicacion_existente = Sucursal.objects.filter(company_id=int(id_company)).first()
+    if request.method == 'POST':
+        if ubicacion_existente:
+            # Si existe, solo dejar editar la información con un formulario
+            form = FormHuvicacion(request.POST, instance=ubicacion_existente)
+            if form.is_valid():
+                form.save()
+                return JsonResponse({'success': 'Ubicación actualizada exitosamente.'})
+            else:
+                return JsonResponse({'error': form.errors})
+        else:
+            # Si no existe, registrar normalmente
+            form = FormHuvicacion(request.POST)
+            if form.is_valid():
+                nueva_ubicacion = form.save(commit=False)
+                nueva_ubicacion.company_id = int(id_company)
+                nueva_ubicacion.save()
+                return JsonResponse({'success': 'Registro exitoso.'})
+            else:
+                return JsonResponse({'error': form.errors})
+    # Si no es un POST, devolver error
+    return JsonResponse({'error': 'Método no permitido.'})
 
 def info_address_company(request, id_company):
     address = Sucursal.objects.get(company_id = int(id_company))
@@ -394,7 +405,6 @@ def configuraciones_company(request, id_company):
     for p in pedidos:
         if not p in ped:
             ped.append(p)
-    print(Promocion.objects.filter(company_id=int(id_company))[:1])
     productos = Product.objects.filter(stock__gt=0, company_id=int(id_company)).order_by('-id')
     dic = {
         'form_huvicacion':FormHuvicacion(instance=Sucursal.objects.filter(company_id = int(id_company)).first()),
@@ -415,7 +425,7 @@ def configuraciones_company(request, id_company):
         'ordens':ped,
         'clientes':Client.objects.all().order_by('-id'),
         'address':get_address(id_company),
-        'promociones': Promocion.objects.filter(company_id=int(id_company))[:1]
+        'promocion': Promocion.objects.filter(company_id=int(id_company))[:1]
 
     }
     return render(request,'configuraciones_company.html', dic)
@@ -430,16 +440,26 @@ def get_precio_envios(id_company):
 def precio_envio(request, id_company):
     company = get_object_or_404(Company, id=int(id_company))
     if request.method == 'POST':
+        # Buscar si ya existe un registro de precio de envío para la compañía
         precio = Precio_envio.objects.filter(company=company).first()
-        form_precio = PrecioForm(request.POST, instance=precio)
-        if form_precio.is_valid():
-            obj = form_precio.save(commit=False)
-            # Solo si es un registro nuevo
-            obj.company = company
-            obj.save()
-            return JsonResponse({'success': 'Registro Exitoso.'})
+        if precio:
+            # Si ya existe, editar la información existente
+            form_precio = PrecioForm(request.POST, instance=precio)
+            if form_precio.is_valid():
+                form_precio.save()
+                return JsonResponse({'success': 'Precio de envío actualizado con éxito.'})
+            else:
+                return JsonResponse({'errors': form_precio.errors.get_json_data()})
         else:
-            return JsonResponse({'errors': form_precio.errors.get_json_data()})
+            # Si no existe, crear un nuevo registro
+            form_precio = PrecioForm(request.POST)
+            if form_precio.is_valid():
+                obj = form_precio.save(commit=False)
+                obj.company = company
+                obj.save()
+                return JsonResponse({'success': 'Precio de envío registrado con éxito.'})
+            else:
+                return JsonResponse({'errors': form_precio.errors.get_json_data()})
 
 def mostrar_precio(request, id_company):
     precio = Precio_envio.objects.get(company_id = int(id_company))
@@ -452,10 +472,9 @@ def buscar_orden(request, id_company):
         if Orden.objects.filter(id=cod, company_id=int(id_company)).exists():
             orden = Orden.objects.get(id=cod)
             pedidos = Pedido.objects.filter(orden_id = orden.id)
-            precio_envio = int(orden.total)  - int(orden.subtotal)
         else:
             orden, precio_envio = None, None
-        return render(request, 'reportes/buscar_orden.html', {'orden':orden, 'pedidos':pedidos, 'precio_envio':precio_envio})
+        return render(request, 'reportes/buscar_orden.html', {'orden':orden, 'pedidos':pedidos})
 
 def reportByRange(request, id_company):
     if request.method == 'POST':
@@ -498,57 +517,95 @@ def reporte_form(request, id_company, criterio):
     })
 
 def reporte_inventario(request, id_company, criterio):
+    """
+    Genera un PDF de inventario de productos usando WeasyPrint 
+    con los estilos de Bootstrap embebidos en el PDF inline (no desde link).
+    """
     if request.method == 'GET':
         seleccionados = [key for key, value in request.GET.items() if value == "on"]
 
-        # Atributos que siempre deben estar incluidos
-        por_defecto = ["image", "name", "stock_actual"]
+        # Atributos siempre incluidos, ajustes rápidos en memoria
+        por_defecto = {"image", "name", "stock_actual"}
+        seleccionados_set = set(seleccionados)
+        seleccionados_set.update(por_defecto)
+        # Reordenar: por defecto primero, luego el resto en orden alfa
+        seleccionados_final = list(por_defecto) + sorted(seleccionados_set - por_defecto)
 
-        # Aseguramos que estén incluidos en la lista final
-        for attr in por_defecto:
-            if attr not in seleccionados:
-                seleccionados.append(attr)
+        productos_query = Product.objects.filter(company_id=id_company).select_related('category').only(
+            'id', 'category__name', 'stock', 'salida', 'name', 'image',
+            *(campo for campo in seleccionados_final if campo not in {'stock_actual', 'category__name', 'category'}),
+        )
 
-        # Reordenar para que los atributos por defecto estén al principio
-        seleccionados.sort(key=lambda x: (x not in por_defecto, x))
-
-        # Base queryset con stock_actual calculado
-        productos = Product.objects.filter(company_id=id_company).select_related('category').annotate(
+        # Solo hacer la annotation después del filtrado relevante
+        productos_query = productos_query.annotate(
             stock_actual=ExpressionWrapper(F('stock') - F('salida'), output_field=IntegerField())
         )
 
         if criterio == "con_stock":
-            productos = productos.filter(stock_actual__gt=0)
-        elif criterio == "agotados":   # corregido: coincide con el select del formulario
-            productos = productos.filter(stock_actual__lte=0)
+            productos_query = productos_query.filter(stock_actual__gt=0)
+        elif criterio == "agotados":
+            productos_query = productos_query.filter(stock_actual__lte=0)
 
-        # Renderizar reporte
-        dic = {
-            'productos': productos.order_by('category__name', '-id'),
-            'seleccionados': seleccionados
-        }
-        html = render_to_string("reportes/reporte_inventario_pdf.html", dic)
+        productos = productos_query.order_by('category__name', '-id')
+
+        # Embeder los estilos de Bootstrap directamente en el HTML
+        from django.templatetags.static import static
+        import os
+
+        # Buscar el archivo de bootstrap en el sistema de archivos
+        from django.conf import settings
+        bootstrap_path = os.path.join(settings.BASE_DIR,'app','catalog', 'static', 'assets', 'vendor', 'bootstrap', 'css', 'bootstrap.min.css')
+        if os.path.exists(bootstrap_path):
+            with open(bootstrap_path, 'r', encoding='utf-8') as f:
+                bootstrap_css = f.read()
+        else:
+            bootstrap_css = ''  # fallback: sin estilos si no existe
+
+        # Renderizar el HTML, insertando el CSS de bootstrap in-line
+        html = render_to_string("reportes/reporte_inventario_pdf.html", {
+            'productos': productos,
+            'seleccionados': seleccionados_final,
+            'bootstrap_css': bootstrap_css,
+        })
+
         response = HttpResponse(content_type="application/pdf")
         response["Content-Disposition"] = "inline; filename=reporte_inventario.pdf"
+
         font_config = FontConfiguration()
-        HTML(string=html).write_pdf(response, font_config=font_config)
+        HTML(string=html, base_url=request.build_absolute_uri()).write_pdf(
+        response,
+        stylesheets=[
+            CSS(filename=bootstrap_path)
+        ],
+        font_config=font_config
+    )
+        print(bootstrap_path)
+        print(os.path.exists(bootstrap_path))
+        print(len(bootstrap_css))
         return response
 
 def add_avisos(request, id_company):
-    company = get_object_or_404(Company, id = int(id_company))
+    company = get_object_or_404(Company, id=int(id_company))
+    aviso_existente = Aviso.objects.filter(company=company).first()
     if request.method == 'POST':
-        form_aviso = Form_avisos(request.POST, instance=company)
-        if form_aviso.is_valid():
-            a = Aviso()
-            a.company_id = company.id
-            a.Tiempo_entrega = request.POST['Tiempo_entrega']
-            a.envios = request.POST['envios']
-            a.pedidos = request.POST['pedidos']
-            a.pide_ahora = request.POST['pide_ahora']
-            a.save()
-            return JsonResponse({'success':'Registro Exitoso.', 'avisos':a.toJSON()})
+        if aviso_existente:
+            # Si ya existe, editar el registro existente
+            form_aviso = Form_avisos(request.POST, instance=aviso_existente)
+            if form_aviso.is_valid():
+                aviso_actualizado = form_aviso.save()
+                return JsonResponse({'success': 'Aviso actualizado correctamente.', 'avisos': aviso_actualizado.toJSON()})
+            else:
+                return JsonResponse({'error': 'Error al actualizar, intente nuevamente.', 'form_errors': form_aviso.errors})
         else:
-            return JsonResponse({'error':'Error intente nuevamente.'})
+            # Si no existe, crear uno nuevo
+            form_aviso = Form_avisos(request.POST)
+            if form_aviso.is_valid():
+                nuevo_aviso = form_aviso.save(commit=False)
+                nuevo_aviso.company = company
+                nuevo_aviso.save()
+                return JsonResponse({'success': 'Registro Exitoso.', 'avisos': nuevo_aviso.toJSON()})
+            else:
+                return JsonResponse({'error': 'Error al registrar, intente nuevamente.', 'form_errors': form_aviso.errors})
 
 def get_opciones(request, id_company):
     avisos = Aviso.objects.filter(company_id = int(id_company))
@@ -562,17 +619,28 @@ def del_precio(request, id_precio):
     return render(request, 'notificaciones/del_precio.html', {'precio':precio})
 
 def banco_envio(request, id_company):
-    company = get_object_or_404(Company, id = int(id_company))
+    company = get_object_or_404(Company, id=int(id_company))
+    # Buscar si ya hay un registro de Banco asociado a la compañía
+    banco_existente = Banco.objects.filter(company_id=company.id).first()
+    
     if request.method == 'POST':
-        
-        form_ban = FormBanco(request.POST, request.FILES)
+        if banco_existente:
+            # Si ya existe, editar ese registro
+            form_ban = FormBanco(request.POST, request.FILES, instance=banco_existente)
+        else:
+            # Si no existe, crear uno nuevo
+            form_ban = FormBanco(request.POST, request.FILES)
+
         if form_ban.is_valid():
             formulario = form_ban.save(commit=False)
             formulario.company_id = company.id
             formulario.save()
-            return JsonResponse({'success':'Registro Exitoso.'})
+            if banco_existente:
+                return JsonResponse({'success': 'La información bancaria fue actualizada correctamente.'})
+            else:
+                return JsonResponse({'success': 'Registro Exitoso.'})
         else:
-            return JsonResponse({'error':'Error intente nuevamente.'})
+            return JsonResponse({'error': 'Error intente nuevamente.', 'form_errors': form_ban.errors})
 
 def infor_banco(request, id_company):
     banco = Banco.objects.filter(company_id = int(id_company))
@@ -683,17 +751,25 @@ def productosDeCatalogo(request ,id_company):
     return productos
 
 def add_condiciones(request, id_company):
-    company = get_object_or_404(Company, id = int(id_company))
-    try:  
-        if request.method == 'POST':
-            form = Form_condiciones(request.POST, instance=company)
-            c = Condicion()
-            c.company_id = int(id_company)
-            c.regla = request.POST['regla']
-            c.save()
-            return JsonResponse({'success':'Registro exitoso.'})
-    except:
-        return JsonResponse({'error':'Ya existe el registro.'})
+    company = get_object_or_404(Company, id=int(id_company))
+    if request.method == 'POST':
+        try:
+            condicion_existente = Condicion.objects.filter(company_id=int(id_company)).first()
+            regla = request.POST.get('regla', '').strip()
+            if condicion_existente:
+                # Si ya existe, permitir edición
+                condicion_existente.regla = regla
+                condicion_existente.save()
+                return JsonResponse({'success': 'Condición actualizada correctamente.'})
+            else:
+                # Si no existe, registrar nueva
+                c = Condicion()
+                c.company_id = int(id_company)
+                c.regla = regla
+                c.save()
+                return JsonResponse({'success': 'Registro exitoso.'})
+        except Exception as e:
+            return JsonResponse({'error': f'Error al guardar la condición: {str(e)}'})
 
 def get_condiciones(request, id_company):
     try:
@@ -834,24 +910,33 @@ def add_promocion(request, id_company):
     company = get_object_or_404(Company, id=id_company)
 
     if request.method == 'POST':
-        form_promocion = FormPromocion(request.POST)
+        # Verifica si ya existe una promoción para esta empresa
+        promocion_existente = Promocion.objects.filter(company=company).first()
+        
+        if promocion_existente:
+            form_promocion = FormPromocion(request.POST, instance=promocion_existente)
+        else:
+            form_promocion = FormPromocion(request.POST)
 
         if form_promocion.is_valid():
             promocion = form_promocion.save(commit=False)
             promocion.company = company
             promocion.save()
-
-            return JsonResponse({'success': 'Registro Exitoso.'})
-
+            if promocion_existente:
+                return JsonResponse({'success': 'Promoción actualizada exitosamente.'})
+            else:
+                return JsonResponse({'success': 'Registro Exitoso.'})
         return JsonResponse({'error': form_promocion.errors})
 
     return JsonResponse({'error': 'Método no permitido'})
     
 def get_promocion(request, id_company):
+    print("lego asqui con id: ", id_company)
     try:
         promocion = Promocion.objects.filter(company_id = int(id_company))
     except:
         promocion = False
+    print(promocion)
     return render(request, 'notificaciones/get_promocion.html', {'promocion':promocion})
 
 def delete_promocion(request, id_promocion):

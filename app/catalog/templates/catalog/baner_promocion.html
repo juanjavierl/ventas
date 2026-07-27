@@ -1,0 +1,66 @@
+{% if promocion %}
+<section class="container" data-aos="fade-up">
+
+    <div class="promo-banner shadow-lg rounded-4">
+
+        <div class="row align-items-center">
+
+            <!-- Estrella -->
+            <div class="col-lg-2 text-center mb-4 mb-lg-0">
+
+                <div class="promo-star">
+                    <div class="star-content">
+                        <span class="numero">{{ promocion.descuento|floatformat:0 }}%</span>
+                        <small>DESCUENTO</small>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Información -->
+            <div class="col-lg-7">
+
+                <p class="promo-description">
+                    {{ promocion.descripcion }}
+                </p>
+
+                {% if promocion.condiciones %}
+                <div class="promo-condiciones">
+                    <i class="bi bi-info-circle-fill"></i>
+                    {{ promocion.condiciones }}
+                </div>
+                {% endif %}
+
+            </div>
+
+            <!-- Botón -->
+            <div class="col-lg-3 mt-lg-0 g-light border-start border-end border-4 border-success rounded-3">
+                Desde 
+                <span class="badge bg-light text-dark border mb-2">
+                    <i class="bi bi-calendar-check text-success me-1"></i>
+                    {{ promocion.fecha_inicio }}
+                </span>
+
+                <br>
+                Hasta
+                <span class="badge bg-light text-dark border mb-2">
+                    <i class="bi bi-calendar-x text-danger me-1"></i>
+                    {{ promocion.fecha_fin }}
+                </span>
+
+                {% if promocion.compra_mayores %}
+                <br>
+                <span class="badge bg-primary text-white">
+                    <i class="bi bi-cart-fill me-1"></i>
+                    Compra mínima {{ company.moneda }} {{ promocion.compra_mayores }}
+                </span>
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+{% endif %}

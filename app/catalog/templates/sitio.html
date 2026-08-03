@@ -15,7 +15,13 @@
 {% endblock tecnica_seo %}
 
 {% block company %}
+  {% if request.company %}
+    <a href="/">
+  {% elif company.slug %}
+      <a href="/{{company.slug}}/">
+  {% else %}
     <a href="/{{company.id}}/catalogo">
+  {% endif %}
       <marquee behavior="" direction="" style="margin-top: 14px;">{{ company.name|title }}</marquee>
     </a>
 {% endblock company %}

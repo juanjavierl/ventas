@@ -99,6 +99,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'social_django.middleware.SocialAuthExceptionMiddleware',
+    'app.tiendas.middleware.CompanyDomainMiddleware',
 ]
 
 ROOT_URLCONF = 'ventas.urls'
@@ -210,4 +211,5 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+AMCEB_DOMAIN = config('AMCEB_DOMAIN')
 #OPENAI_API_KEY = config('OPENAI_API_KEY')

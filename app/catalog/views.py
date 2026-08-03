@@ -18,10 +18,20 @@ from django.db.models import F, ExpressionWrapper, IntegerField
 from django.db.models.functions import Coalesce
 from decimal import Decimal
 # Create your views here.
-def CatalogView(request, id_company):
+def CatalogView(request, id_company=None):
     template_name = "sitio.html"
     if request.method == 'GET':
         #productos = Product.objects.filter(company_id=int(id_company)).order_by('-id')
+        if request.company: #si entramos por el dominio peronalizado
+            company = request.company
+            id_company = company.id
+        elif id_company:#si entramos mediante /1/catalogo
+            try:
+                company = get_company(id_company)
+            except:
+               return redirect("/") 
+        else:
+            return redirect("/")
         productos = Product.objects.filter(company_id=int(id_company)) \
             .select_related('category') \
             .order_by('category__name', '-id')

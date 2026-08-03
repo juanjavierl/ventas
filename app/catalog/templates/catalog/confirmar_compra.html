@@ -5,9 +5,15 @@
 {% endblock titulo %}
 
 {% block company %}
-<a href="/{{company.id}}/catalogo">
-  <marquee behavior="" direction="" style="margin-top: 14px;">{{company.name|title}}</marquee>
-</a>
+  {% if request.company %}
+    <a href="/">
+  {% elif company.slug %}
+      <a href="/{{company.slug}}/">
+  {% else %}
+    <a href="/{{company.id}}/catalogo">
+  {% endif %}
+      <marquee behavior="" direction="" style="margin-top: 14px;">{{ company.name|title }}</marquee>
+    </a>
 {% endblock company %}
 
 {% block code_meta %}

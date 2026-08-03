@@ -41,6 +41,9 @@ def robots_txt(request):
     return HttpResponse("\n".join(lines), content_type="text/plain")
 
 def inicio(request):
+    if request.company:#si se accede mediante un dominio personalizado
+        from app.catalog.views import CatalogView
+        return CatalogView(request, request.company.id)
     data = cache.get('pagina_inicio')
     if not data:
         ciudades = Ciudad.objects.all().order_by('-id')

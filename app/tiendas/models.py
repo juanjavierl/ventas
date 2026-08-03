@@ -368,11 +368,29 @@ class Suscripcion(models.Model):
 class Dominio(models.Model):
     company = models.OneToOneField(Company, on_delete=models.CASCADE, related_name='dominio')
     slug = models.SlugField(max_length=255, unique=True, verbose_name="El dominio por defecto es", help_text="Puede editarlo el dominio solo una vez (recomendado)")
+    dominio_personalizado = models.CharField(
+        max_length=255,
+        unique=True,
+        null=True,
+        blank=True,
+        verbose_name="Dominio personalizado",
+        help_text="Ejemplo: casautil.com"
+    )
 
     def save(self, *args, **kwargs):
         # Genera automáticamente el slug a partir del nombre de la empresa si no existe
         if not self.slug:
             self.slug = slugify(self.company.name)
+
+        if self.dominio_personalizado:
+                    self.dominio_personalizado = (
+                        self.dominio_personalizado
+                        .lower()
+                        .strip()
+                        .replace('https://', '')
+                        .replace('http://', '')
+                        .rstrip('/')
+                    )
         super().save(*args, **kwargs)
 
     def get_absolute_url(self, request=None):

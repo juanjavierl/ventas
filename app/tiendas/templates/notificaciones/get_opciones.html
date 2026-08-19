@@ -15,7 +15,7 @@
                     Tiempo de entrega
                 </span>
                 <span class="badge bg-primary rounded-pill">
-                    {{ a.Tiempo_entrega }}
+                    {{ a.Tiempo_entrega|capfirst }}
                 </span>
             </li>
 
@@ -25,7 +25,7 @@
                     Envíos
                 </span>
                 <span class="text-muted">
-                    {{ a.envios }}
+                    {{ a.envios|capfirst }}
                 </span>
             </li>
 
@@ -35,7 +35,7 @@
                     Pedidos
                 </span>
                 <span class="text-muted">
-                    {{ a.pedidos }}
+                    {{ a.pedidos|capfirst }}
                 </span>
             </li>
 
@@ -44,16 +44,9 @@
                     <i class="bi bi-cash-coin text-success me-2"></i>
                     Pago contra entrega
                 </span>
-
-                {% if a.pide_ahora %}
-                    <span class="badge bg-success">
-                        Disponible
-                    </span>
-                {% else %}
-                    <span class="badge bg-secondary">
-                        No disponible
-                    </span>
-                {% endif %}
+                <span class="text-muted">
+                    {{a.pide_ahora|capfirst}}
+                </span>
             </li>
 
         </ul>

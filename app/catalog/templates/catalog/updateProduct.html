@@ -25,15 +25,45 @@
             contentType: false,
             processData: false,
             success:function(resp){
-              if(resp.error){
-                $(".invalid").text(resp.error);
-              }
-              else{
-                window.location.href='/'+resp.id_company+'/catalogo';
-              }
+              $('.toast-body').removeClass('alert-danger').addClass('alert-success');
+              $('.toast-body').fadeIn(1000).html(resp.success);
+              mostrar_notificacion();
+    
+              setTimeout(function () {
+                $(".btn-close").click();
+              }, 1000);
             },
             error: function (xhr, ajaxOptions, thrownError) {
-             alert("Error:"+ thrownError);
+              if (xhr.status === 400) {
+
+                  const errores = xhr.responseJSON.errors;
+          
+                  // Quitar errores anteriores
+                  $(".is-invalid").removeClass("is-invalid");
+          
+                  $(".invalid-feedback").remove();
+          
+                  // Recorrer los campos con errores
+                  for (let campo in errores) {
+          
+                      const input = $("#id_" + campo);
+          
+                      // Poner borde rojo
+                      input.addClass("is-invalid");
+          
+                      // Obtener mensajes
+                      errores[campo].forEach(function(error) {
+          
+                          input.after(
+                              $('<div>', {
+                                  class: 'invalid-feedback',
+                                  text: error.message
+                              })
+                          );
+          
+                      });
+                  }
+              }
            }
         });
   });

@@ -99,7 +99,9 @@
           <p><strong>Cliente:</strong> {{ orden.client.names|title }}</p>
           <p><strong>Correo:</strong> {{ orden.client.email }}</p>
           {% if orden.client.mobile %}
-            <p><strong>Teléfono:</strong> {{ orden.client.mobile }}</p>
+            <p><strong>Celular:</strong> 
+              <a href="https://api.whatsapp.com/send?phone={{ orden.client.mobile }}&text=¿Qué tal? Le hablamos de {{ orden.company.name|title }}. Recibí su pedido con éxito."
+               target="_blank">{{ orden.client.mobile }}  <i class="bi bi-whatsapp"></i></a> </p>
           {% endif %}
         {% else %}
           <p><strong>Cliente:</strong> No registrado</p>
@@ -124,6 +126,31 @@
             <td>Bs {{ pedido.total|floatformat:2 }}</td>
           </tr>
           {% endfor %}
+
+          <tr>
+            <td colspan="3" class="text-end fw-bold">Subtotal</td>
+            <td>{{ orden.subtotal|default:"0.00" }}</td>
+          </tr>
+
+          <tr>
+            <td colspan="3" class="text-end fw-bold">Descuento</td>
+            <td>
+                {% if orden.dscto %}
+                    {{ orden.dscto }}
+                {% else %}
+                    0.00
+                {% endif %}
+            </td>
+          </tr>
+
+          <tr>
+            <td colspan="3" class="text-end fw-bold">Precio de Envío</td>
+            <td>
+                {{ orden.precio_envio }}
+               
+            </td>
+          </tr>
+
           <tr>
             <td colspan="3" class="total">Total:</td>
             <td class="total">Bs {{ orden.total|floatformat:2 }}</td>
@@ -134,7 +161,7 @@
       <p style="margin-top:20px;">
         Puedes revisar esta venta en el panel de administración desde tu sistema (debes iniciar sesión).
       </p>
-        <a href="https://amceb.online/{{ company.id }}/catalogo" class="button" target="_blank">Ir a mi tienda</a>
+        <a href="https://amceb.online{{company.get_meta_url}}/" class="button" target="_blank">Ir a mi tienda</a>
     </div>
 
     <div class="footer">

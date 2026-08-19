@@ -25,7 +25,8 @@
 
                     <small class="text-dark mb-1"><span>{{p.description|capfirst|default:" - - -"|truncatewords:3}}</span></small>
 
-                    <a href="/{{p.id}}/catalogo"
+                    <a href="{% if user.is_authenticated %} /{{request.user.id}}/companys {% else %}{{ p.get_meta_url }}{% endif %}"
+              
                        class="fw-bold rounded-pill mt-auto shadow-sm"
                        style="transition: transform 0.2s, box-shadow 0.2s;">
                        <i class="bi bi-box-arrow-up-right me-1"></i> Visitar

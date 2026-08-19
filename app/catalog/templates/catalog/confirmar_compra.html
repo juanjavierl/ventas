@@ -5,13 +5,11 @@
 {% endblock titulo %}
 
 {% block company %}
-  {% if request.company %}
-    <a href="/">
-  {% elif company.slug %}
-      <a href="/{{company.slug}}/">
-  {% else %}
-    <a href="/{{company.id}}/catalogo">
-  {% endif %}
+    {% if request.company %}
+      <a href="/">
+    {% else %}
+      <a href="{{company.get_meta_url}}">
+    {% endif %}
       <marquee behavior="" direction="" style="margin-top: 14px;">{{ company.name|title }}</marquee>
     </a>
 {% endblock company %}
@@ -91,9 +89,9 @@
       <form action="/{{company.id}}/confirmar_compra/" method="post" class="" id="form_pedido" style="width: 100%;">
         {% csrf_token %}
         {{ form|crispy }}
-        <label for="">Tipo de entrega* </label>
+        <label for="">Método de envio* </label>
         <select class="form-select" id="tipo_envio" name="tipo_envio" aria-label="Small select example">
-          <option value="tienda">Recogeré en tienda</option>
+          <option value="tienda">Contra entrega</option>
           <option value="domicilio">Envio domicilio</option>
           
           {% if not company.is_service %}
@@ -117,12 +115,13 @@
         <div id="div_id_fecha">
           <label for="">Fecha y Hora a Recoger</label>
           <input type="datetime-local" id="date_time" name="date_time"
+            title="{{ company.sucursal.address }}"
             value="{{ ahora }}"
             min="{{ ahora }}"
             max="{{ limite }}"
             class="textinput form-control">
           <span id="passwordHelpBlock" class="form-text">
-            fecha y hora que visitará la tienda, máximo en 15 días.
+            fecha y hora que visitará la tienda, máximo en 5 dias hábiles.
           </span>
         </div>
 
@@ -136,12 +135,15 @@
           <strong id="costos" class="text-start"></strong><br>
         </div>
 
-        <div class="modal-footer" id="btn_compra">
-          <button type="submit" class="btn btn-success btn-sm btn-block" style="margin-bottom: 20px; margin-right: 10px;"><i
-            class="bi bi-save"></i> Registrar Pedido & Confirmar por Whatsapp</button>
-
-          <a href="/{{company.id}}/catalogo" class="btn btn-secondary btn-sm"
-            style="margin-bottom: 20px;"><i class="bi bi-arrow-left-circle"></i> Ir Atrás</a>
+        <div class="modal-footer d-flex flex-row justify-content-center align-items-center gap-2 flex-nowrap text-center" id="btn_compra" style="margin-bottom: 20px;">
+          <a href="{% if request.company %}/{% else %}{{ company.get_meta_url }}{% endif %}" 
+             class="btn btn-secondary btn-sm d-inline-flex align-items-center flex-grow-1 me-2 justify-content-center text-center">
+            <i class="bi bi-arrow-left-circle"></i>&nbsp;Atrás
+          </a>
+          <button type="submit" 
+                  class="btn btn-success btn-sm d-inline-flex align-items-center flex-grow-1 justify-content-center text-center">
+            <i class="bi bi-save"></i>&nbsp;Enviar & Confirmar por Whatsapp
+          </button>
         </div>
       </form>
     </div>

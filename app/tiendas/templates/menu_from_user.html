@@ -27,7 +27,7 @@
           <li><a class="nav-link scrollto" href="#" >{{request.user.first_name|title}} {{request.user.last_name|title}} </a></li>
         {% endif %}
         <li><a class="nav-link scrollto" href="#team_productos" onclick="updateUser('/{{request.user.id}}/update_perfil_user/')">Actualizar mi Perfil</a></li>
-        {% if company.id %}
+        {% if company.id and request.user.id == company.user.id %}
           <li><a class="nav-link scrollto" href="/{{company.id}}/configuraciones">Administrador</a></li>
           <li><a class="nav-link scrollto" href="#team_productos" onclick="newProducto('/{{company.id}}/new_producto/')">Registrar Producto</a></li>
         {% endif %}

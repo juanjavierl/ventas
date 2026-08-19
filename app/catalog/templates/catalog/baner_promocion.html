@@ -1,60 +1,184 @@
 {% if promocion %}
-<section class="container" data-aos="fade-up">
+<style>
+    .promo-banner {
+        border: 1px solid rgba(0, 0, 0, .10);
+        /* Fondo gradiente más nítido y marcado */
+        background: linear-gradient(135deg, #c7d2fe 0%, #e0e7ff 45%, #f1f5f9 100%);
+        background-color: #e0e7ff;
+        /* Mayor sombra para que el contenido resalte más */
+        box-shadow: 0 12px 32px -8px rgba(32, 88, 179, 0.18);
+    }
+    
+    /* Descuento */
+    .promo-descuento {
+        line-height: 1;
+    }
+    
+    .promo-icon {
+        font-size: 1.3rem;
+        color: #ffc107;
+        animation: anuncio 1.5s ease-in-out infinite;
+    }
+    
+    .promo-porcentaje {
+        font-size: clamp(2rem, 5vw, 3rem);
+        font-weight: 800;
+        color: #dc3545;
+        letter-spacing: -2px;
+        text-shadow: 0 2px 8px rgba(255,255,255,0.27);
+    }
+    
+    .promo-label {
+        font-size: .65rem;
+        font-weight: 700;
+        letter-spacing: 2px;
+        color: #6c757d;
+    }
+    
+    /* Información */
+    .promo-info h5 {
+        font-size: 1.1rem;
+    }
+    
+    .promo-info p {
+        line-height: 1.4;
+    }
+    
+    /* Fechas */
+    .promo-fechas {
+        border-left: 1px solid rgba(0, 0, 0, .08);
+    }
+    
+    /* Pequeño efecto de "zumbido" */
+    @keyframes anuncio {
+    
+        0%, 100% {
+            transform: rotate(0deg);
+        }
+    
+        15% {
+            transform: rotate(12deg);
+        }
+    
+        30% {
+            transform: rotate(-12deg);
+        }
+    
+        45% {
+            transform: rotate(8deg);
+        }
+    
+        60% {
+            transform: rotate(-8deg);
+        }
+    
+        75% {
+            transform: rotate(0deg);
+        }
+    
+    }
+    @media (max-width: 767.98px) {
 
-    <div class="promo-banner shadow-lg rounded-4">
+        .promo-banner {
+            padding: 1rem !important;
+        }
+    
+        .promo-descuento {
+            padding-bottom: .5rem;
+        }
+    
+        .promo-info {
+            text-align: center;
+        }
+    
+        .promo-fechas {
+            border-left: 0;
+            border-top: 1px solid rgba(0, 0, 0, .06);
+            padding-top: .5rem;
+        }
+    
+    }
+</style>
+<section class="container my-3">
 
-        <div class="row align-items-center">
+    <div class="promo-banner rounded-4 shadow-sm p-3">
 
-            <!-- Estrella -->
-            <div class="col-lg-2 text-center mb-4 mb-lg-0">
+        <div class="row align-items-center g-2">
 
-                <div class="promo-star">
-                    <div class="star-content">
-                        <span class="numero">{{ promocion.descuento|floatformat:0 }}%</span>
-                        <small>DESCUENTO</small>
+            <!-- DESCUENTO -->
+            <div class="col-12 col-md-3 text-center">
+
+                <div class="promo-descuento">
+
+                    <div class="promo-icon mb-1">
+                        <i class="bi bi-megaphone-fill"></i>
                     </div>
+
+                    <div class="promo-porcentaje">
+                        {{ promocion.descuento }}%
+                    </div>
+
+                    <div class="promo-label">
+                        DESCUENTO
+                    </div>
+
                 </div>
 
             </div>
 
-            <!-- Información -->
-            <div class="col-lg-7">
 
-                <p class="promo-description">
-                    {{ promocion.descripcion }}
-                </p>
+            <!-- INFORMACIÓN -->
+            <div class="col-12 col-md-6">
 
-                {% if promocion.condiciones %}
-                <div class="promo-condiciones">
-                    <i class="bi bi-info-circle-fill"></i>
-                    {{ promocion.condiciones }}
+                <div class="promo-info">
+
+                    <h5 class="fw-bold mb-1">
+                        <i class="bi bi-stars text-warning"></i>
+                        {{ promocion.titulo }}
+                    </h5>
+
+                    <p class="text-muted small mb-1">
+                        {{ promocion.descripcion }}
+                    </p>
+
+                    {% if promocion.condiciones %}
+                    <small class="text-secondary">
+                        <i class="bi bi-info-circle"></i>
+                        {{ promocion.condiciones }}
+                    </small>
+                    {% endif %}
+
                 </div>
-                {% endif %}
 
             </div>
 
-            <!-- Botón -->
-            <div class="col-lg-3 mt-lg-0 g-light border-start border-end border-4 border-success rounded-3">
-                Desde 
-                <span class="badge bg-light text-dark border mb-2">
-                    <i class="bi bi-calendar-check text-success me-1"></i>
-                    {{ promocion.fecha_inicio }}
-                </span>
 
-                <br>
-                Hasta
-                <span class="badge bg-light text-dark border mb-2">
-                    <i class="bi bi-calendar-x text-danger me-1"></i>
-                    {{ promocion.fecha_fin }}
-                </span>
+            <!-- FECHAS -->
+            <div class="col-12 col-md-3">
 
-                {% if promocion.compra_mayores %}
-                <br>
-                <span class="badge bg-primary text-white">
-                    <i class="bi bi-cart-fill me-1"></i>
-                    Compra mínima {{ company.moneda }} {{ promocion.compra_mayores }}
-                </span>
-                {% endif %}
+                <div class="promo-fechas text-center">
+
+                    <div class="small">
+                        <span class="text-muted">Válido hasta</span>
+                        <strong class="d-block">
+                            {{ promocion.fecha_fin }}
+                        </strong>
+                    </div>
+
+                    {% if promocion.compra_mayores > 0 %}
+                    <div class="small mt-1">
+                        <span class="text-muted">
+                            Compras mayores a
+                        </span>
+
+                        <strong class="d-block">
+                            {{ promocion.compra_mayores }}
+                            {{ company.moneda }}
+                        </strong>
+                    </div>
+                    {% endif %}
+
+                </div>
 
             </div>
 

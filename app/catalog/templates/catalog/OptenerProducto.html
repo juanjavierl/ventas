@@ -15,12 +15,10 @@
 {% endblock tecnica_seo %}
 
 {% block company %}
-{% if request.company %}
-    <a href="/">
-  {% elif company.slug %}
-      <a href="/{{company.slug}}/">
+  {% if request.company %}
+  <a href="/">
   {% else %}
-    <a href="/{{company.id}}/catalogo">
+    <a href="{{company.get_meta_url}}">
   {% endif %}
       <marquee behavior="" direction="" style="margin-top: 14px;">{{ company.name|title }}</marquee>
     </a>
@@ -103,6 +101,19 @@
     input[type=number] {
       -moz-appearance: textfield;
     }
+    .btn-video-animacion{
+      animation: efecto_url 1.2s infinite;
+      border-radius: 50px;
+      transition: ease 1s;
+    }
+    @keyframes efecto_url{
+      0%{
+          box-shadow: 0 0 0 0 rgba(230, 104, 81, 0.85);
+      }
+      100%{
+          box-shadow: 0 0 0 15px rgba(71, 231, 164, 0);
+      }
+    }
   </style>
   <div class="portfolio container" id="team_productos">
 
@@ -133,7 +144,7 @@
             {% endif %}
           </div>
           {% if p.is_new %}
-          <span class="badge rounded-pill bg-primary sale-tag d-flex">Nuevo</span>
+          <span class="badge rounded-pill bg-danger sale-tag d-flex">Nuevo</span>
           {% endif %}
           <div class="swiper-pagination"></div>
         </div>
@@ -188,7 +199,7 @@
                   </label>
                   <div class="input-group mb-1" style="width: 100px;">
                     <button class="btn btn-sm btn-outline-primary menos" type="button" onclick="cambiarValor(-1, '{{forloop.counter0}}')">-</button>
-                    <input type="number" name="cantidad" placeholder="ejem. 1" value="1" min="1" max="{{p.stock_actual}}" id="cantidad_id" class="form-control form-control-sm valor_numerico" required>
+                    <input type="number" readonly name="cantidad" placeholder="ejem. 1" value="1" min="1" max="{{p.stock_actual}}" id="cantidad_id" class="form-control form-control-sm valor_numerico" required>
                     <button class="btn btn-sm btn-outline-primary mas" type="button" onclick="cambiarValor(1, '{{forloop.counter0}}')">+</button>
                 </div>
                 </div>
@@ -200,7 +211,7 @@
                 </div>
                 <div class="mb-3 caracteristica_producto">
                   <textarea name="nota" class="form-control" id="exampleFormControlTextarea1" rows="3"
-                    placeholder="Ejem: Color Negro Talla 36 etc."></textarea>
+                    placeholder="Ejem: Color, tamaño etc."></textarea>
                 </div>
                 <div class="row btn_add align-items-center" style="height: 30px;">
                   <button type="col submit" class="btn btn-success btn-sm tb_text efecto_button">
@@ -209,14 +220,20 @@
                   </button><br><br>
 
                   <div class="btn-group" role="group" aria-label="Basic example">
-                    <a href="/{{company.id}}/catalogo" class="col btn btn-secondary btn-sm tb_text"
+                    <a href="{% if request.company %}/{% else %}{{ company.get_meta_url }}{% endif %}" class="col btn btn-secondary btn-sm tb_text"
                     style="padding-top: 5px;">
                     <i class="bi bi-arrow-left-circle"> Ir Atrás</i>
                   </a>
                     <a class="col btn btn-success btn-sm" style="background-color: rgb(8, 196, 118);"
                     href="https://api.whatsapp.com/send?phone={{ company.mobile }}&text=¿Está%20disponible%20el%20producto:%20*{{ p.name|title|default:' ' }}*%20(cod:%20{{ p.id }})%3F%0A🔗%20{{ request.build_absolute_uri }}%0A"
                     target="_blank"> comprar por <i class="bi bi-whatsapp"></i></a>
-                    <a class="col btn btn-primary btn-sm" id="compartir" href="#"><i class="bi bi-share-fill"></i></a>
+                    <a href="#"
+                      class="compartir_url col btn btn-primary btn-sm"
+                      data-title="{{ p.name|title }}"
+                      data-url="{{ request.build_absolute_uri }}"
+                      data-image="{{ request.scheme }}://{{ request.get_host }}{{ p.get_image }}">
+                        <i class="bi bi-share-fill"></i>
+                    </a>
                   </div>
 
                 </div>
@@ -225,7 +242,18 @@
           </ul>
         </div>
         <div class="portfolio-description">
-          <h2>Información</h2>
+          <h2>
+            Información
+            {% if p.video_url %}
+              <a href="{{ p.video_url }}" target="_blank" class="btn-video-animacion" title="Ver video"
+              type="button" data-bs-toggle="modal" data-bs-target="#exampleModal"
+              onclick="reproducir_video('/reproducir_video/{{p.id}}')">
+                <i class="bi bi-play-circle-fill" style="font-size: 1em; color: #ef60a3;"></i>
+              </a>
+      
+            {% endif %}
+          </h2>
+
           <p class="text-break">
             {{p.description|urlize_mode:"ver_mas,br"|default:" - - -"|capfirst}}
           </p>
@@ -238,33 +266,116 @@
 </section><!-- End Portfolio Details Section -->
 <script>
 
-  if (navigator.share) {
+  // Compartir producto mediante Web Share API
+  document.querySelectorAll('.compartir_url').forEach(function (boton) {
 
-    // Código si la Web Share API es soportada
-    document.getElementById("compartir").value = "En más lugares"
-    const shareData = {
-      title: "Catalogo",
-      text: "Visita mi Catálogo!",
-      url: window.location.href,
-    };
-    let btn = document.getElementById("compartir");
-    const resultPara = document.getElementsByClassName("alert-success");
+    boton.addEventListener('click', async function (e) {
 
-    btn.addEventListener("click", async () => {
-      try {
-        await navigator.share(shareData);
-        resultPara.textContent = "Recurso compartido";
+        e.preventDefault();
 
-      } catch (err) {
-        $("#status").hide()
-        document.getElementById("status").hidden();
-        alert("Up! parase que tu navegador no esta lista para compartir este recurso.");
-      }
+        const titulo = this.dataset.title || 'Producto';
+        const url = this.dataset.url || window.location.href;
+        const imagenUrl = this.dataset.image;
+
+        // Feedback visual mientras se procesa
+        boton.classList.add('disabled');
+        boton.setAttribute('aria-busy', 'true');
+
+        try {
+
+            // Opciones básicas de compartir
+            let compartirOpciones = {
+                title: titulo,
+                text: `Detalles del producto: ${titulo}, ingresa aqui para realizar tu compra`,
+                url: url
+            };
+
+            // Intentar agregar la imagen
+            if (
+                imagenUrl &&
+                window.fetch &&
+                navigator.canShare
+            ) {
+
+                try {
+
+                    const response = await fetch(imagenUrl);
+
+                    if (!response.ok) {
+                        throw new Error(
+                            'No se pudo cargar la imagen'
+                        );
+                    }
+
+                    const blob = await response.blob();
+
+                    const archivo = new File(
+                        [blob],
+                        'producto.jpg',
+                        {
+                            type: blob.type
+                        }
+                    );
+
+                    // Verificar si se puede compartir el archivo
+                    if (
+                        navigator.canShare({
+                            files: [archivo]
+                        })
+                    ) {
+
+                        compartirOpciones.files = [archivo];
+
+                    }
+
+                } catch (imgErr) {
+
+                    // Si falla la imagen, continúa
+                    // compartiendo texto + URL
+                    console.warn(
+                        'No se pudo adjuntar imagen para compartir.',
+                        imgErr
+                    );
+                }
+            }
+
+            // Verificar soporte de Web Share API
+            if (navigator.share) {
+
+                await navigator.share(
+                    compartirOpciones
+                );
+
+            } else {
+
+                alert(
+                    'La función de compartir no está disponible en este navegador.'
+                );
+            }
+
+        } catch (error) {
+
+            // El usuario puede cancelar el cuadro de compartir.
+            // AbortError no debería mostrarse como error.
+            if (error.name !== 'AbortError') {
+
+                console.error(
+                    'Error al compartir:',
+                    error
+                );
+            }
+
+        } finally {
+
+            // Restaurar botón
+            boton.classList.remove('disabled');
+            boton.removeAttribute('aria-busy');
+
+        }
+
     });
-  } else {
-    // Fallback
-    $("#status").hide();
-  }
+
+  });
 
   $('#form_pedido').submit(function (e) {
     e.preventDefault();
@@ -340,6 +451,18 @@
         $('.dropdown-menu').trigger('click')
         console.log('hover');
       }); */
+      function reproducir_video(urls){
+        $.ajax({
+          type: 'GET',
+          url: urls,
+          success: function (resp) {
+            $(".modal-content").html(resp);
+          },
+          error: function (xhr, ajaxOptions, thrownError) {
+            alert("Error:" + xhr);
+          }
+        });
+      }
 </script>
 {% endblock contenido %}
 

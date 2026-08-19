@@ -1,8 +1,50 @@
+from urllib.parse import urlparse
+
 from django import forms
 from PIL import Image, UnidentifiedImageError
 from app.catalog.models import *
 from django.core.exceptions import ValidationError
 import phonenumbers
+
+ALLOWED_VIDEO_HOSTS = (
+    'youtube.com',
+    'youtu.be',
+    'tiktok.com',
+    'facebook.com',
+    'fb.watch',
+)
+
+
+def validate_product_video_url(value):
+    if not value:
+        return value
+
+    value = value.strip()
+
+    if '<' in value or '>' in value:
+        raise ValidationError(
+            'Ingrese solo la URL del video, no código HTML ni iframe.'
+        )
+
+    parsed = urlparse(value)
+    if parsed.scheme not in ('http', 'https'):
+        raise ValidationError('Ingrese una URL válida con http o https.')
+
+    host = parsed.netloc.lower()
+    if host.startswith('www.'):
+        host = host[4:]
+
+    if not any(host == allowed or host.endswith('.' + allowed) for allowed in ALLOWED_VIDEO_HOSTS):
+        raise ValidationError(
+            'Solo se permiten enlaces de YouTube, TikTok o Facebook.'
+        )
+
+    return value
+
+
+class ProductVideoUrlMixin:
+    def clean_video_url(self):
+        return validate_product_video_url(self.cleaned_data.get('video_url'))
 
 class ClientFormOrder(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -25,11 +67,7 @@ class ClientFormOrder(forms.ModelForm):
         
         return mobile
 
-class formUpdateProducto(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['name'].widget.attrs['autofocus'] = True
-    
+class formUpdateProducto(ProductVideoUrlMixin, forms.ModelForm):
     def clean_image(self):
         image = self.cleaned_data.get('image')
 
@@ -61,26 +99,30 @@ class formUpdateProducto(forms.ModelForm):
             'price': forms.NumberInput(attrs={'class': 'form-control'}),
             'price_before': forms.NumberInput(attrs={'class': 'form-control'}),
             'image': forms.FileInput(attrs={'class': 'form-control'}),
-            'stock': forms.NumberInput(attrs={'class': 'form-control'})
+            'stock': forms.NumberInput(attrs={'class': 'form-control'}),
+            'video_url': forms.URLInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'https://...',
+            }),
         }
 
-class formProducto(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['name'].widget.attrs['autofocus'] = True
-
+class formProducto(ProductVideoUrlMixin, forms.ModelForm):
     class Meta:
         model = Product
         exclude = ['company', 'salida', 'date_joined']
         widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'name': forms.TextInput(attrs={'class': 'form-control','autofocus': True,}),
             'code': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea({'class': 'form-control', 'rows': 2, 'cols': 3}),
            
             'price': forms.NumberInput(attrs={'class': 'form-control'}),
             'price_before': forms.NumberInput(attrs={'class': 'form-control'}),
-            'image': forms.FileInput(attrs={'class': 'form-control'}),
-            'stock': forms.NumberInput(attrs={'class': 'form-control'})
+            'image': forms.FileInput(attrs={'class': 'form-control','accept': 'jpeg, jpg, png, webp',}),
+            'stock': forms.NumberInput(attrs={'class': 'form-control'}),
+            'video_url': forms.URLInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'https://...',
+            }),
         }
 
 class formCategory(forms.ModelForm):

@@ -41,7 +41,7 @@
 
 
 {% block contenido %}
-<section id="team_productos" class="team" style="margin-top: 80px;" >
+<section id="team_productos" class="team overflow-visible" style="margin-top: 80px;" >
   <div class="container-fluid productos_por_categorias" data-aos="fade-up">
     <div class="row">
         <div class="col-12">
@@ -77,7 +77,7 @@
           </span>
         {% endif %} -->
         <div class="card-body" style="padding: 10px;">
-            <div class="text-section" onclick="detailSite('/{{n.id}}/catalogo')">
+            <div class="text-section" onclick="detailSite('{{n.get_meta_url}}')">
                 <h5 class="card-title text-wrap text-primary fw-bolder">{{n.name|title}}</h5>
                 <p class="card-text text-break text-wrap fst-italic">{{n.description|default:" - - - "|capfirst|truncatewords:10}}
                 </p>

@@ -201,11 +201,8 @@
             {% if request.company %}
               <a href="/" class="text-decoration-none" target="_blank">
                 <i class="bi bi-box-arrow-up-right"></i> Ver catalogo publico</a>
-            {% elif company.slug %}
-                <a href="/{{company.slug}}/" class="text-decoration-none" target="_blank">
-                  <i class="bi bi-box-arrow-up-right"></i> Ver catalogo publico</a>
             {% else %}
-              <a href="/{{company.id}}/catalogo" class="text-decoration-none" target="_blank">
+              <a href="{{company.get_meta_url}}/" class="text-decoration-none" target="_blank">
                           <i class="bi bi-box-arrow-up-right"></i> Ver catalogo publico</a>
             {% endif %}
             

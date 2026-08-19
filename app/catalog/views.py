@@ -429,7 +429,7 @@ def confirmar_compra(request, id_company):
 
     # --- Si no es POST, renderizar vista ---
     ahora = datetime.now() + timedelta(minutes=30)
-    limite = datetime.now() + timedelta(days=15)
+    limite = datetime.now() + timedelta(days=7)
     dic = {
         'form': ClientFormOrder(),
         'total_compra': total_compra,
@@ -555,50 +555,71 @@ def crear_orden(request, id_cliente, id_company, ref='tienda'):
     return orden
 
 def newProducto(request, id_company):
-    company = get_object_or_404(Company,id = int(id_company))
-    aviso = False
-    date_expiration = False
-    cantProductos = cantProductosByCompany(id_company)
-    if request.method == 'POST':
-        new = request.POST.get('is_new', False) == 'on'
-        if new == 'on':
-            new = True
-        service = request.POST.get('is_service',False) == 'on'
-        if service == 'on':
-            service = True
-        promotion = request.POST.get('is_promotion',False) == 'on'
-        if promotion == 'on':
-            promotion = True
+    # Obtenemos la compañía correspondiente, incluyendo la relación con su plan.
+    # Esto lo hacemos para tener accesible el límite de productos permitido por el plan.
+    company = get_object_or_404(
+        Company.objects.select_related('plan'),
+        id=id_company
+    )
 
-        producto = Product()
-        producto.name = request.POST['name']
-        producto.code = request.POST['code']
-        producto.description = request.POST['description']
-        producto.category_id = int(request.POST['category'])
-        producto.company_id = int(id_company)
-        producto.price = float(request.POST['price'])
-        producto.price_before = float(request.POST['price_before'])
-        producto.stock = request.POST['stock']
-        producto.image = request.FILES.get('image','')
-        producto.is_service = service
-        producto.is_new = new
-        producto.is_promotion = promotion
-        if  int(cantProductos) >= int(company.plan.cantidad) or (get_company(id_company).expiration_date < datetime.now().date()):
-            aviso = True
-            date_expiration = True
-            return JsonResponse({'error':'Alcansaste el limite de registros para este plan. o la fecha ha caducado','aviso':aviso, 'date_expiration':date_expiration})
-        else:
+    # Cantidad actual de productos registrados por la compañía.
+    cant_productos = int(cantProductosByCompany(id_company))
+    # Límite de productos permitidos según el plan contratado por la compañía.
+    limite_productos = int(company.plan.cantidad)
+
+    # Revisa si la fecha de expiración está definida y si ya expiró (es menor que hoy).
+    fecha_expirada = (company.expiration_date is not None and company.expiration_date < date.today())
+
+    # Si el número de productos es igual o mayor al límite, activamos el aviso.
+    aviso = cant_productos >= limite_productos
+    # Si la fecha está expirada, activamos la bandera de expiración.
+    date_expiration = fecha_expirada
+
+    if request.method == 'POST':
+        if aviso or date_expiration:
+            return JsonResponse({
+                'error': (
+                    'Alcanzaste el límite de registros para este plan '
+                    'o la fecha de tu plan ha caducado.'
+                ),
+                'aviso': aviso,
+                'date_expiration': date_expiration
+            })
+
+        form = formProducto(request.POST, request.FILES)
+
+        if form.is_valid():
+            producto = form.save(commit=False)
+            producto.company = company
             producto.save()
-            return JsonResponse({'success':'Producto registrado exitosamente.','aviso':aviso, 'date_expiration':date_expiration})
+            return JsonResponse({
+                'success': 'Producto registrado exitosamente.',
+                'aviso': False,
+                'date_expiration': False
+            })
+
+        return JsonResponse({
+            'error': 'Verifica los datos ingresados.',
+            'errors': form.errors,
+            'aviso': False,
+            'date_expiration': False
+        }, status=400)
+
     form = formProducto()
 
-    if int(cantProductos) >= int(company.plan.cantidad):
-        aviso = True
-    if get_company(id_company).expiration_date < datetime.now().date():
-        date_expiration = True
-    
     categorys = Category.objects.all().order_by('-id')
-    return render(request, 'catalog/newProducto.html',{'form':form,'company':company,'categorys':categorys, 'aviso':aviso, 'date_expiration':date_expiration})
+
+    return render(
+        request,
+        'catalog/newProducto.html',
+        {
+            'form': form,
+            'company': company,
+            'categorys': categorys,
+            'aviso': aviso,
+            'date_expiration': date_expiration,
+        }
+    )
 
 def cantProductosByCompany(id_company):
     cantidad = Product.objects.filter(company_id = int(id_company)).count()
@@ -622,7 +643,9 @@ def updateProduct(request, id_product):
         form=formUpdateProducto(request.POST, request.FILES,instance=product)
         if form.is_valid():
             form.save()
-            return JsonResponse({'id_company':product.company.id})
+            return JsonResponse({'success':'Registro actualizado'})
+        else:
+            return JsonResponse({'errors': form.errors.get_json_data()}, status=400)
     else:
         form=formUpdateProducto(instance=product)
         return render(request, 'catalog/updateProduct.html',{'form':form,'product':product})
@@ -740,3 +763,115 @@ def getPrecioEnvio(request, id_company):
 def form_sheart_product(request):
     company = Company.objects.get(id = int(request.GET['id_company']))
     return render(request, 'catalog/form_sheart_product.html', {'company':company})
+
+def reproducir_video(request, id_producto):
+    from urllib.parse import urlparse, parse_qs, quote
+    producto = get_object_or_404(Product, id=id_producto)
+
+    video_url = None
+    platform = None
+    embed_url = None
+
+    raw_url = getattr(producto, 'video_url', None)
+
+    if raw_url:
+
+        video_url = raw_url.strip()
+
+        parsed_url = urlparse(video_url)
+        host = parsed_url.netloc.lower()
+
+        if host.startswith('www.'):
+            host = host[4:]
+
+        # =========================
+        # YOUTUBE
+        # =========================
+        if host == 'youtube.com' or host == 'youtu.be':
+
+            platform = 'youtube'
+            video_id = None
+
+            if host == 'youtube.com':
+
+                # youtube.com/watch?v=XXXXXXXX
+                qs = parse_qs(parsed_url.query)
+                video_id = qs.get('v', [None])[0]
+
+                # youtube.com/shorts/XXXXXXXX
+                if not video_id:
+                    parts = parsed_url.path.strip('/').split('/')
+
+                    if len(parts) >= 2 and parts[0] == 'shorts':
+                        video_id = parts[1]
+
+                # youtube.com/embed/XXXXXXXX
+                if not video_id:
+                    parts = parsed_url.path.strip('/').split('/')
+
+                    if len(parts) >= 2 and parts[0] == 'embed':
+                        video_id = parts[1]
+
+            elif host == 'youtu.be':
+
+                video_id = parsed_url.path.strip('/').split('/')[0]
+
+            if video_id:
+                embed_url = (
+                    f'https://www.youtube.com/embed/{video_id}'
+                    f'?rel=0'
+                )
+
+        # =========================
+        # TIKTOK
+        # =========================
+        elif host == 'tiktok.com':
+
+            platform = 'tiktok'
+
+            parts = parsed_url.path.strip('/').split('/')
+
+            if 'video' in parts:
+
+                idx = parts.index('video')
+
+                if idx + 1 < len(parts):
+
+                    video_id = parts[idx + 1]
+
+                    embed_url = (
+                        f'https://www.tiktok.com/embed/v2/{video_id}'
+                    )
+
+        # =========================
+        # FACEBOOK
+        # =========================
+        elif host in ('facebook.com', 'fb.watch'):
+
+            platform = 'facebook'
+
+            embed_url = (
+                'https://www.facebook.com/plugins/video.php'
+                f'?href={quote(video_url, safe="")}'
+                '&show_text=false'
+                '&width=560'
+            )
+
+        # =========================
+        # OTRO
+        # =========================
+        else:
+
+            platform = 'other'
+            embed_url = video_url
+
+    return render(
+        request,
+        'catalog/ver_video_producto.html',
+        {
+            'producto': producto,
+            'video_url': embed_url,
+            'platform': platform,
+            'raw_video_url': video_url,
+        }
+    )

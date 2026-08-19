@@ -17,10 +17,8 @@
 {% block company %}
   {% if request.company %}
     <a href="/">
-  {% elif company.slug %}
-      <a href="/{{company.slug}}/">
   {% else %}
-    <a href="/{{company.id}}/catalogo">
+      <a href="{{company.get_meta_url}}/">
   {% endif %}
       <marquee behavior="" direction="" style="margin-top: 14px;">{{ company.name|title }}</marquee>
     </a>
@@ -61,7 +59,7 @@
       #hero{
         width: 100%;
         height: calc(100vh - 50px);
-        background: url("/media/{{company.image}}") center center;
+        background: linear-gradient(180deg, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.12)), url("/media/{{company.image}}") center center;
         background-size: cover;
         position: relative;
         margin-top: 50px;
@@ -84,7 +82,7 @@
                     <a type="button" onclick="mostrar_por_categoria('/{{company.id}}/{{c.id}}/mostrar_por_categoria')" 
                     href="#team_productos" class="btn btn-success btn-lg" 
                     style="background-color: #1bac91;; color: white; border-radius: 50px;">
-                    <i class="bi bi-bag-check"></i> {{c.name}}
+                    <i class="bi bi-bag-check"></i> {{c.name|title}}
                     </a>
                   </p>
                 </div>
@@ -103,273 +101,7 @@
       }
     </style>
   {% endif %}
-  <style>
-    /*==================================
-PROMOCIONES
-==================================*/
-
-.promo-banner{
-
-    background:linear-gradient(135deg,#ffffff,#fffdf5);
-
-    overflow:hidden;
-
-    position:relative;
-}
-
-/*-----------------------------------
-ESTRELLA
------------------------------------*/
-
-.promo-star{
-
-    width:140px;
-    height:140px;
-
-    margin:auto;
-
-    position:relative;
-
-    animation:girar 12s linear infinite;
-
-}
-
-.promo-star::before{
-
-    content:"";
-
-    position:absolute;
-
-    inset:0;
-
-    background:linear-gradient(180deg,#FFD54F,#FF9800);
-
-    clip-path:polygon(
-        50% 0%,
-        61% 18%,
-        82% 7%,
-        75% 29%,
-        100% 35%,
-        79% 50%,
-        100% 65%,
-        75% 71%,
-        82% 93%,
-        61% 82%,
-        50% 100%,
-        39% 82%,
-        18% 93%,
-        25% 71%,
-        0% 65%,
-        21% 50%,
-        0% 35%,
-        25% 29%,
-        18% 7%,
-        39% 18%
-    );
-
-    box-shadow:
-        0 0 10px #ffc107,
-        0 0 30px rgba(255,193,7,.7);
-
-}
-
-/* Texto */
-
-.star-content{
-
-    position:absolute;
-
-    inset:0;
-
-    display:flex;
-
-    flex-direction:column;
-
-    justify-content:center;
-
-    align-items:center;
-
-    color:#fff;
-
-    font-weight:bold;
-
-    animation:antiGiro 12s linear infinite;
-
-}
-
-.star-content .numero{
-
-    font-size:36px;
-
-    line-height:1;
-
-}
-
-.star-content small{
-
-    font-size:13px;
-
-    letter-spacing:1px;
-
-}
-
-/*-----------------------------------
-TITULO
------------------------------------*/
-
-.promo-title{
-
-    font-size:2rem;
-
-    font-weight:900;
-
-    color:#ff9800;
-
-    text-transform:uppercase;
-
-    animation:brillo 1.3s infinite alternate;
-
-}
-
-.promo-description{
-
-    font-size:17px;
-
-    color:#555;
-
-    margin-top:15px;
-
-    margin-bottom:18px;
-
-}
-
-.promo-condiciones{
-
-    display:inline-block;
-
-    background:#fff4cf;
-
-    padding:8px 15px;
-
-    border-radius:30px;
-
-    color:#8b6b00;
-
-    font-size:14px;
-
-    margin-top:5px;
-
-}
-
-/*-----------------------------------
-FECHAS
------------------------------------*/
-
-.promo-fechas{
-
-    background:#fff;
-
-    border-radius:15px;
-
-    padding:15px;
-
-    margin-bottom:20px;
-
-    box-shadow:0 4px 10px rgba(0,0,0,.08);
-
-}
-
-.promo-fechas small{
-
-    color:#888;
-
-}
-
-/*-----------------------------------
-ANIMACIONES
------------------------------------*/
-
-@keyframes girar{
-
-    from{
-        transform:rotate(0deg);
-    }
-
-    to{
-        transform:rotate(360deg);
-    }
-
-}
-
-@keyframes antiGiro{
-
-    from{
-        transform:rotate(0deg);
-    }
-
-    to{
-        transform:rotate(-360deg);
-    }
-
-}
-
-@keyframes brillo{
-
-    from{
-
-        text-shadow:
-        0 0 5px #ffc107,
-        0 0 10px #ffc107;
-
-    }
-
-    to{
-
-        text-shadow:
-        0 0 12px #ff9800,
-        0 0 25px #ff9800,
-        0 0 45px #ff9800;
-
-    }
-
-}
-
-/*-----------------------------------
-RESPONSIVE
------------------------------------*/
-
-@media(max-width:768px){
-
-    .promo-banner{
-
-        text-align:center;
-
-    }
-
-    .promo-title{
-
-        font-size:1.6rem;
-
-        margin-top:20px;
-
-    }
-
-    .promo-description{
-
-        font-size:15px;
-
-    }
-
-    .promo-star{
-
-        width:120px;
-
-        height:120px;
-
-    }
-
-}
-  </style>
+  
 {% endblock hero %}
 
 
@@ -382,7 +114,7 @@ RESPONSIVE
 {% block acerca %} {% endblock acerca %}
 
 {% block contenido %}
-    <section id="team_productos" class="portfolio">
+    <section id="team_productos" class="portfolio overflow-visible">
       
       {% if aviso %}
         {% include 'notificaciones/opciones_avisos.html' %}

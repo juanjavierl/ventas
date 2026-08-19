@@ -5,14 +5,7 @@
 </h1>
     
 <h1 style="margin-top: 10px;">
-    {% if company.dominio %}
-        <a href="https://api.whatsapp.com/send?text=Catálogo: {% now 'M-Y' %} %0A *{{ company.name|upper|default:' ' }}* %0A Una tienda online diseñada especialmente para nuestros clientes, donde pueden descubrir productos exclusivos y realizar sus pedidos de forma fácil, rápida y segura. %0Ahttps://amceb.online/{{ company.dominio.slug }}" 
-           target="_blank" style="font-size: 25px;">
-            <i class="bi bi-share-fill"></i>
-    {% else %}
-        <a href="https://api.whatsapp.com/send?text=Catalogo:{% now 'M-Y' %} %0A *{{company.name|upper|default:' '}}* %0A Una tienda online diseñada especialmente para nuestros clientes, donde pueden descubrir productos exclusivos y realizar sus pedidos de forma fácil, rápida y segura. %0A{{request.build_absolute_uri}}" target="_blank" style="font-size: 25px;">
-        <i class="bi bi-share-fill"></i></a>
-    {% endif %}
+    <a class="dropdown-item compartir_url" href="#"><i class="bi bi-share-fill"></i></a>
 </h1>
 <style>
     .cantidades-card {
@@ -63,5 +56,38 @@
         </span>
         </a>
 </h1>
+<script>
+    document.querySelectorAll(".compartir_url").forEach(function(btn) {
 
+        btn.addEventListener("click", async function(e) {
+    
+            e.preventDefault();
+    
+            const fecha = new Date();
+    
+            const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+            const anio = fecha.getFullYear();
+    
+            const shareData = {
+                title: "Catálogo",
+                text: `📋 Catálogo: ${mes}/${anio}\n\nVisita mi tienda online y realiza tu pedido desde cualquier lugar.`,
+                url: window.location.href
+            };
+    
+            try {
+    
+                await navigator.share(shareData);
+    
+            } catch (err) {
+    
+                if (err.name !== "AbortError") {
+                    console.error("Error al compartir:", err);
+                }
+    
+            }
+    
+        });
+    
+    });
+</script>
     

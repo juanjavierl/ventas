@@ -65,7 +65,7 @@
 
           mostrar_notificacion();
           setTimeout(function () {
-            window.location.href = "/{{company.id}}/catalogo";
+            window.location.href = "{% if request.company %}/{% else %}{{ company.get_meta_url }}{% endif %}";
           }, 3000);
 
         }

@@ -4,16 +4,17 @@
 <div id="carouselExampleSlidesOnly" class="carousel slide fixed-bottom" style="margin: auto; z-index: 2;" data-bs-ride="carousel">
     <div class="carousel-inner container">
       <div class="carousel-item active justify-content-between">
-        <p class="text-primary fst-italic fw-bolder" style="text-align: center;">Tiempo de Entrega: {{aviso.Tiempo_entrega|title}}</p>
+        <p class="text-primary fst-italic fw-bolder" style="text-align: center; margin-bottom: 0px;">Tiempo de Entrega: {{aviso.Tiempo_entrega|capfirst}}</p>
+  
       </div>
       <div class="carousel-item justify-content-between">
-        <p class="text-success fst-italic fw-bolder" style="text-align: center;">Envios: {{aviso.envios|title}}</p>
+        <p class="text-success fst-italic fw-bolder" style="text-align: center;  margin-bottom: 0px;">Envios: {{aviso.envios|capfirst}}</p>
       </div>
       <div class="carousel-item justify-content-between">
-        <p class="text-primary fst-italic fw-bolder" style="text-align: center;">Pedidos: {{aviso.pedidos|title}}</p>
+        <p class="text-primary fst-italic fw-bolder" style="text-align: center;  margin-bottom: 0px;">Pedidos: {{aviso.pedidos|capfirst}}</p>
       </div>
       <div class="carousel-item justify-content-between">
-        <p class="text-success fst-italic fw-bolder" style="text-align: center;">{{aviso.pide_ahora|title}}</p>
+        <p class="text-success fst-italic fw-bolder" style="text-align: center;  margin-bottom: 0px;">{{aviso.pide_ahora|capfirst}}</p>
       </div>
     </div>
   </div>

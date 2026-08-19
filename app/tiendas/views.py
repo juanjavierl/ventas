@@ -347,11 +347,9 @@ def create_dominio(request, id_company):
     })
 
 def redirigir_a_catalogo(request, slug):
-    # Buscamos el dominio que coincida con el slug
-    dominio = get_object_or_404(Dominio, slug=slug)
-    # Redirigimos a la URL interna de la company
-    # Por ejemplo, "/<id>/catalogo/"
-    return redirect(f'/{dominio.company.id}/catalogo')
+    dominio = get_object_or_404(Dominio.objects.select_related('company'),slug=slug)
+
+    return CatalogView(request,dominio.company.id)
 
 def deleteCompany(request, id_company):
     company = get_object_or_404(Company, id=int(id_company))

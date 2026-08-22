@@ -8,6 +8,8 @@ def procesar_imagen(model_instance, campo_imagen):
     if not imagen:
         return
 
+    if not imagen.storage.exists(imagen.name):
+        return
     # Leer la imagen desde memoria (sin depender de .path)
     img = Image.open(imagen.file)
     formato_original = img.format or 'JPEG'
@@ -50,14 +52,18 @@ def procesar_imagen(model_instance, campo_imagen):
         img.save(buffer, format=formato_original, **save_kwargs)
         buffer.seek(0)
 
-        filename, ext = os.path.splitext(imagen.name)
-        nuevo_nombre = f"{filename}{ext.lower()}"
+        filename = os.path.basename(imagen.name)
+        nombre, ext = os.path.splitext(filename)
+        nuevo_nombre = f"{nombre}{ext.lower()}"
         getattr(model_instance, campo_imagen).save(nuevo_nombre, ContentFile(buffer.read()), save=False)
 
 
 def procesar_imagen_portada(model_instance, campo_imagen):
     imagen = getattr(model_instance, campo_imagen)
     if not imagen:
+        return
+
+    if not imagen.storage.exists(imagen.name):
         return
 
     # Leer la imagen desde memoria (sin depender de .path)
@@ -102,8 +108,9 @@ def procesar_imagen_portada(model_instance, campo_imagen):
         img.save(buffer, format=formato_original, **save_kwargs)
         buffer.seek(0)
 
-        filename, ext = os.path.splitext(imagen.name)
-        nuevo_nombre = f"{filename}{ext.lower()}"
+        filename = os.path.basename(imagen.name)
+        nombre, ext = os.path.splitext(filename)
+        nuevo_nombre = f"{nombre}{ext.lower()}"
         getattr(model_instance, campo_imagen).save(nuevo_nombre, ContentFile(buffer.read()), save=False)
 
 
@@ -114,25 +121,36 @@ def procesar_imagen_logo(model_instance, campo_imagen):
     if not imagen:
         return
 
+    if not imagen.storage.exists(imagen.name):
+        return
+
     img = Image.open(imagen.file)
 
-    size = 1200
+    size = 150
 
-    tiene_transparencia = img.mode in ('RGBA', 'LA') or (
-        img.mode == 'P' and 'transparency' in img.info
+    tiene_transparencia = (
+        img.mode in ('RGBA', 'LA')
+        or (
+            img.mode == 'P'
+            and 'transparency' in img.info
+        )
     )
 
+    # Convertir al modo adecuado
     if tiene_transparencia:
         img = img.convert('RGBA')
     else:
         img = img.convert('RGB')
 
-    # NUEVO TAMAÑO MÁS GRANDE
+    # Tamaño máximo del logo dentro del lienzo
     max_logo = int(size * 0.9)
 
-    img.thumbnail((max_logo, max_logo), Image.LANCZOS)
+    img.thumbnail(
+        (max_logo, max_logo),
+        Image.LANCZOS
+    )
 
-    # Fondo
+    # Crear fondo
     if tiene_transparencia:
         fondo = Image.new(
             'RGBA',
@@ -146,15 +164,23 @@ def procesar_imagen_logo(model_instance, campo_imagen):
             (255, 255, 255)
         )
 
-    # Centrado
+    # Centrar
     x = (size - img.width) // 2
     y = (size - img.height) // 2
 
-    fondo.paste(img, (x, y), img if tiene_transparencia else None)
+    fondo.paste(
+        img,
+        (x, y),
+        img if tiene_transparencia else None
+    )
 
+    # Preparar archivo
     buffer = BytesIO()
 
-    filename, _ = os.path.splitext(imagen.name)
+    # IMPORTANTE:
+    # utilizar solamente el nombre del archivo
+    filename = os.path.basename(imagen.name)
+    nombre, _ = os.path.splitext(filename)
 
     if tiene_transparencia:
 
@@ -164,22 +190,25 @@ def procesar_imagen_logo(model_instance, campo_imagen):
             optimize=True
         )
 
-        nuevo_nombre = f"{filename}.png"
+        nuevo_nombre = f"{nombre}.png"
 
     else:
 
         fondo.save(
             buffer,
             format='JPEG',
-            quality=90,
+            quality=75,
             optimize=True
         )
 
-        nuevo_nombre = f"{filename}.jpg"
+        nuevo_nombre = f"{nombre}.jpg"
 
     buffer.seek(0)
 
-    getattr(model_instance, campo_imagen).save(
+    getattr(
+        model_instance,
+        campo_imagen
+    ).save(
         nuevo_nombre,
         ContentFile(buffer.read()),
         save=False

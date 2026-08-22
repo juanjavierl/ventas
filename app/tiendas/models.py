@@ -116,12 +116,33 @@ class Company(models.Model, ModelMeta):
     is_service = models.BooleanField(default=False, verbose_name='Marque esta opción, solo si su negocio es de comida.')
 
     def save(self, *args, **kwargs):
-        if self.image:# Si hay imagen nueva o editada
-            procesar_imagen_portada(self, 'image')  # Procesar primero la imagen antes de guardar
-        if self.logo:
+        imagen_nueva = False
+        logo_nuevo = False
+
+        # Si el objeto ya existe en la base de datos (tiene pk)
+        if self.pk:
+            anterior = Company.objects.filter(pk=self.pk).first()  # Obtiene la versión previa de la compañía
+
+            if anterior:
+                # Si la imagen portada anterior es diferente a la actual, marcamos que es nueva
+                imagen_nueva = anterior.image != self.image
+                # Si el logo anterior es diferente al actual, marcamos que es nuevo
+                logo_nuevo = anterior.logo != self.logo
+        else:
+            # Si el objeto NO existe aún, cualquier imagen/logo significa que son nuevos
+            imagen_nueva = bool(self.image)
+            logo_nuevo = bool(self.logo)
+
+        # Si hay una imagen de portada nueva, la procesamos antes de guardar
+        if imagen_nueva:
+            procesar_imagen_portada(self, 'image')
+
+        # Si hay un logo nuevo, se procesa antes de guardar
+        if logo_nuevo:
             procesar_imagen_logo(self, 'logo')
 
-        super().save(*args, **kwargs)  # Guardar ya procesada
+        # Finalmente, se guarda normalmente la compañía (con imágenes ya procesadas si corresponde)
+        super().save(*args, **kwargs)
         # si no existe dominio asociado, lo creamos
         # Crear dominio si no existe
         if not hasattr(self, "dominio"):

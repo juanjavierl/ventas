@@ -49,9 +49,25 @@ class Product(models.Model):
     date_update = models.DateTimeField(auto_now=True)
     
     def save(self, *args, **kwargs):
-        if self.image:# Si hay imagen nueva o editada
-            procesar_imagen(self, 'image')  # Procesar primero la imagen antes de guardar
-        super().save(*args, **kwargs)  # Guardar ya procesada
+        imagen_nueva = False
+
+        # Si el objeto ya existe en la base de datos (tiene pk)
+        if self.pk:
+            anterior = Product.objects.filter(pk=self.pk).first()  # Obtiene la versión previa del Producto
+
+            if anterior:
+                # Si la imagen del producto anterior es diferente a la actual, marcamos que es nueva
+                imagen_nueva = anterior.image != self.image
+        else:
+            # Si el objeto NO existe aún, cualquier imagen/logo significa que son nuevos
+            imagen_nueva = bool(self.image)
+
+        # Si hay una imagen de portada nueva, la procesamos antes de guardar
+        if imagen_nueva:
+            procesar_imagen(self, 'image')
+
+        # Finalmente, se guarda normalmente la compañía (con imágenes ya procesadas si corresponde)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.get_full_name()

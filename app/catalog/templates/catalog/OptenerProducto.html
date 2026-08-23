@@ -125,17 +125,17 @@
 
             {% if images_product %}
               <div class="swiper-slide">
-                <img src="/media/{{p.image}}" class="img-fluid rounded object-fit-cover mx-auto d-block" alt="">
+                <img src="/media/{{p.image}}" class="img-fluid rounded object-fit-cover mx-auto d-block" alt="Imagen {{p.name}}">
               </div>
             {% for img_pro in images_product %}
               <div class="swiper-slide">
-                <img src="/media/{{img_pro.img}}" class="img-fluid rounded object-fit-cover mx-auto d-block" alt="">
+                <img src="/media/{{img_pro.img}}" class="img-fluid rounded object-fit-cover mx-auto d-block" alt="Imagen {{p.name}}">
               </div>
             {% endfor %}
             {% else %}
               {% if p.image %}
                 <div class="swiper-slide" style="text-align: center;">
-                  <img src="/media/{{p.image}}" alt="" class="img-fluid rounded object-fit-cover mx-auto d-block">
+                  <img src="/media/{{p.image}}" class="img-fluid rounded object-fit-cover mx-auto d-block" alt="Imagen {{p.name}}">
                 </div>
               {% else %}
                 <i class="bi bi-image icon" style="margin-top: 20px;" alt="..."></i>

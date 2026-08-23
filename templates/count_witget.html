@@ -1,0 +1,180 @@
+<section class="py-5 bg-light">
+
+    <div class="container" data-aos="fade-up">
+
+        <div class="row g-3 g-lg-4">
+
+            <!-- Comisión -->
+            <div class="col-6 col-lg-3">
+
+                <div class="card border-0 shadow-sm rounded-4 h-100 text-center">
+
+                    <div class="card-body py-2">
+
+                        <div class="text-success fs-2 mb-2">
+                            <i class="bi bi-percent"></i>
+                        </div>
+
+                        <div class="display-5 fw-bold text-success">
+                            0%
+                        </div>
+
+                        <div class="text-secondary small mt-2">
+                            Comisión por venta
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Tiendas -->
+            <div class="col-6 col-lg-3">
+
+                <div class="card border-0 shadow-sm rounded-4 h-100 text-center">
+
+                    <div class="card-body py-2">
+
+                        <div class="text-success fs-2 mb-2">
+                            <i class="bi bi-shop"></i>
+                        </div>
+
+                        <div
+                            class="display-5 fw-bold contador text-success"
+                            data-valor="210">
+                            0
+                        </div>
+
+                        <div class="text-secondary small mt-2">
+                            Tiendas creadas
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Productos -->
+            <div class="col-6 col-lg-3">
+
+                <div class="card border-0 shadow-sm rounded-4 h-100 text-center">
+
+                    <div class="card-body py-2">
+
+                        <div class="text-success fs-2 mb-2">
+                            <i class="bi bi-box-seam"></i>
+                        </div>
+
+                        <div
+                            class="display-5 fw-bold contador text-success"
+                            data-valor="2600">
+                            0
+                        </div>
+
+                        <div class="text-secondary small mt-2">
+                            Productos publicados
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Países -->
+            <div class="col-6 col-lg-3">
+
+                <div class="card border-0 shadow-sm rounded-4 h-100 text-center">
+
+                    <div class="card-body py-2">
+
+                        <div class="text-success fs-2 mb-2">
+                            <i class="bi bi-globe-americas"></i>
+                        </div>
+
+                        <div
+                            class="display-5 fw-bold contador text-success"
+                            data-valor="12">
+                            0
+                        </div>
+
+                        <div class="text-secondary small mt-2">
+                            Países con tiendas activas
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<script>
+    // La animación del contador empezará solo cuando la sección sea visible en el viewport
+    function iniciarContadoresCuandoVisibles() {
+        const contadores = document.querySelectorAll(".contador");
+        let iniciado = false;
+
+        // Buscar el contenedor/sección del widget del contador
+        const seccion = document.querySelector("#count-widget-section") || contadores[0]?.closest("section");
+
+        // Función para animar cada contador individual
+        function animarContador(contador) {
+            const valorFinal = parseInt(contador.dataset.valor);
+            const duracion = 1500;
+            const inicio = performance.now();
+
+            function actualizar(tiempo) {
+                const progreso = Math.min((tiempo - inicio) / duracion, 1);
+                const suavizado = 1 - Math.pow(1 - progreso, 3);
+                const valor = Math.floor(valorFinal * suavizado);
+                contador.textContent = "+" + valor.toLocaleString();
+
+                if (progreso < 1) {
+                    requestAnimationFrame(actualizar);
+                } else {
+                    contador.textContent = "+" + valorFinal.toLocaleString();
+                }
+            }
+
+            requestAnimationFrame(actualizar);
+        }
+
+        // Usar Intersection Observer para detectar cuando la sección está visible
+        if (seccion) {
+            const observer = new IntersectionObserver(
+                (entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting && !iniciado) {
+                            contadores.forEach(animarContador);
+                            iniciado = true;
+                            observer.disconnect();
+                        }
+                    });
+                },
+                { threshold: 0.15 }
+            );
+            observer.observe(seccion);
+        } else {
+            // Si no se encuentra sección, fallback: animar inmediatamente
+            contadores.forEach(animarContador);
+        }
+    }
+
+    // Ejecutar cuando el DOM esté listo
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", iniciarContadoresCuandoVisibles);
+    } else {
+        iniciarContadoresCuandoVisibles();
+    }
+</script>

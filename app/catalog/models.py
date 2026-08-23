@@ -37,7 +37,7 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=9, decimal_places=2, default=0.00, verbose_name='Precio de Venta')
     #pvp = models.DecimalField(max_digits=9, decimal_places=2, default=0.00, verbose_name='Precio de Venta')
     price_before = models.DecimalField(max_digits=9,decimal_places=2,null=True, blank=True,default=0.00, verbose_name='Precio Antes')
-    image = models.ImageField(upload_to='product/%Y', default="default.png", blank=True, null=True, verbose_name='Imagen')
+    image = models.ImageField(upload_to='product/%Y', default="default.png", blank=True, null=True, verbose_name='Imagen', help_text="Formato cuadrado ó ancho 800 y alto 600")
     is_service = models.BooleanField(default=False, verbose_name='Sin stok')
     #with_tax = models.BooleanField(default=False, verbose_name='¿Se cobra impuesto?')
     stock = models.IntegerField(default=1)

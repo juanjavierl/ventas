@@ -123,8 +123,7 @@ def validar_form(request):
 def validar_username(request):
     if request.method == "POST":
         if User.objects.filter(email = request.POST['email']).exists():
-            menj = "La cuenta: "+"<span style='color:green;'>"+request.POST['email']+"</span>"+" ya existe "
-            return JsonResponse({'error':menj})
+            return JsonResponse({'error':"EL usuario no está disponible"})
         else:
             return JsonResponse({'valido':'valido'})
 

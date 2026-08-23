@@ -11,6 +11,7 @@
             <iframe
                 class="video-producto"
                 src="{{ video_url }}"
+                data-src="{{ video_url }}"
                 referrerpolicy="strict-origin-when-cross-origin"
                 title="Video del producto - YouTube"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -26,11 +27,12 @@
             <iframe
                 class="video-producto"
                 src="{{ video_url }}"
+                data-src="{{ video_url }}"
                 width="325"
                 height="640"
                 style="border:0; max-width:100%; border-radius:10px;"
                 title="Video del producto - TikTok"
-                allow="autoplay; encrypted-media;"
+                allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
                 allowfullscreen>
             </iframe>
 
@@ -43,6 +45,7 @@
             <iframe
                 class="video-producto"
                 src="{{ video_url }}"
+                data-src="{{ video_url }}"
                 width="100%"
                 height="100%"
                 style="border:0;"
@@ -94,20 +97,45 @@
 
 </div>
 <script>
-    document.addEventListener('hidden.bs.modal', function (event) {
+    // Cuando se cierra el modal, detener el video
+    document.addEventListener('hidden.bs.modal', function(event) {
 
-        event.target.querySelectorAll('.video-producto').forEach(function (video) {
-    
+        event.target.querySelectorAll('.video-producto').forEach(function(video) {
+
             if (video.tagName === 'IFRAME') {
+
+                // Guardamos la URL original si todavía no existe
+                if (!video.dataset.src) {
+                    video.dataset.src = video.src;
+                }
+
+                // Detenemos completamente el iframe
                 video.src = 'about:blank';
-            }
-    
-            if (video.tagName === 'VIDEO') {
+
+            } else if (video.tagName === 'VIDEO') {
+
                 video.pause();
                 video.currentTime = 0;
+
             }
-    
+
         });
-    
+
+    });
+
+
+    // Cuando se vuelve a abrir el modal, restauramos el video
+    document.addEventListener('shown.bs.modal', function(event) {
+
+        event.target.querySelectorAll('.video-producto').forEach(function(video) {
+
+            if (video.tagName === 'IFRAME' && video.dataset.src) {
+
+                video.src = video.dataset.src;
+
+            }
+
+        });
+
     });
 </script>

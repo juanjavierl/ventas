@@ -20,7 +20,7 @@
   {% else %}
       <a href="{{company.get_meta_url}}/">
   {% endif %}
-      <marquee behavior="" direction="" style="margin-top: 14px;">{{ company.name|title }}</marquee>
+      <marquee behavior="" direction="" style="margin-top: 14px; max-width:250px;">{{ company.name|title }}</marquee>
     </a>
 {% endblock company %}
 

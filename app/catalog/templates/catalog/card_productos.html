@@ -48,7 +48,7 @@
     {% if p.image %}
     <div class="col-5 col-lg-4 col-md-5 portfolio-item">
       <div class="portfolio-wrap">
-        <img src="/media/{{p.image}}" style="max-height: 150px; width: 100%;" class="img-fluid object-fit-cover" alt="">
+        <img src="/media/{{p.image}}" style="max-height: 150px; width: 100%;" class="img-fluid object-fit-cover rounded" alt="{{p.name}}">
         <div class="portfolio-info">
           <div class="portfolio-links">
             <a href="/media/{{p.image}}" data-gallery="portfolioGallery" class="portfolio-lightbox"
@@ -74,7 +74,7 @@
     <div class="card-body" style="padding: 0px;">
       <div class="text-section" onclick="detailView('/{{company.id}}/{{p.id}}/detail_product')" style="cursor: pointer;">
         <h5 class="card-title text-wrap text-primary fw-bolder">{{p.name|capfirst}}</h5>
-        <p class="card-text text-break text-wrap fst-italic">{{p.description|urlize_mode:"ocultar,nobr"|default:" - - - "|capfirst|truncatewords:5}}
+        <p class="card-text text-break text-wrap fst-italic">{{p.description|urlize_mode:"ocultar,nobr"|default:" - - - "|capfirst|truncatewords:3}}
           <a href="/{{company.id}}/{{p.id}}/detail_product" style="font-size: 14px;"><i class="bx bx-link"></i></a>
         </p>
         <p class="card-text">Categoria: <small class="text-muted">{{p.category|title|truncatewords:1}}</small></p>

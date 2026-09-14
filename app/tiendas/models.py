@@ -70,7 +70,7 @@ class Ciudad(models.Model):
 
 class Plataforma(models.Model):
     name = models.CharField(max_length=50, verbose_name="Nombre")
-    description = models.CharField(max_length=150, verbose_name="Descripción")
+    description = models.TextField(verbose_name="Descripción")
     
     contracts_min = models.CharField(verbose_name="Tiempo de minimo", max_length=50)
     price_min = models.IntegerField(verbose_name="Precio")
@@ -243,9 +243,7 @@ class Cupon(models.Model):
 
 class Banco(models.Model):
     """Model definition for Bancos."""
-    name = models.CharField(max_length=50, verbose_name='Nombre del Banco')
     destinatario = models.CharField(max_length=60, verbose_name='A Nombre de')
-    cuenta = models.CharField(max_length=50, verbose_name='Nro. de cuenta')
     qr_img = models.ImageField(null=True, blank=True, upload_to='img_qr', verbose_name='Img QR de pago', help_text="Recomendación que sea valido de un año o mas")
     company = models.OneToOneField(Company, on_delete=models.CASCADE, verbose_name='Negocio')
     class Meta:
@@ -254,7 +252,7 @@ class Banco(models.Model):
         verbose_name_plural = 'Bancos'
 
     def __str__(self):
-        return self.name
+        return self.destinatario
 
     def get_image(self):
         if self.qr_img:
@@ -263,16 +261,14 @@ class Banco(models.Model):
     
     def toJSON(self):
         item = model_to_dict(self)
-        item['name'] = self.name
         item['destinatario'] = self.destinatario
-        item['cuenta'] = self.cuenta
         item['qr_img'] = self.get_image()
         #item['company'] = self.category.toJSON()
         return item
 
 class Sucursal(models.Model):
     company=models.OneToOneField(Company, on_delete=models.CASCADE, verbose_name='Negocio')
-    address = models.TextField(max_length=200, verbose_name='Dirección de todas sus sucursales y Horario')
+    address = models.TextField(verbose_name='Dirección de todas sus sucursales y Horario')
     latitud=models.CharField(max_length=50, verbose_name='Latitud')
     longitud=models.CharField(max_length=50, verbose_name='Longitud')
     date_joined = models.DateTimeField(auto_now_add=True)

@@ -21,7 +21,7 @@
                 <p>
 
                 <div class="card dark card_c single-product">
-                    <img src="/media/{{p.image}}" class="card-img-top" alt="...">
+                    <img src="/media/{{p.image}}" class="card-img-top" loading="lazy" alt="{{p.name}}">
 
                     <div class="card-body" style="padding: 10px;">
                         <div class="text-section">
@@ -44,9 +44,9 @@
 
                             </p>
                             <button type="submit" id="id_{{p.id}}"
-                                onclick="add_item('/{{p.company.id}}/{{p.id}}/detail_product','{{p.id}}')"
+                                onclick="add_item('{% url 'detail_product' p.company.id p.id p.get_slug %}','{{p.id}}')"
                                 class="btn btn-primary btn-sm">Agregar</button>
-                            <button type="submit" onclick="detailView('/{{p.company.id}}/{{p.id}}/detail_product')"
+                            <button type="submit" onclick="detailView('{% url 'detail_product' p.company.id p.id p.get_slug %}')"
                                 class="btn btn-warning btn-sm text-white">Ver datalles</button>
 
                         </div>

@@ -1,3 +1,4 @@
+{% load extras %}
 <style>
   .plan-card {
     border: 1px solid #dee2e6;
@@ -16,7 +17,7 @@
 </style>
 
 <div class="modal-header  thead-light" style="background-color: #58bba9;">
-    <h5 class="modal-title text-white" id="exampleModalLabel">Elige tu Plan y Comienza Hoy</h5>
+    <h5 class="modal-title text-white" id="exampleModalLabel">Elige un plan y comienza hoy</h5>
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
   </div>
   
@@ -30,17 +31,13 @@
             <!-- Tarjeta clickeable como label -->
             <label for="id_plan_{{ p.id }}" class="card p-3 mb-0 plan-card {% if p.name|upper == 'EMPRENDEDOR' %}selected{% endif %}">
               <div class="d-flex align-items-center gap-3">
-                <div class="text-primary fs-2">
-                  <i class="{{ p.icono }}"></i>
-                </div>
-      
                 <div class="flex-grow-1">
                   <span class="badge bg-primary mb-1">{{ p.name|title }}</span>
-                  <p class="mb-1 text-muted fst-italic">{{ p.description|default:" - - - "|capfirst }}</p>
+                  <p class="mb-1 text-muted fst-italic">{{ p.description|urlize_mode:"ver_mas,br"|default:" - - -"|capfirst }}</p>
                   <ul class="list-unstyled small mb-2">
                     <li><i class="bi bi-check2-circle text-success"></i> Tiempo mínimo: {{ p.contracts_min }} — {{ p.price_min }} Bs.</li>
                     <li><i class="bi bi-check2-circle text-success"></i> Anual: {{ p.contracts_max }} — {{ p.price_max }} Bs.</li>
-                    <li><i class="bi bi-box text-muted"></i> {{ p.cantidad }} productos</li>
+                    <li><i class="bi bi-box text-muted"></i> {{ p.cantidad|default:" ILIMITADO " }} productos</li>
                   </ul>
                 </div>
       

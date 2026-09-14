@@ -1,4 +1,5 @@
 {% load crispy_forms_tags %}
+{% load extras %}
 <style>
   .plan-card {
     border: 1px solid #dee2e6;
@@ -78,16 +79,10 @@
     {% for p in planes %}
       <label for="id_plan_{{ p.id }}" class="card p-3 mb-0 plan-card {% if p.name|upper == 'EMPRENDEDOR' %}selected{% endif %}">
         <div class="d-flex align-items-center gap-3">
-          
-          <!-- Ícono del plan -->
-          <div class="text-primary fs-2">
-            <i class="{{ p.icono }}"></i>
-          </div>
-
           <!-- Contenido textual del plan -->
           <div class="flex-grow-1">
             <span class="badge bg-primary mb-1">{{ p.name|title }}</span>
-            <p class="mb-1 text-muted fst-italic">{{ p.description|default:" - - - "|capfirst }}</p>
+            <p class="mb-1 text-muted fst-italic">{{ p.description|urlize_mode:"ver_mas,br"|default:" - - -"|capfirst }}</p>
             <ul class="list-unstyled small mb-2">
               <li><i class="bi bi-check2-circle text-success"></i> Tiempo mínimo: {{ p.contracts_min }} — {{ p.price_min }} Bs.</li>
               <li><i class="bi bi-check2-circle text-success"></i> Anual: {{ p.contracts_max }} — {{ p.price_max }} Bs.</li>

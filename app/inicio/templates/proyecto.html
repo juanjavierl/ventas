@@ -1,0 +1,633 @@
+{% load static %}
+{% load extras %}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>{{ p.name|title }}</title>
+
+    <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}"
+          rel="stylesheet">
+
+    <link href="{% static 'assets/vendor/bootstrap-icons/bootstrap-icons.css' %}"
+          rel="stylesheet">
+
+</head>
+
+
+<body class="bg-light">
+
+
+<div class="container py-4 py-lg-5">
+
+
+    <!-- =========================================
+         BREADCRUMB
+    ========================================== -->
+
+    <nav aria-label="breadcrumb" class="mb-4">
+
+        <ol class="breadcrumb">
+
+            <li class="breadcrumb-item">
+
+                <a href="/"
+                   class="text-decoration-none">
+
+                    <i class="bi bi-house me-1"></i>
+
+                    Inicio
+
+                </a>
+
+            </li>
+
+            <li class="breadcrumb-item">
+
+                <span class="text-muted">
+
+                    Proyectos
+
+                </span>
+
+            </li>
+
+            <li class="breadcrumb-item active"
+                aria-current="page">
+
+                {{ p.name|title }}
+
+            </li>
+
+        </ol>
+
+    </nav>
+
+
+
+    <!-- =========================================
+         CABECERA DEL PROYECTO
+    ========================================== -->
+
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+
+        <div class="card-body p-4 p-lg-5">
+
+            <div class="row align-items-center g-4">
+
+
+                <!-- INFORMACIÓN -->
+
+                <div class="col-lg-8">
+
+                    <span class="badge bg-primary rounded-pill
+                                 px-3 py-2 mb-3">
+
+                        <i class="bi bi-code-slash me-1"></i>
+
+                        Proyecto
+
+                    </span>
+
+
+                    <h1 class="display-5 fw-bold mb-3">
+
+                        {{ p.name|title }}
+
+                    </h1>
+
+                </div>
+
+
+                <!-- PRECIO -->
+
+                {% if p.price %}
+
+                <div class="col-lg-4 text-lg-end">
+
+                    <small class="text-muted d-block mb-1">
+
+                        Aplica desc del 30% <i class="bi bi-star-fill" style="color: gold;"></i>
+
+                    </small>
+
+                    <div class="display-6 fw-bold text-success">
+
+                        {{ p.price }} Bs.
+
+                    </div>
+
+                    <span class="badge bg-success-subtle
+                                 text-success mt-2">
+
+                        Disponible
+
+                    </span>
+
+                </div>
+
+                {% endif %}
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =========================================
+         DESCRIPCIÓN
+    ========================================== -->
+
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+
+        <div class="card-body p-4 p-lg-5">
+
+            <div class="d-flex align-items-center gap-3 mb-4">
+
+                <div class="bg-primary bg-opacity-10
+                            text-primary rounded-3 p-3">
+
+                    <i class="bi bi-file-text fs-4"></i>
+
+                </div>
+
+                <div>
+
+                    <h2 class="h4 fw-bold mb-0">
+
+                        Descripción
+
+                    </h2>
+
+                    <small class="text-muted">
+
+                        Información general del proyecto
+
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <div class="text-muted lh-lg fs-6">
+
+                {{ p.description|urlize_mode:"ver_mas,br"|default:"No hay una descripción disponible."|capfirst }}
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =========================================
+         TECNOLOGÍAS
+    ========================================== -->
+
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+
+        <div class="card-body p-4 p-lg-5">
+
+            <div class="d-flex align-items-center gap-3 mb-4">
+
+                <div class="bg-dark bg-opacity-10
+                            text-dark rounded-3 p-3">
+
+                    <i class="bi bi-cpu fs-4"></i>
+
+                </div>
+
+                <div>
+
+                    <h2 class="h4 fw-bold mb-0">
+
+                        Tecnologías aplicadas
+
+                    </h2>
+
+                    <small class="text-muted">
+
+                        Herramientas utilizadas en el desarrollo
+
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <div class="text-muted lh-lg">
+
+                {{ p.technology|urlize_mode:"ver_mas,br" }}
+
+            </div>
+
+        </div>
+
+    </div>
+
+<!-- =========================================
+         VIDEO PRINCIPAL
+    ========================================== -->
+
+    <div class="card border-0 shadow-sm rounded-4
+                overflow-hidden mb-4">
+
+        <div class="card-body p-0">
+
+
+            <!-- CABECERA DEL VIDEO -->
+
+            <div class="p-4 p-lg-5 pb-3">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="bg-danger bg-opacity-10
+                                text-danger rounded-3
+                                p-3">
+
+                        <i class="bi bi-youtube fs-3"></i>
+
+                    </div>
+
+
+                    <div>
+
+                        <h2 class="h3 fw-bold mb-1">
+
+                            Conoce el proyecto
+
+                        </h2>
+
+                        <p class="text-muted mb-0">
+
+                            Mira cómo funciona
+                            {{ p.name|title }}.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- VIDEO -->
+
+            {% if p.get_video_embed %}
+
+                <div class="ratio ratio-16x9">
+
+                    <iframe
+                        src="{{ p.get_video_embed }}"
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        title="Video del proyecto - {{ p.name }}"
+                        allow="accelerometer; clipboard-write; encrypted-media;
+                            gyroscope; picture-in-picture; web-share"
+                        allowfullscreen>
+                    </iframe>
+
+                </div>
+
+            {% endif %}
+
+
+            <div class="p-3 text-center">
+
+                <small class="text-muted">
+
+                    <i class="bi bi-play-circle me-1"></i>
+
+                    Reproduce el video para conocer
+                    las funcionalidades del sistema.
+
+                </small>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- =========================================
+         MÓDULOS + AVISOS
+    ========================================== -->
+
+    <div class="row g-4 mb-4">
+
+
+        <!-- MÓDULOS -->
+
+        <div class="col-lg-7">
+
+            <div class="card border-0 shadow-sm
+                        rounded-4 h-100">
+
+                <div class="card-body p-lg-5">
+
+                    <div class="d-flex align-items-center
+                                gap-3 mb-4">
+
+                        <div class="bg-success bg-opacity-10
+                                    text-success rounded-3 p-3">
+
+                            <i class="bi bi-grid fs-4"></i>
+
+                        </div>
+
+                        <div>
+
+                            <h2 class="h4 fw-bold mb-0">
+
+                                Módulos
+
+                            </h2>
+
+                            <small class="text-muted">
+
+                                Funcionalidades incluidas
+
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="row g-3">
+
+                        <div class="col-12">
+
+                            <div class="d-flex align-items-center rounded-3 h-100">
+
+                                <span>
+
+                                    {{ p.module|urlize_mode:"ver_mas,br" }}
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- AVISOS -->
+
+        <div class="col-lg-5">
+
+            <div class="card border-0 shadow-sm
+                        rounded-4 h-100">
+
+                <div class="card-body p-lg-5">
+
+                    <div class="d-flex align-items-center
+                                gap-3 mb-4">
+
+                        <div class="bg-warning bg-opacity-10
+                                    text-warning rounded-3 p-3">
+
+                            <i class="bi bi-megaphone fs-4"></i>
+
+                        </div>
+
+                        <div>
+
+                            <h2 class="h4 fw-bold mb-0">
+
+                                Avisos
+
+                            </h2>
+
+                            <small class="text-muted">
+
+                                Información importante
+
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="alert alert-warning
+                                border-0 rounded-3 mb-0">
+
+                        <i class="bi bi-info-circle me-2"></i>
+
+                        {{ p.warning|urlize_mode:"ver_mas,br" }}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =========================================
+         PRECIO + DISPONIBILIDAD
+    ========================================== -->
+
+    <div class="row g-4 mb-4">
+
+
+        <!-- PRECIO -->
+
+        <div class="col-md-6">
+
+            <div class="card border-0 shadow-sm
+                        rounded-4 h-100">
+
+                <div class="card-body p-4">
+
+                    <div class="d-flex align-items-center gap-3">
+
+                        <div class="bg-success bg-opacity-10
+                                    text-success rounded-3 p-3">
+
+                            <i class="bi bi-tag-fill fs-3"></i>
+
+                        </div>
+
+                        <div>
+
+                            <small class="text-muted d-block">
+
+                                Inversión / Pago único / Aplica desc del 30%
+
+                            </small>
+
+                            <span class="fs-3 fw-bold text-success">
+
+                                {{ p.price }} Bs.
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- DISPONIBILIDAD -->
+
+        <div class="col-md-6">
+
+            <div class="card border-0 shadow-sm
+                        rounded-4 h-100">
+
+                <div class="card-body p-4">
+
+                    <div class="d-flex align-items-center gap-3">
+
+                        <div class="bg-primary bg-opacity-10
+                                    text-primary rounded-3 p-3">
+
+                            <i class="bi bi-check-circle-fill
+                                      fs-3"></i>
+
+                        </div>
+
+                        <div>
+
+                            <small class="text-muted d-block">
+
+                                Estado
+
+                            </small>
+
+                            <span class="fs-5 fw-bold">
+
+                                Proyecto disponible
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =========================================
+         LLAMADO A LA ACCIÓN
+    ========================================== -->
+
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+
+        <div class="card-body p-4 p-lg-5 text-center">
+
+            <i class="bi bi-rocket-takeoff
+                      text-primary display-5 mb-3"></i>
+
+
+            <h2 class="h3 fw-bold mb-2">
+
+                ¿Te interesa este proyecto?
+
+            </h2>
+
+
+            <p class="text-muted mb-4">
+
+                Contáctame para obtener el proyecto mas los recursos necesarios.
+            </p>
+
+
+            <div class="d-flex flex-column
+                        flex-md-row
+                        justify-content-center
+                        gap-2">
+
+
+
+
+                <a href="https://wa.me/{{ dashboard.mobile }}?text=Hola%20{{ dashboard.name|urlencode }}%2C%20estoy%20interesado%20en%20el%20proyecto%20{{ p.name|urlencode }}.%20Quisiera%20obtener%20más%20información."
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="btn btn-success btn-lg
+                          rounded-pill px-4">
+
+                    <i class="bi bi-whatsapp me-2"></i>
+
+                    Comprar este proyecto
+
+                </a>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =========================================
+         VOLVER
+    ========================================== -->
+
+    <div class="text-center pb-3">
+
+        <a href="/?#services"
+           class="btn btn-outline-secondary
+                  rounded-pill px-4">
+
+            <i class="bi bi-arrow-left me-2"></i>
+
+            Volver al inicio
+
+        </a>
+
+    </div>
+
+
+</div>
+
+
+<script src="{% static 'assets/vendor/bootstrap/js/bootstrap.bundle.min.js' %}">
+</script>
+
+
+</body>
+
+</html>

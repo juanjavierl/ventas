@@ -48,20 +48,20 @@
     {% if p.image %}
     <div class="col-5 col-lg-4 col-md-5 portfolio-item">
       <div class="portfolio-wrap">
-        <img src="/media/{{p.image}}" style="max-height: 150px; width: 100%;" class="img-fluid object-fit-cover rounded" alt="{{p.name}}">
+        <img src="/media/{{p.image}}" style="max-height: 150px; width: 100%;" class="img-fluid object-fit-cover rounded" loading="lazy" alt="{{p.name}}">
         <div class="portfolio-info">
           <div class="portfolio-links">
             <a href="/media/{{p.image}}" data-gallery="portfolioGallery" class="portfolio-lightbox"
               title="{{p.name|capfirst}}"><i class="bx bx-plus"></i></a>
 
-            <a href="/{{company.id}}/{{p.id}}/detail_product" title="Mas detalles"><i class="bx bx-link"></i></a>
+            <a href="{% url 'detail_product' company.id p.id p.get_slug %}" title="Mas detalles"><i class="bx bx-link"></i></a>
               
           </div>
         </div>
       </div>
     </div>
     {% else %}
-     <i class="bi bi-image card-img-top icon" alt="..." onclick="detailView('/{{company.id}}/{{p.id}}/detail_product')"></i>
+     <i class="bi bi-image card-img-top icon" alt="..." onclick="detailView('{% url 'detail_product' company.id p.id p.get_slug %}')"></i>
     {% endif %}
     {% if p.is_new %}
     <span class="badge rounded-pill sale-tag d-flex">Nuevo</span>
@@ -72,10 +72,10 @@
     </div>
     {% endif %}
     <div class="card-body" style="padding: 0px;">
-      <div class="text-section" onclick="detailView('/{{company.id}}/{{p.id}}/detail_product')" style="cursor: pointer;">
-        <h5 class="card-title text-wrap text-primary fw-bolder">{{p.name|capfirst}}</h5>
+      <div class="text-section" onclick="detailView('{% url 'detail_product' company.id p.id p.get_slug %}')" style="cursor: pointer;">
+        <h5 class="card-title text-wrap text-primary fw-bolder">{{p.name|capfirst|truncatewords:3}}</h5>
         <p class="card-text text-break text-wrap fst-italic">{{p.description|urlize_mode:"ocultar,nobr"|default:" - - - "|capfirst|truncatewords:3}}
-          <a href="/{{company.id}}/{{p.id}}/detail_product" style="font-size: 14px;"><i class="bx bx-link"></i></a>
+          <a href="{% url 'detail_product' company.id p.id p.get_slug %}" style="font-size: 14px;"><i class="bx bx-link"></i></a>
         </p>
         <p class="card-text">Categoria: <small class="text-muted">{{p.category|title|truncatewords:1}}</small></p>
       </div>
@@ -92,7 +92,7 @@
             
             {% if p.stock_actual > 0 %}
             <button type="submit" id="id_{{p.id}}"
-              onclick="add_item('/{{company.id}}/{{p.id}}/detail_product','{{p.id}}')"
+              onclick="add_item('{% url 'detail_product' company.id p.id p.get_slug %}','{{p.id}}')"
               class="btn btn-primary btn-sm">Agregar</button>
             {% else %}
               <button type="button" class="btn btn-danger btn-sm" disabled>Agotado</button>

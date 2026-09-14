@@ -29,11 +29,10 @@
                             <tr>
                                 <td>{{c.names|title}}</td>
                                 <td>{{c.dni|default:" - - -"}}</td>
-                                <td>{{c.mobile}}</td>
+                                <td><a href="https://wa.me/{{c.mobile}}" target="_blank" title="Enviar mensaje"><i class="bi bi-whatsapp"></i> {{c.mobile}}</a></td>
                                 <td>{{c.email|default:" - - -"}}</td>
                                 <td>{{c.address|default:" - - -"}}</td>
                                 <td>{{c.date_joined}}</td>
-                                <td><a href="https://wa.me/{{c.mobile}}" target="_blank" title="Enviar mensaje"><i class="bi bi-whatsapp"></i></a></td>
                             </tr>
                             {% endif %}
                         {% endfor %}

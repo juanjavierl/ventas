@@ -67,7 +67,8 @@ def inicio(request):
             'type_company':categorias,
             'count_comp':count_comp,
             'ciudades':ciudades,
-            'tiendas':tiendas_online
+            'tiendas':tiendas_online,
+            'proyectos':Proyecto.objects.all().order_by('-id')
         }
         # Guardar todo en cache durante 12 horas
         cache.set('pagina_inicio', data,  60 * 60 * 12) 
@@ -196,7 +197,11 @@ class ChatBotView(View):
                 "price": str(p.price),
                 "moneda": p.company.moneda,
                 "image_url": p.image.url if p.image else "",
-                "url": f"/{p.company.id}/{p.id}/detail_product",
+                "url": reverse('detail_product', kwargs={
+                    'id_company': p.company_id,
+                    'id_producto': p.id,
+                    'slug': p.get_slug(),
+                }),
                 "description": (p.description[:100] + "...") if p.description and len(p.description) > 80 else p.description or "",
                 "ciudad": p.company.cuidad.ciudad if p.company and p.company.cuidad else "---",
             }
@@ -226,3 +231,10 @@ class ChatBotView(View):
             #"reply": bot_reply,
             "productos": productos_data
         })
+
+def proyectoView(request, id, slug):
+    proyecto = get_object_or_404(Proyecto, id=id)
+    if proyecto.get_slug_name() != slug:
+        return redirect('proyecto', id=id, slug=proyecto.get_slug_name())
+    
+    return render(request, 'proyecto.html', {'p': proyecto, 'dashboard': get_Dashboard()})

@@ -7,4 +7,5 @@ urlpatterns = [
     path('ver_planes/', views.verPlanes, name='ver_planes'),
     path('<int:id_user>/change_password/', views.changePassword, name='change_password'),
     path("chat_bot/", views.ChatBotView.as_view(), name="chat_bot"),
+    path('proyecto/<int:id>/<slug:slug>/', views.proyectoView, name='proyecto'),
 ]

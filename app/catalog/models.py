@@ -4,6 +4,8 @@ from tabnanny import verbose
 from .images import procesar_imagen
 from random import randint
 from datetime import datetime
+from django.utils.text import slugify
+from django.urls import reverse
 from django.db.models import Sum, FloatField
 from django.db.models.functions import Coalesce
 from django.forms import model_to_dict
@@ -23,6 +25,10 @@ class Category(models.Model):
         item['name'] = self.name
         return item
 
+    def get_slug(self):
+        slug = slugify(self.name)
+        return slug or f'categoria-{self.id}'
+    
     class Meta:
         verbose_name = 'Categoría'
         verbose_name_plural = 'Categorías'
@@ -31,7 +37,7 @@ class Category(models.Model):
 class Product(models.Model):
     name = models.CharField(max_length=100, verbose_name='Nombre')
     code = models.CharField(max_length=20, blank=True,null=True, verbose_name='Código')
-    description = models.CharField(max_length=500, null=True, blank=True, verbose_name='Descripción')
+    description = models.TextField(null=True, blank=True, verbose_name='Descripción')
     category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name='Categoría')
     company = models.ForeignKey(Company, on_delete=models.CASCADE, verbose_name='Compania')
     price = models.DecimalField(max_digits=9, decimal_places=2, default=0.00, verbose_name='Precio de Venta')
@@ -84,7 +90,11 @@ class Product(models.Model):
         return self.get_image()
 
     def get_meta_url(self):
-        return f'/{self.company.id}/{self.id}/detail_product'
+        return reverse('detail_product', kwargs={
+            'id_company': self.company_id,
+            'id_producto': self.id,
+            'slug': self.get_slug(),
+        })
 
     def get_full_name(self):
         return f'{self.name} ({self.code}) ({self.category.name})'
@@ -96,6 +106,10 @@ class Product(models.Model):
         if self.image:
             return f'{settings.MEDIA_URL}{self.image}'
         return f'{settings.STATIC_URL}img/default/empty.png'
+
+    def get_slug(self):
+        slug = slugify(self.name)
+        return slug or f'producto-{self.id}'
 
     def toJSON(self):
         item = model_to_dict(self)
@@ -139,17 +153,6 @@ class Imagen(models.Model):
     class Meta:
         verbose_name = 'Imagen'
         verbose_name_plural = 'Imagenes'
-
-class Video(models.Model):
-    video = models.URLField(max_length=255, verbose_name='URL Video', help_text="Copie la url(link) del video")
-    items = models.OneToOneField(Product, on_delete=models.CASCADE, verbose_name='Producto')
-    
-    def __str__(self):
-        return f'{self.img} ({self.items.name})'
-    
-    class Meta:
-        verbose_name = 'video'
-        verbose_name_plural = 'videos'
 
 class Client(models.Model):
     names = models.CharField(max_length=150, verbose_name='Nombre completo')

@@ -114,8 +114,8 @@ def optener_avisos_by_company(id_company):
 def categorys_from_productos(productos):
     ct = []
     for p in productos:
-        if not {'id':p.category.id, 'name':p.category.name} in ct:
-            ct.append({'id':p.category.id, 'name':p.category.name})
+        if not {'id':p.category.id, 'name':p.category.name, 'get_slug':p.category.get_slug()} in ct:
+            ct.append({'id':p.category.id, 'name':p.category.name, 'get_slug':p.category.get_slug()})
     return ct
 
 def get_company(id_company, user=None):
@@ -127,9 +127,17 @@ def get_company(id_company, user=None):
 
     return company
 
-def optenerProducto(request, id_company, id_producto):
+def optenerProducto(request, id_company, id_producto, slug):
     productos = Product.objects.filter(company_id = int(id_company))
-    p = get_object_or_404(Product,id = id_producto)
+    p = get_object_or_404(Product, id=id_producto, company_id=id_company)
+    if request.method != 'POST' and slug != p.get_slug():
+        return redirect(
+            'detail_product',
+            id_company=p.company_id,
+            id_producto=p.id,
+            slug=p.get_slug(),
+            permanent=True,
+        )
     datos = {}
     dic = {}
     try:
@@ -398,11 +406,12 @@ def confirmar_compra(request, id_company):
                 total=total,
                 nota=item.get('nota', '')
             )
-            """ producto = getProducto(producto_id)
+            # Actualizar stock y salida del producto
+            producto = getProducto(producto_id)
             if not producto.is_service:
                 Product.objects.filter(id=producto_id).update(
                     salida=producto.salida + cantidad
-                ) """
+                )
 
         # --- Vaciar carrito ---
         lista_product = compra.copy()

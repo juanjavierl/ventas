@@ -1,5 +1,7 @@
 from django.db import models
 from ventas import settings
+from django.utils.text import slugify
+from urllib.parse import urlparse, parse_qs
 # Create your models here.
 class Dashboard(models.Model):
     name = models.CharField(max_length=50, unique=True, verbose_name='Nombre del Sistema')
@@ -40,18 +42,52 @@ class Dashboard(models.Model):
             ('view_dashboard', 'Can view Dashboard'),
         )
 
-class Bank_dashboard(models.Model):
-    """Model definition for Bancos."""
-    name = models.CharField(max_length=50, verbose_name='Nombre del Banco')
-    cuenta = models.CharField(max_length=50, verbose_name='Nro. de cuenta')
-    qr_img = models.ImageField(null=True, blank=True, upload_to='img_qr', verbose_name='Img QR de pago', help_text="Imagen que tenga validacion de un año")
-    dashboard = models.ForeignKey(Dashboard, on_delete=models.CASCADE, verbose_name='Negocio')
-    class Meta:
-        """Meta definition for Bancos."""
-
-        verbose_name = 'Banco'
-        verbose_name_plural = 'Bancos'
-
+class Proyecto(models.Model):
+    """Model definition for Proyecto."""
+    name = models.CharField(max_length=150, verbose_name='Nombre del Proyecto')
+    description = models.TextField(verbose_name='Descripcion', help_text='Escriba una descripción de que trata.?')
+    technology = models.TextField(verbose_name='Tecnologia', help_text='Tecnologias utilizadas')
+    warning = models.TextField(verbose_name='Aviso', help_text='Aviso legal o de privacidad')
+    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Precio', help_text='Ingrese el precio del proyecto')
+    module = models.TextField(verbose_name='Modulo', help_text='Ingrese los modulos del proyecto')
+    image = models.ImageField(upload_to='proyectos', null=True, blank=True, verbose_name='Imagen del Proyecto')
+    video_url = models.URLField(verbose_name='Video URL', help_text='Ingrese la URL del video')
     def __str__(self):
-        """Unicode representation of Bancos."""
         return self.name
+
+    def get_slug_name(self):
+        slug = slugify(self.name)
+        return slug or f'producto-{self.id}'
+
+    class Meta:
+        """Meta definition for Proyecto."""
+
+        verbose_name = 'Proyecto'
+        verbose_name_plural = 'Proyectos'
+
+    def get_video_embed(self):
+        if not self.video_url:
+            return ''
+
+        url = self.video_url.strip()
+
+        # YouTube normal
+        if 'youtube.com/watch' in url:
+            query = parse_qs(urlparse(url).query)
+            video_id = query.get('v', [None])[0]
+
+            if video_id:
+                return f'https://www.youtube.com/embed/{video_id}'
+
+        # YouTube corto
+        if 'youtu.be/' in url:
+            video_id = urlparse(url).path.strip('/')
+
+            if video_id:
+                return f'https://www.youtube.com/embed/{video_id}'
+
+        # Si ya registraste un enlace embed
+        if 'youtube.com/embed/' in url:
+            return url
+
+        return ''

@@ -147,8 +147,9 @@ def login_user(request):
     return render(request, 'form_login.html', dic)
 
 def salir(request):
+    tienda_url = request.session.get('tienda_url', '/')
     logout(request)
-    return redirect('/')
+    return redirect(tienda_url)
 
 def get_img_plan(request, id_plan):
     img = get_object_or_404(Plataforma, id = id_plan)
@@ -347,6 +348,9 @@ def create_dominio(request, id_company):
 
 def redirigir_a_catalogo(request, slug):
     dominio = get_object_or_404(Dominio.objects.select_related('company'),slug=slug)
+    if request.user.is_authenticated:
+        # Si el usuario está autenticado, guardamos la URL de la tienda en la sesión para redirigirlo después del logout
+        request.session['tienda_url'] = request.get_full_path()
 
     return CatalogView(request,dominio.company.id)
 

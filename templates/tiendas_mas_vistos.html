@@ -14,9 +14,9 @@
             <div class="card dark card_c single-product h-100 shadow-sm">
                 
                 {% if p.get_logo %}
-                    <img src="{{ p.get_logo }}" class="card-img-top object-fit-cover" alt="{{ p.name }} Logo">
+                    <img src="{{ p.get_logo }}" class="card-img-top object-fit-cover" loading="lazy" alt="{{p.company.name}} -{{ p.name }}">
                 {% elif p.image %}
-                    <img src="{{ p.get_image }}" class="card-img-top object-fit-cover" alt="{{ p.name }} Portada">
+                    <img src="{{ p.get_image }}" class="card-img-top object-fit-cover" loading="lazy" alt="{{p.company.name}} - {{ p.name }}">
                 {% endif %}
          
                 
@@ -29,7 +29,7 @@
               
                        class="fw-bold rounded-pill mt-auto shadow-sm"
                        style="transition: transform 0.2s, box-shadow 0.2s;">
-                       <i class="bi bi-box-arrow-up-right me-1"></i> Visitar
+                       <i class="bx bx-link"></i> Visitar
                        {% for i in "12345" %}
                             <i class="bi bi-star-fill" style="color: gold;"></i>
                         {% endfor %}

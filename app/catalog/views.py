@@ -10,6 +10,7 @@ from django.core.paginator import Paginator
 from django.http import Http404
 from django.views.generic import DeleteView, CreateView, UpdateView, TemplateView,DetailView
 from django.db.models import Q
+from app.inicio.models import Proyecto
 from app.tiendas.models import *
 from app.catalog.models import *
 from app.catalog.forms import *
@@ -32,9 +33,7 @@ def CatalogView(request, id_company=None):
                return redirect("/") 
         else:
             return redirect("/")
-        productos = Product.objects.filter(company_id=int(id_company)) \
-            .select_related('category') \
-            .order_by('category__name', '-id')
+        productos = productos_by_company(id_company)
         page = request.GET.get('page',1)
         try:
             categorys = categorys_from_productos(productos)
@@ -68,6 +67,12 @@ def CatalogView(request, id_company=None):
             'promocion':get_promacion(id_company)
         }
         return render(request,template_name, dic)
+
+def productos_by_company(id_company):
+    productos = Product.objects.filter(company_id=int(id_company)) \
+                .select_related('category') \
+                .order_by('category__name', '-id')
+    return productos
 
 def get_promacion(id_company):
     try:
@@ -406,12 +411,6 @@ def confirmar_compra(request, id_company):
                 total=total,
                 nota=item.get('nota', '')
             )
-            # Actualizar stock y salida del producto
-            producto = getProducto(producto_id)
-            if not producto.is_service:
-                Product.objects.filter(id=producto_id).update(
-                    salida=producto.salida + cantidad
-                )
 
         # --- Vaciar carrito ---
         lista_product = compra.copy()
@@ -443,7 +442,8 @@ def confirmar_compra(request, id_company):
         'form': ClientFormOrder(),
         'total_compra': total_compra,
         'company': get_company(id_company),
-        'categorias': categorys_from_productos(productosMasVistos(id_company)),
+        'categorias': categorys_from_productos(productos_by_company(id_company)),
+
         'datos': compra,
         't_pago': t_pago,
         'productos': productosMasVistos(id_company),
@@ -455,10 +455,6 @@ def confirmar_compra(request, id_company):
         'limite': limite.strftime("%Y-%m-%dT%H:%M")
     }
     return render(request, 'catalog/confirmar_compra.html', dic)
-
-def getProducto(id_producto):
-    producto = Product.objects.get(id = id_producto)
-    return producto
 
 def productosMasVistos(id_company):
     #productos = Product.objects.filter(stock__gt=0, company_id=id_company, is_promotion=True)

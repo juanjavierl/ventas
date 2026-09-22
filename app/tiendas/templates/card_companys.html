@@ -49,7 +49,7 @@
                 
               {% if user.is_authenticated %}
                 <h4 class="text-success">Usuario: {{user.username}}, estos son tus catálogos</h4>
-                <p>Actualiza tus Catálogos. o agrega más productos en oferta, nuevos etc.</p>
+                <p>Actualiza tus Catálogos. o agrega más productos nuevos etc.</p>
                 
               {% else %}
                   <h2>Elige tu catálogo de 
@@ -78,8 +78,8 @@
         {% endif %} -->
         <div class="card-body" style="padding: 10px;">
             <div class="text-section" onclick="detailSite('{{n.get_meta_url}}')">
-                <h5 class="card-title text-wrap text-primary fw-bolder">{{n.name|title}}</h5>
-                <p class="card-text text-break text-wrap fst-italic">{{n.description|default:" - - - "|capfirst|truncatewords:10}}
+                <h5 class="card-title text-wrap text-primary fw-bolder">{{n.name|capfirst|truncatewords:3}}</h5>
+                <p class="card-text text-break text-wrap fst-italic">{{n.description|default:" - - - "|capfirst|truncatewords:6}}
                 </p>
                 <p class="card-text">
                   {% for c, v in count_productos.items %}

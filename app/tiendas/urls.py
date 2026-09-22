@@ -2,8 +2,8 @@ from app.tiendas import views
 from django.urls import path
 
 urlpatterns = [
-    path('<int:id_type>/type/', views.getTypes, name='type'),
-    path('<int:id_ciudad>/city/', views.getCiudades, name='city'),
+    path('<int:id_type>/tiendas-de/<slug:slug>/', views.getTypes, name='categorias_company'),
+    path('<int:id_ciudad>/tiendas-ciudad/<slug:slug>/', views.getCiudades, name='city'),
     path('registro_company/', views.registro_company, name='registro_company'),
     path('crear_tienda/<int:id_usuario>', views.crearNuevaTienda, name='crear_tienda'),
     path('validar_form/', views.validar_form, name='validar_form'),

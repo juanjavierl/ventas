@@ -38,11 +38,14 @@ class Tipo_company(models.Model):
         return (self.description or "")[:160]
 
     def get_meta_url(self):
-        return f"/{self.id}/type"
+        return f"/{self.id}/tiendas-de/{self.get_slug()}/"
 
     def num_vistos(self):
         num = randint(1500,5000)
         return num
+
+    def get_slug(self):
+        return slugify(self.name)
 
 class Ciudad(models.Model):
     """Model definition for Cuidad."""
@@ -66,7 +69,10 @@ class Ciudad(models.Model):
         return f"Explora empresas, productos y servicios disponibles en {self.ciudad.title()}, Bolivia."
 
     def get_meta_url(self):
-        return f"/{self.id}/city"
+        return f"/{self.id}/tiendas-ciudad/{self.get_slug()}/"
+
+    def get_slug(self):
+            return slugify(self.ciudad)
 
 class Plataforma(models.Model):
     name = models.CharField(max_length=50, verbose_name="Nombre")
@@ -456,6 +462,14 @@ class Promocion(models.Model):
             monto_compra >= self.compra_mayores
         )
 
+    @property
+    def dias_restantes(self):
+        if self.promocion_vigente:
+            hoy = date.today()
+            dias = (self.fecha_fin - hoy).days
+            return max(0, dias)
+        return 0
+
     def toJSON(self):
         item = model_to_dict(self)
         item['company'] = self.company.name
@@ -465,4 +479,5 @@ class Promocion(models.Model):
         item['fecha_fin'] = self.fecha_fin.strftime('%Y-%m-%d')
         item['status'] = self.status
         item['descuento'] = self.descuento
+        item['dias_restantes'] = self.dias_restantes
         return item

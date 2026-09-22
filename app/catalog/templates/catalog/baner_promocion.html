@@ -159,9 +159,17 @@
                 <div class="promo-fechas text-center">
 
                     <div class="small">
-                        <span class="text-muted">Válido hasta</span>
+                        <span class="text-muted">Aprovecha esta oferta valido hasta</span>
                         <strong class="d-block">
                             {{ promocion.fecha_fin }}
+                        </strong>
+                        <strong class="d-block">
+                            Aún faltan {{ promocion.dias_restantes }}
+                            {% if promocion.dias_restantes == 1 %}
+                                día
+                            {% else %}
+                                días
+                            {% endif %}
                         </strong>
                     </div>
 

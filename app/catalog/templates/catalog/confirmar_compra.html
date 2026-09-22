@@ -418,10 +418,10 @@
 
         // 🛍️ Encabezado del pedido y cliente
         let textoWhatsapp = "🛍️ *CONFIRMACIÓN DE PEDIDO* %0A";
-        textoWhatsapp += "------------------------------------ %0A";
+        textoWhatsapp += "------------------------------ %0A";
         textoWhatsapp += "*Nro de Pedido:* " + (resp.orden?.id || "—") + "%0A";
         textoWhatsapp += "*Cliente:* " + capitalizarTexto(resp.cliente_object?.names || "—") + "%0A";
-        textoWhatsapp += "------------------------------------ %0A";
+        textoWhatsapp += "------------------------------ %0A";
 
         // 📦 Detalles de productos
         textoWhatsapp += "📦 *Detalles del pedido:* %0A";
@@ -479,12 +479,12 @@
            // calcular manualmente en caso de ausencia de total
            totalFinal = total_gravado - (descuento_val || 0) + (costo_envio || 0);
         }
-        textoWhatsapp += "------------------------------------ %0A";
+        textoWhatsapp += "------------------------------ %0A";
         textoWhatsapp += "💵 *TOTAL A PAGAR:* " + resp.company_object.moneda + totalFinal.toFixed(2) + "%0A";
-        textoWhatsapp += "------------------------------------ %0A";
-        textoWhatsapp += "🕒 *Fecha del Pedido:* " + (new Date().toLocaleString('es-BO')) + "%0A";
+        textoWhatsapp += "------------------------------ %0A";
+        textoWhatsapp += "🕒 *Fecha y hora de Pedido: %0A* " + (new Date().toLocaleString('es-BO')) + "%0A";
         textoWhatsapp += "📞 *Tienda:* " + (resp.company_object?.name || "Sin nombre") + "%0A";
-        textoWhatsapp += "------------------------------------ %0A";
+        textoWhatsapp += "------------------------------ %0A";
         textoWhatsapp += "✅ ¡Gracias por tu compra!%0A";
 
         // 🟢 Abrir WhatsApp

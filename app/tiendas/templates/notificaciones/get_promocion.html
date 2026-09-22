@@ -18,7 +18,13 @@
                         </h5>
 
                         <small class="text-muted">
-                            Promoción activa
+                            
+                            {% if promocion.promocion_vigente %}
+                                <span class="badge bg-success">Promoción activa</span>
+                            {% else %}
+                                <span class="badge bg-danger">Promoción expirada actualiza la fecha</span>
+                            {% endif %}
+                                
                         </small>
                     </div>
                 </div>

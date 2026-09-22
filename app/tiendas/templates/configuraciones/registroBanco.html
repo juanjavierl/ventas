@@ -19,9 +19,7 @@
         </div>
         <div class="info_banco col-lg-5 align-items-stretch table-responsive">
             {% for a in banco %}
-            <li><strong>Institución financiera: </strong> {{a.name|title}}</li>
             <li><strong>A nombre de : </strong> {{a.destinatario|title}}</li>
-            <li><strong>Nro de Cuenta : </strong> {{a.cuenta}}</li>
             <li><img class="img-fluid rounded" src="/media/{{a.qr_img}}"
                     style="width: 250px; height: 250px;" alt=""></li>
             <p style="text-align: center;"><a href="#" type="button" data-bs-toggle="modal"

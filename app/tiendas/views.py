@@ -25,7 +25,7 @@ from app.inicio.views import get_Dashboard
 from app.catalog.views import *
 from django.db.models import F, ExpressionWrapper, IntegerField
 # Create your views here.
-def getTypes(request, id_type):
+def getTypes(request, id_type, slug):
     if request.user.is_authenticated:
         companys = Company.objects.filter(user_id = int(request.user.id))
     else:
@@ -46,7 +46,7 @@ def getTypes(request, id_type):
     }
     return render(request, 'card_companys.html', dic)
 
-def getCiudades(request, id_ciudad):
+def getCiudades(request, id_ciudad, slug):
     if request.user.is_authenticated:
         companys = Company.objects.filter(user_id = int(request.user.id))
     else:
@@ -218,9 +218,9 @@ def datos_registro(request):
         user = authenticate(username=datos['user_data']['user'].strip(),password=datos['user_data']['pass1'].strip())
         if user:
             login(request, user)
-            url_tienda = 'www.amceb.online/',user.id,'/catalogo'
+            url_tienda = request.build_absolute_uri(f'{company.get_meta_url()}/')
             user = request.user
-            thread = threading.Thread(target=send_welcome_mail, args=(datos['user_data']['email'].strip(),datos['user_data']['pass1'].strip(),f"{url_tienda[0].rstrip('/')}/{url_tienda[1]}{url_tienda[2]}",))
+            thread = threading.Thread(target=send_welcome_mail, args=(datos['user_data']['email'].strip(),datos['user_data']['pass1'].strip(),url_tienda,))
             thread.start()
 
             return JsonResponse({'user_id':user.id})
@@ -277,7 +277,8 @@ def companys_from_user(request, user_id=None):
     dic = {
         'companys':companys,
         'dashboard':get_Dashboard(),
-        'count_productos':contar_productos(int(request.user.id))
+        'count_productos':contar_productos(int(request.user.id)),
+        'proyectos':Proyecto.objects.all().order_by('-id')
     }
     return render(request, 'card_companys.html', dic)
 
@@ -894,7 +895,7 @@ def autorizar_orden(request, id_orden):
             if not producto.is_service:
                 Product.objects.filter(id=producto.id).update(salida=F('salida') + pedido.cant)
 
-        messages.success(request, "La orden fue autorizada y las salidas actualizadas correctamente.")
+        messages.success(request, "La orden fue autorizada exitosamente.")
         return render(
             request,
             'notificaciones/orden_autorizada.html',

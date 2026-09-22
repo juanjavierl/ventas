@@ -70,19 +70,6 @@
             text-align: left;
         }
 
-        .totals {
-            margin-top: 5px;
-            font-size: 9px;
-        }
-
-        .totals td {
-            padding: 2px 0;
-        }
-
-        .totals .text-right {
-            text-align: right;
-        }
-
         .footer {
             text-align: center;
             font-size: 7px;
@@ -111,11 +98,10 @@
 <body>
     <div class="content">
         {% if company.logo %}
-            <img src="https://amceb.online{{ company.get_logo }}" class="img-logo d-block mx-auto" alt="{{ company.name }}">
+            <img src="https://www.amceb.online/media/{{ company.logo }}" class="img-logo d-block mx-auto">
         {% endif %}
         <h2 class="head-name">{{ company.name|upper }}</h2>
         <div class="head-details text-center">
-            Sucursal:{{ sucursal.address|default:"Tienda online" }}<br>
             {% if company.ruc %}NIT: {{ company.ruc }}<br>{% endif %}
             Teléfono/Celular: {{ company.mobile }}<br>
             Emitido por: {{ user.username }}<br>
@@ -124,7 +110,7 @@
 
         <div class="head-data">
             <b>Ticket N°</b> {{ orden.id }}<br>
-            <b>Fecha:</b> {{ orden.creation_date|date:"d/m/Y H:i A" }}<br>
+            <b>Fecha de pedido:</b> {{ orden.creation_date|date:"d/m/Y H:i A" }}<br>
             <b>Cliente:</b> {{ orden.client|title }}<br>
             {% if orden.client.dni %}
             <b>Nit/C.I:</b> {{ orden.client.dni }}<br>
@@ -152,25 +138,35 @@
             </tbody>
         </table>
 
-        <table class="totals w-100">
+        <table>
             <tr>
-                <td>Subtotal</td>
+                <td colspan="4" class="text-end">Subtotal</td>
                 <td class="text-right">{{ orden.subtotal|floatformat:2 }}</td>
             </tr>
             <tr>
-                <td>Envio</td>
-                <td class="text-right">{{ precio_envio|floatformat:2 }}</td>
+                <td colspan="4" class="text-end">Envio</td>
+                <td class="text-right">{{ orden.precio_envio|floatformat:2 }}</td>
             </tr>
             <tr>
-                <td><strong>Total</strong></td>
+                <td colspan="4" class="text-end fw-bold">Descuento</td>
+                <td>
+                    {% if orden.dscto %}
+                        {{ orden.dscto }}
+                    {% else %}
+                        0.00
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4" class="text-end fw-bold">Total</td>
                 <td class="text-right"><strong>{{ orden.total|floatformat:2 }}</strong></td>
             </tr>
         </table>
 
         <div class="footer">
-            Gracias por su compra, ¡lo esperamos pronto!<br>
+            Gracias por su preferencia<br>
             Sitio web: {{ request.scheme }}://{{ request.get_host }}{{ company.get_meta_url }}<br>
-            fecha de impresión: {% now "d/m/Y H:i A" %}
+            Sucursal:{{ sucursal.address|title|default:"Tienda online" }}
 
         </div>
     </div>

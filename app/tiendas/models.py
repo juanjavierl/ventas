@@ -274,7 +274,8 @@ class Banco(models.Model):
 
 class Sucursal(models.Model):
     company=models.OneToOneField(Company, on_delete=models.CASCADE, verbose_name='Negocio')
-    address = models.TextField(verbose_name='Dirección de todas sus sucursales y Horario')
+    sucursal = models.CharField(max_length=100, verbose_name='Dirección Principal')
+    address = models.TextField(verbose_name='Dirección de todas sus sucursales y Horarios de atención', help_text="Ejemplo: Av. Los Cusis #123, Zona Central, La Paz, Bolivia. Horario: Lunes a Viernes 9:00 am - 6:00 pm")
     latitud=models.CharField(max_length=50, verbose_name='Latitud')
     longitud=models.CharField(max_length=50, verbose_name='Longitud')
     date_joined = models.DateTimeField(auto_now_add=True)
@@ -285,6 +286,7 @@ class Sucursal(models.Model):
     def toJSON(self):
         item = model_to_dict(self)
         item['company'] = self.company.name
+        item['sucursal'] = self.sucursal
         item['address'] = self.address
         item['latitud'] = self.latitud
         item['longitud'] = self.longitud

@@ -25,8 +25,16 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ["www.amceb.online", "amceb.online"]
+ALLOWED_HOSTS = ["www.amceb.com", "amceb.com","www.amceb.online", "amceb.online"]
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://amceb.com",
+    "https://www.amceb.com",
+    "https://amceb.online",
+    "https://www.amceb.online",
+]
+
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # Application definition
 

@@ -9,7 +9,7 @@
     <link href="{% static 'lib/bootstrap-5.0.2/css/bootstrap.min.css' %}" rel="stylesheet">
     <style>
         @page {
-            width: 58mm;
+            width: 65mm;
             height: {{ height }}px;
             margin: 0;
         }
@@ -24,8 +24,8 @@
         }
 
         .content {
-            width: 58mm;
-            padding: 10px;
+            width: 65mm;
+            padding: 8px;
         }
 
         .img-logo {
@@ -42,15 +42,19 @@
             margin: 5px 0;
         }
 
-        .head-details,
+        .head-details{
+            font-size: 7px;
+            margin-bottom: 5px;
+            text-align: center;
+        }
         .head-data {
-            font-size: 9px;
+            font-size: 8px;
             margin-bottom: 5px;
         }
 
         .head-data b {
             display: inline-block;
-            width: 20%;
+            width: auto;
         }
 
         .ticket-table {
@@ -98,13 +102,13 @@
 <body>
     <div class="content">
         {% if company.logo %}
-            <img src="https://www.amceb.online/media/{{ company.logo }}" class="img-logo d-block mx-auto">
+            <img src="https://www.amceb.com/media/{{ company.logo }}" class="img-logo d-block mx-auto">
         {% endif %}
         <h2 class="head-name">{{ company.name|upper }}</h2>
         <div class="head-details text-center">
+            Sucursal Principal: {{ sucursal.sucursal|title }}<br>
             {% if company.ruc %}NIT: {{ company.ruc }}<br>{% endif %}
             Teléfono/Celular: {{ company.mobile }}<br>
-            Emitido por: {{ user.username }}<br>
             Ciudad:{{ company.cuidad|title }}
         </div>
 
@@ -123,7 +127,7 @@
                     <th>Cant</th>
                     <th>Detalle</th>
                     <th>Precio</th>
-                    <th class="text-right">Total</th>
+                    <th class="text-end">Subtotal</th>
                 </tr>
             </thead>
             <tbody>
@@ -132,7 +136,7 @@
                     <td>{{ p.cant }}</td>
                     <td>{{ p.product.name }} {{ p.nota|default:""|title }}</td>
                     <td>{{ p.price|floatformat:2 }}</td>
-                    <td class="text-right">{{ p.total|floatformat:2 }}</td>
+                    <td class="text-end">{{ p.total|floatformat:2 }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -140,15 +144,11 @@
 
         <table>
             <tr>
-                <td colspan="4" class="text-end">Subtotal</td>
-                <td class="text-right">{{ orden.subtotal|floatformat:2 }}</td>
+                <td colspan="98" class="text-start">Subtotal</td>
+                <td class="text-end">{{ orden.subtotal|floatformat:2 }}</td>
             </tr>
             <tr>
-                <td colspan="4" class="text-end">Envio</td>
-                <td class="text-right">{{ orden.precio_envio|floatformat:2 }}</td>
-            </tr>
-            <tr>
-                <td colspan="4" class="text-end fw-bold">Descuento</td>
+                <td colspan="98" class="text-start fw-bold">Descuento</td>
                 <td>
                     {% if orden.dscto %}
                         {{ orden.dscto }}
@@ -158,16 +158,19 @@
                 </td>
             </tr>
             <tr>
-                <td colspan="4" class="text-end fw-bold">Total</td>
-                <td class="text-right"><strong>{{ orden.total|floatformat:2 }}</strong></td>
+                <td colspan="98" class="text-start">Precio de envio</td>
+                <td class="text-end">{{ orden.precio_envio|floatformat:2 }}</td>
+            </tr>
+            <tr>
+                <td colspan="98" class="text-end fw-bold">Total a pagar</td>
+                <td class="text-end"><strong>{{ orden.total|floatformat:2 }}</strong></td>
             </tr>
         </table>
 
         <div class="footer">
             Gracias por su preferencia<br>
-            Sitio web: {{ request.scheme }}://{{ request.get_host }}{{ company.get_meta_url }}<br>
-            Sucursal:{{ sucursal.address|title|default:"Tienda online" }}
-
+            Emitido por: {{ user.username }}<br>
+            Tienda online: {{ request.scheme }}://{{ request.get_host }}{{ company.get_meta_url }}<br>
         </div>
     </div>
 </body>

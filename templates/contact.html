@@ -65,7 +65,8 @@
               <i class="bi bi-geo-alt"></i>
               <h4>Dirección:</h4>
               <p>
-                Sucursal Principal: <a href="https://www.google.com/maps?q={{address.latitud}},{{address.longitud}}" target="_blank"> Ver en Google Maps </a> <br><br>
+                Sucursal Principal: {{address.sucursal|title}}<br>
+                <a href="https://www.google.com/maps?q={{address.latitud}},{{address.longitud}}" target="_blank"> Abrir ubicación </a> <br><br>
                 {{address.address|urlize_mode:"ver_mas,br"}}
               </p>
             </div>

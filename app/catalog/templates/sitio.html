@@ -1,7 +1,7 @@
 {% extends 'index.html' %}
 
 {% block titulo %}
-    {{company.name|title|truncatechars:26}}
+    {{company.name|title|truncatechars:26}} | Tienda online | tiendas de {{company.category.name|title}} | tienda de la ciudad de {{company.cuidad|title}}
 {% endblock titulo %}
   
 {% block tecnica_seo %}

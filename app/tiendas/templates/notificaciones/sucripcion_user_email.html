@@ -44,7 +44,7 @@
       line-height: 1.6;
       margin-bottom: 16px;
     }
-    .btn {
+    #id_btn_company {
       display: inline-block;
       padding: 12px 28px;
       background-color: #1d4ed8;
@@ -80,17 +80,15 @@
       <p>Recibirás acceso anticipado a nuestras ofertas especiales, productos exclusivos y las últimas novedades directamente en tu bandeja de entrada.</p>
       <!-- CENTRADO DEL BOTÓN -->
       <div style="text-align: center;">
-        <a href="{{url_tienda}}" class="btn"> Ir a la tienda </a>
+        <a href="{{url_tienda}}" class="btn" id="id_btn_company"> Ir a la tienda </a>
       </div>
       
-      <p>Si tienes alguna pregunta ó duda contactarnos. 
+      <p>Si tienes alguna duda ó contactanos personalmente por WhatsApp.  
         <a target="_blank" href="https://api.whatsapp.com/send?text=Más información acerca de su tienda online {{url_tienda}} &phone={{company.mobile}}">{{company.mobile}}</a> 
-        ó Ingresa a: 
-        <a href="{{url_tienda}}">{{url_tienda}}</a>
       </p>
     </div>
     <div class="email-footer">
-      Tienda online: {{company.name|title}}. Todos los derechos reservados.
+      Tienda online: <a href="{{url_tienda}}">{{company.name|title}}</a>. Todos los derechos reservados.
     </div>
   </div>
 </body>

@@ -254,8 +254,8 @@ def new_store(request):
         company.plan_id = datos['plan_data']['plan_name']
         company.expiration_date = datetime.now().date() + timedelta(days=7)
         company.save()
-        url_tienda = 'www.amceb.online/',request.user.id,'/catalogo'
-        thread = threading.Thread(target=send_welcome_mail, args=(request.user, "******", f"{url_tienda[0].rstrip('/')}/{url_tienda[1]}{url_tienda[2]}",))
+        url_tienda = request.build_absolute_uri(f'{company.get_meta_url()}/')
+        thread = threading.Thread(target=send_welcome_mail, args=(request.user, "******", url_tienda,))
         thread.start()
 
         return JsonResponse({'user_id':request.user.id})
@@ -816,7 +816,7 @@ def create_mail_suscripcion(user_mail, subject, template_name, context):
 
 def suscribirse(request, id_company):
     company = get_object_or_404(Company, id = int(id_company))
-    url_tienda = f'https://{request.get_host()}/{id_company}/catalogo'
+    url_tienda = request.build_absolute_uri(f'{company.get_meta_url()}/')
     try:  
         if request.method == 'POST':
             c = Suscripcion()
@@ -825,7 +825,7 @@ def suscribirse(request, id_company):
             c.save()
             thread = threading.Thread(target=send_suscripcion_mail, args=(request.POST['email'].strip(),url_tienda, company))
             thread.start()
-            return JsonResponse({'success':'¡Gracias por suscribirte! Revisa tu correo(spam), te enviamos un código de cupón para tu compra.'})
+            return JsonResponse({'success':'¡Gracias por suscribirte! Revisa tu correo(todos), te enviamos un descuento para tu compra.'})
     except:
         return JsonResponse({'error':'El email ya está suscrito.'})
     

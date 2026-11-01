@@ -1,23 +1,26 @@
 #encoding:utf-8
 #import pywhatkit
-from datetime import datetime, date, timedelta
-from django.core.mail import EmailMultiAlternatives
-import threading
-from django.template.loader import get_template
-from django.shortcuts import render, HttpResponse,get_object_or_404, redirect
-from django.http import JsonResponse, request
-from django.core.paginator import Paginator
-from django.http import Http404
-from django.views.generic import DeleteView, CreateView, UpdateView, TemplateView,DetailView
-from django.db.models import Q
-from app.inicio.models import Proyecto
-from app.tiendas.models import *
-from app.catalog.models import *
-from app.catalog.forms import *
-from app.inicio.views import get_Dashboard
-from django.db.models import F, ExpressionWrapper, IntegerField
-from django.db.models.functions import Coalesce
+# 1. Biblioteca estándar de Python
+from datetime import date, datetime, timedelta
 from decimal import Decimal
+import threading
+
+# 2. Librerías de terceros (Django)
+from django.core.mail import EmailMultiAlternatives
+from django.core.paginator import Paginator
+from django.db.models import ExpressionWrapper, F, IntegerField, Q
+from django.db.models.functions import Coalesce
+from django.http import Http404, JsonResponse, request
+from django.shortcuts import HttpResponse, get_object_or_404, redirect, render
+from django.template.loader import get_template
+
+# 3. Aplicaciones locales de tu proyecto
+from app.catalog.forms import *
+from app.catalog.models import *
+from app.inicio.models import Proyecto
+from app.inicio.views import get_Dashboard
+from app.tiendas.models import *
+from app.tiendas.utils import calcular_puntos_fidelidad
 # Create your views here.
 def CatalogView(request, id_company=None):
     template_name = "sitio.html"
@@ -64,7 +67,8 @@ def CatalogView(request, id_company=None):
             'date_expiration':date_expiration,
             'address':get_address(id_company),
             'code':get_code_meta(id_company),
-            'promocion':get_promacion(id_company)
+            'promocion':get_promacion(id_company),
+            'fidelidad':get_fidelidad(id_company)
         }
         return render(request,template_name, dic)
 
@@ -80,6 +84,13 @@ def get_promacion(id_company):
     except:
         promocion = False
     return promocion
+
+def get_fidelidad(id_company):
+    try:
+        fidelidad = Fidelidad.objects.get(company_id = int(id_company))
+    except:
+        fidelidad = False
+    return fidelidad
 
 def get_address(id_company):
     try:
@@ -198,9 +209,19 @@ def optenerProducto(request, id_company, id_producto, slug):
                 dic['success'] = p.name.title()," agregado al Carrito."
                 return JsonResponse(dic)
     else:
+        company = get_company(id_company)
+        fidelidad = get_fidelidad(id_company)
+        if not fidelidad or not fidelidad.vigente:
+            fidelidad = None
+
+        promocion = get_promacion(id_company)
+        if not promocion or not promocion.promocion_vigente:
+            promocion = None
         context = { 'p':p,
                     'total_compra':sum(item['cantidad'] for item in data_cli),
-                    'company':get_company(id_company),
+                    'company':company,
+                    'fidelidad':fidelidad,
+                    'promocion':promocion,
                     'categorias':categorys_from_productos(productos),
                     'aviso':optener_avisos_by_company(id_company),
                     'productos':productosMasVistos(id_company),
@@ -229,7 +250,9 @@ def show_productos_carrito(request, id_company):
     datos = request.session['compra']
     t_pago = calcular_pago(request)
     regla = get_rule_condicion(id_company)
-    return render(request, 'catalog/show_productos_carrito.html',{'datos':datos,'t_pago':t_pago, 'company':company, 'regla':regla})
+    fidelidad = getattr(company, 'fidelidad', None)# verificamos si la compañia tiene fidelidad activa para calcular los puntos que genera la compra
+    puntos = calcular_puntos_fidelidad(t_pago, fidelidad) if fidelidad and fidelidad.vigente else 0
+    return render(request, 'catalog/show_productos_carrito.html',{'datos':datos,'t_pago':t_pago, 'company':company, 'regla':regla, 'puntos':puntos})
 
 
 def calcular_pago(request):
@@ -329,6 +352,7 @@ def confirmar_compra(request, id_company):
     t_pago = calcular_pago(request)
     compra = request.session.get('compra', [])
     total_compra = sum(item['cantidad'] for item in compra)
+    fidelidad = getattr(company, 'fidelidad', None)# verificamos si la compañia tiene fidelidad activa para calcular los puntos que genera la compra
     if request.method == 'POST':
         email = request.POST.get('email', '').strip()
         mobile = request.POST.get('mobile', '').strip()
@@ -417,12 +441,12 @@ def confirmar_compra(request, id_company):
         request.session['compra'] = []
 
         # --- Enviar correo al propietario ---
-        email_propietario = company.user.email
+        """ email_propietario = company.user.email
         if email_propietario:
             threading.Thread(
                 target=send_confirmar_venta_mail,
                 args=(email_propietario, orden, company)
-            ).start()
+            ).start() """
 
         return JsonResponse({
             'success': "Tu pedido fue registrado con éxito.",
@@ -432,12 +456,14 @@ def confirmar_compra(request, id_company):
             'lugar': lugar,
             'lista': lista_product,
             't_pago': t_pago,
-            'products': sum(item['cantidad'] for item in compra)
+            'products': 0,
+            'puntos': calcular_puntos_fidelidad(t_pago, fidelidad)if fidelidad and fidelidad.vigente else 0
         })
 
     # --- Si no es POST, renderizar vista ---
     ahora = datetime.now() + timedelta(minutes=30)
     limite = datetime.now() + timedelta(days=7)
+    
     dic = {
         'form': ClientFormOrder(),
         'total_compra': total_compra,
@@ -452,7 +478,8 @@ def confirmar_compra(request, id_company):
         'regla': get_rule_condicion(id_company),
         'code': get_code_meta(id_company),
         'ahora': ahora.strftime("%Y-%m-%dT%H:%M"),
-        'limite': limite.strftime("%Y-%m-%dT%H:%M")
+        'limite': limite.strftime("%Y-%m-%dT%H:%M"),
+        'puntos': calcular_puntos_fidelidad(t_pago, fidelidad)if fidelidad and fidelidad.vigente else 0
     }
     return render(request, 'catalog/confirmar_compra.html', dic)
 

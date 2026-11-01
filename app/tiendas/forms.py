@@ -170,7 +170,7 @@ class FormPromocion(forms.ModelForm):
 
     class Meta:
         model = Promocion
-        exclude = ('company', 'status')
+        exclude = ('company',)
         widgets = {
             'descuento': forms.NumberInput(attrs={
                 'class': 'form-range',
@@ -182,4 +182,40 @@ class FormPromocion(forms.ModelForm):
                 'autocomplete': 'off'
             }),
         }
-    
+
+class FormFidelidad(forms.ModelForm):
+    fecha_inicio = forms.DateField(
+        input_formats=['%d/%m/%Y'],
+        widget=forms.DateInput(
+            format='%d/%m/%Y',
+            attrs={
+                'class': 'form-control',
+                'id': 'id_fecha_inicio',
+                'autocomplete': 'off'
+            }
+        )
+    )
+
+    fecha_fin = forms.DateField(
+        input_formats=['%d/%m/%Y'],
+        widget=forms.DateInput(
+            format='%d/%m/%Y',
+            attrs={
+                'class': 'form-control',
+                'id': 'id_fecha_fin',
+                'autocomplete': 'off'
+            }
+        )
+    )
+
+    class Meta:
+        model = Fidelidad
+        exclude = ('company',)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        fecha_inicio = cleaned_data.get('fecha_inicio')
+        fecha_fin = cleaned_data.get('fecha_fin')
+        if fecha_inicio and fecha_fin and fecha_inicio > fecha_fin:
+            self.add_error('fecha_fin', 'La fecha de fin debe ser igual o posterior a la fecha de inicio.')
+        return cleaned_data

@@ -13,7 +13,7 @@ from app.catalog.models import Product
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 from .forms import AdminEmailForm
-admin.site.register([Banco,Ciudad,Tipo_company,Plataforma, Sucursal,Precio_envio, Aviso, Condicion, RRSS, PixelMeta, Dominio, Promocion])
+admin.site.register([Banco,Ciudad,Tipo_company,Plataforma, Sucursal,Precio_envio, Aviso, Condicion, RRSS, PixelMeta, Dominio, Promocion, Fidelidad, CuentaPuntos])
 
 class companias_expirados(admin.SimpleListFilter):
     title = "Catálogos Expirados"

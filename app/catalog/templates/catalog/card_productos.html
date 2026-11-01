@@ -4,15 +4,21 @@
   <div class="col-12">
     <div class="section-title">
       {% if productos %}
+
+        {% if promocion and promocion.promocion_vigente %}
+          {% include 'catalog/baner_promocion.html' %}
+        {% endif %}
+
+        {% if fidelidad and fidelidad.vigente %}
+          {% include 'catalog/baner_fidelidad.html' %}
+        {% endif %}
+
         {% if company.is_service %}
         <h2>Nuestras especialidades</h2>
         {% else %}
         <h2>Agrega tus pedidos al carrito</h2>
         {% endif %}
 
-        {% if promocion and promocion.promocion_vigente %}
-          {% include 'catalog/baner_promocion.html' %}
-        {% endif %}
       {% else %}
       <h2>lo siento aún no hay contenido disponible</h2>
       {% endif %}

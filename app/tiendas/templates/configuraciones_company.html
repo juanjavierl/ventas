@@ -49,7 +49,7 @@
         <i class="bi bi-truck"></i> Precios de Envio
     </button>
     <button class="nav-link" id="bank-tab" data-bs-toggle="pill" data-bs-target="#bank-panel" type="button" role="tab" aria-controls="bank-panel" aria-selected="false">
-        <i class="bi bi-bank"></i> Banco & RQ
+        <i class="bi bi-bank"></i> Banco & QR
     </button>
     <button class="nav-link" id="notices-tab" data-bs-toggle="pill" data-bs-target="#notices-panel" type="button" role="tab" aria-controls="notices-panel" aria-selected="false">
         <i class="bi bi-megaphone"></i> Avisos
@@ -68,6 +68,9 @@
     </button>
     <button class="nav-link" id="offers-tab" data-bs-toggle="pill" data-bs-target="#offers-panel" type="button" role="tab" aria-controls="offers-panel" aria-selected="false">
         <i class="bi bi-tags"></i> Promoción
+    </button>
+    <button class="nav-link" id="fidelization-tab" data-bs-toggle="pill" data-bs-target="#fidelization-panel" type="button" role="tab" aria-controls="fidelization-panel" aria-selected="false">
+        <i class="bi bi-people-fill"></i> Fidelización
     </button>
 </div>
 {% endblock dashboard_sidebar %}
@@ -141,7 +144,21 @@
                         <div class="card dashboard-section-card">
                             <div class="card-header py-3">
                                 <h2 class="h5 mb-1"><i class="bi bi-people text-success"></i> Lista de Clientes</h2>
-                                <p class="text-muted small mb-0">Revisa clientes vinculados a pedidos registrados.</p>
+                                <p class="text-muted small mb-0">Lista de clientes.
+                                    
+                                  
+                                
+                                {% if company.fidelidad %}
+                                    <button class="btn btn-outline-primary btn-sm"
+                                        data-bs-toggle="modal" data-bs-target="#exampleModal"
+                                        onclick="ver_ranking_clientes('{% url 'ranking_fidelidad' company.id %}')"
+                                        type="button">
+                                            Fidelidad de clientes
+                                        </button>
+                                {% endif %}
+                                    
+                                        
+                                </p>
                             </div>
                             <div class="card-body dashboard-config-card">
                                 {% include 'configuraciones/listaClientes.html' %}
@@ -184,6 +201,18 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="tab-pane fade" id="fidelization-panel" role="tabpanel" aria-labelledby="fidelization-tab" tabindex="0">
+                        <div class="card dashboard-section-card">
+                            <div class="card-header py-3">
+                                <h2 class="h5 mb-1"><i class="bi bi-people-fill text-success"></i> Crear Fidelización</h2>
+                                <p class="text-muted small mb-0">Crea, actualiza o elimina programas de fidelización.</p>
+                            </div>
+                            <div class="card-body dashboard-config-card">
+                                {% include 'configuraciones/add_fidelidad.html' %}
+                            </div>
+                        </div>
+                    </div>
         </div>
     </div>
 </section>
@@ -202,6 +231,19 @@
         companyId: "{{ company.id }}",
         csrfToken: "{{ csrf_token }}"
     };
+
+    function ver_ranking_clientes(urls) {
+        $.ajax({
+            type: 'GET',
+            url: urls,
+            success: function (resp) {
+                $(".modal-content").html(resp);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("Error:" + thrownError);
+            }
+        });
+    }
     </script>
     
 <script src="{% static 'js/dashboard/configuraciones_company.js' %}"></script>

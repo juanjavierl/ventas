@@ -79,7 +79,7 @@
         <div>
             <strong>Datos {{ company.name|title }}:</strong><br>
             Sucursal Principal: {{ sucursal.sucursal|title }}<br>
-            Teléfono/Celular: {{ company.mobile }}<br>
+            Teléfono/Celular: {{ company.numero_nacional }}<br>
             {% if company.ruc %}NIT: {{ company.ruc }}<br>{% endif %}
             Emitido por: {{ user.username }}<br>
             Ciudad: {{ company.cuidad|title }}
@@ -92,7 +92,7 @@
                 Nit/C.I: {{ orden.client.dni }}<br>
             {% endif %}
             Nro Orden: {{ orden.id }}<br>
-            Fecha de Pedido: {{ orden.creation_date|date:"d/m/Y H:i A" }}
+            Fecha de Pedido: {{ orden.creation_date|date:"d/m/Y H:i" }}
         </div>
     </div>
 

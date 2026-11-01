@@ -1,198 +1,341 @@
+{% load extras %}
+
 {% if promocion %}
 <style>
     .promo-banner {
-        border: 1px solid rgba(0, 0, 0, .10);
-        /* Fondo gradiente más nítido y marcado */
-        background: linear-gradient(135deg, #c7d2fe 0%, #e0e7ff 45%, #f1f5f9 100%);
-        background-color: #e0e7ff;
-        /* Mayor sombra para que el contenido resalte más */
-        box-shadow: 0 12px 32px -8px rgba(32, 88, 179, 0.18);
+        position: relative;
+        overflow: hidden;
+        isolation: isolate;
+        border: 1px solid rgba(255, 255, 255, .18);
+        border-radius: 24px;
+        color: #fff;
+        background: linear-gradient(120deg, #24104f 0%, #4930a8 48%, #7657e8 100%);
+        box-shadow: 0 16px 40px rgba(59, 38, 139, .22);
     }
-    
-    /* Descuento */
-    .promo-descuento {
+
+    .promo-banner::before,
+    .promo-banner::after {
+        content: "";
+        position: absolute;
+        z-index: -1;
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .promo-banner::before {
+        width: 270px;
+        height: 270px;
+        top: -160px;
+        right: 8%;
+        border: 38px solid rgba(255, 255, 255, .06);
+    }
+
+    .promo-banner::after {
+        width: 200px;
+        height: 200px;
+        bottom: -135px;
+        left: 25%;
+        background: rgba(255, 255, 255, .045);
+    }
+
+    .promo-banner .promo-contenido {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* DESCUENTO DESTACADO */
+    .promo-banner .promo-descuento {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         line-height: 1;
     }
-    
-    .promo-icon {
-        font-size: 1.3rem;
-        color: #ffc107;
-        animation: anuncio 1.5s ease-in-out infinite;
-    }
-    
-    .promo-porcentaje {
-        font-size: clamp(2rem, 5vw, 3rem);
-        font-weight: 800;
-        color: #dc3545;
-        letter-spacing: -2px;
-        text-shadow: 0 2px 8px rgba(255,255,255,0.27);
-    }
-    
-    .promo-label {
-        font-size: .65rem;
-        font-weight: 700;
-        letter-spacing: 2px;
-        color: #6c757d;
-    }
-    
-    /* Información */
-    .promo-info h5 {
-        font-size: 1.1rem;
-    }
-    
-    .promo-info p {
-        line-height: 1.4;
-    }
-    
-    /* Fechas */
-    .promo-fechas {
-        border-left: 1px solid rgba(0, 0, 0, .08);
-    }
-    
-    /* Pequeño efecto de "zumbido" */
-    @keyframes anuncio {
-    
-        0%, 100% {
-            transform: rotate(0deg);
-        }
-    
-        15% {
-            transform: rotate(12deg);
-        }
-    
-        30% {
-            transform: rotate(-12deg);
-        }
-    
-        45% {
-            transform: rotate(8deg);
-        }
-    
-        60% {
-            transform: rotate(-8deg);
-        }
-    
-        75% {
-            transform: rotate(0deg);
-        }
-    
-    }
-    @media (max-width: 767.98px) {
 
+    .promo-banner .promo-icono {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 70px;
+        height: 70px;
+        margin-bottom: 12px;
+        border: 1px solid rgba(255, 255, 255, .24);
+        border-radius: 22px;
+        background: rgba(255, 255, 255, .12);
+        color: #ffe49b;
+        font-size: 2rem;
+        transition: transform .3s ease;
+    }
+
+    .promo-banner:hover .promo-icono {
+        transform: rotate(-7deg) scale(1.06);
+    }
+
+    .promo-banner .promo-porcentaje {
+        color: #ffe49b;
+        font-size: clamp(2.8rem, 5vw, 4.4rem);
+        font-weight: 900;
+        letter-spacing: -3px;
+        text-shadow: 0 5px 18px rgba(0, 0, 0, .15);
+        white-space: nowrap;
+    }
+
+    .promo-banner .promo-label {
+        margin-top: 8px;
+        color: rgba(255, 255, 255, .86);
+        font-size: .75rem;
+        font-weight: 800;
+        letter-spacing: 3px;
+    }
+
+    .promo-banner .promo-etiqueta {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 12px;
+        margin-bottom: 14px;
+        border: 1px solid rgba(255, 228, 155, .35);
+        border-radius: 50px;
+        background: rgba(255, 228, 155, .12);
+        color: #ffe49b;
+        font-size: .7rem;
+        font-weight: 800;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    /* INFORMACIÓN */
+    .promo-banner .promo-titulo {
+        color: #fff;
+        font-size: clamp(1.3rem, 2.5vw, 1.8rem);
+        font-weight: 800;
+        line-height: 1.25;
+        overflow-wrap: anywhere;
+    }
+
+    .promo-banner .promo-descripcion {
+        color: rgba(255, 255, 255, .86);
+        font-size: .94rem;
+        line-height: 1.65;
+        overflow-wrap: anywhere;
+    }
+
+    .promo-banner .promo-condiciones {
+        display: flex;
+        align-items: flex-start;
+        gap: 9px;
+        padding: 11px 13px;
+        border: 1px solid rgba(255, 255, 255, .15);
+        border-radius: 13px;
+        background: rgba(255, 255, 255, .09);
+        color: rgba(255, 255, 255, .92);
+        font-size: .85rem;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+    }
+
+    .promo-banner .promo-condiciones i {
+        flex-shrink: 0;
+        color: #ffe49b;
+        font-size: 1.05rem;
+    }
+
+    /* TARJETA DE VIGENCIA */
+    .promo-banner .promo-panel-fecha {
+        height: 100%;
+        padding: 20px;
+        border: 1px solid rgba(255, 255, 255, .18);
+        border-radius: 20px;
+        background: rgba(255, 255, 255, .09);
+        color: #fff;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+    }
+
+    .promo-banner .promo-fecha-label {
+        color: rgba(255, 255, 255, .72);
+        font-size: .72rem;
+        font-weight: 700;
+        letter-spacing: .8px;
+        text-transform: uppercase;
+    }
+
+    .promo-banner .promo-fecha-valor {
+        color: #ffe49b;
+        font-size: 1.1rem;
+        font-weight: 800;
+    }
+
+    .promo-banner .promo-dias {
+        display: inline-block;
+        padding: 6px 10px;
+        border: 1px solid rgba(255, 228, 155, .25);
+        border-radius: 9px;
+        background: rgba(255, 228, 155, .12);
+        color: #ffe49b;
+        font-size: .8rem;
+        font-weight: 700;
+    }
+
+    .promo-banner .promo-compra {
+        padding-top: 15px;
+        margin-top: 15px;
+        border-top: 1px solid rgba(255, 255, 255, .17);
+    }
+
+    .promo-banner .promo-compra-valor {
+        color: #fff;
+        font-size: 1.5rem;
+        font-weight: 900;
+        overflow-wrap: anywhere;
+    }
+
+    @media (max-width: 767.98px) {
         .promo-banner {
-            padding: 1rem !important;
+            border-radius: 19px;
         }
-    
-        .promo-descuento {
-            padding-bottom: .5rem;
+
+        .promo-banner .promo-icono {
+            width: 60px;
+            height: 60px;
+            border-radius: 18px;
+            font-size: 1.7rem;
         }
-    
-        .promo-info {
+
+        .promo-banner .promo-porcentaje {
+            font-size: 3.5rem;
+        }
+
+        .promo-banner .promo-panel-fecha {
+            padding: 16px;
+        }
+
+        .promo-banner .promo-info {
             text-align: center;
         }
-    
-        .promo-fechas {
-            border-left: 0;
-            border-top: 1px solid rgba(0, 0, 0, .06);
-            padding-top: .5rem;
+
+        .promo-banner .promo-condiciones {
+            text-align: left;
         }
-    
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .promo-banner .promo-icono {
+            transition: none;
+        }
     }
 </style>
-<section class="container my-3">
 
-    <div class="promo-banner rounded-4 shadow-sm p-3">
-
-        <div class="row align-items-center g-2">
+<section class="container my-4" aria-label="Promoción de descuentos">
+    <div class="promo-banner p-3 p-md-4">
+        <div class="row align-items-center g-4 promo-contenido">
 
             <!-- DESCUENTO -->
             <div class="col-12 col-md-3 text-center">
-
                 <div class="promo-descuento">
 
-                    <div class="promo-icon mb-1">
-                        <i class="bi bi-megaphone-fill"></i>
+                    <div class="promo-icono">
+                        <i class="bi bi-tags-fill" aria-hidden="true"></i>
                     </div>
 
                     <div class="promo-porcentaje">
-                        {{ promocion.descuento }}%
+                        -{{ promocion.descuento }}%
                     </div>
 
                     <div class="promo-label">
-                        DESCUENTO
+                        DE DESCUENTO AL FINALIZAR LA COMPRA
                     </div>
-
                 </div>
-
             </div>
 
-
-            <!-- INFORMACIÓN -->
-            <div class="col-12 col-md-6">
-
+            <!-- INFORMACIÓN DE LA PROMOCIÓN -->
+            <div class="col-12 col-md-5">
                 <div class="promo-info">
 
-                    <h5 class="fw-bold mb-1">
-                        <i class="bi bi-stars text-warning"></i>
-                        {{ promocion.titulo }}
-                    </h5>
+                    <span class="promo-etiqueta">
+                        <i class="bi bi-lightning-charge-fill"
+                           aria-hidden="true"></i>
+                        Oferta especial
+                    </span>
 
-                    <p class="text-muted small mb-1">
-                        {{ promocion.descripcion }}
-                    </p>
+                    <h2 class="promo-titulo mb-3">
+                        {{ promocion.titulo }}
+                    </h2>
+
+                    {% if promocion.descripcion %}
+                    <div class="promo-descripcion mb-3">
+                        {{ promocion.descripcion|urlize_mode:"ver_mas,br" }}
+                    </div>
+                    {% endif %}
 
                     {% if promocion.condiciones %}
-                    <small class="text-secondary">
-                        <i class="bi bi-info-circle"></i>
-                        {{ promocion.condiciones }}
-                    </small>
+                    <div class="promo-condiciones">
+                        <i class="bi bi-info-circle-fill"
+                           aria-hidden="true"></i>
+                        <div>
+                            <strong>Condiciones de la oferta</strong>
+                            <div>{{ promocion.condiciones }}</div>
+                        </div>
+                    </div>
                     {% endif %}
 
                 </div>
-
             </div>
 
+            <!-- VIGENCIA Y COMPRA MÍNIMA -->
+            <div class="col-12 col-md-4">
+                <div class="promo-panel-fecha">
 
-            <!-- FECHAS -->
-            <div class="col-12 col-md-3">
-
-                <div class="promo-fechas text-center">
-
-                    <div class="small">
-                        <span class="text-muted">Aprovecha esta oferta valido hasta</span>
-                        <strong class="d-block">
-                            {{ promocion.fecha_fin }}
-                        </strong>
-                        <strong class="d-block">
-                            Aún faltan {{ promocion.dias_restantes }}
-                            {% if promocion.dias_restantes == 1 %}
-                                día
-                            {% else %}
-                                días
-                            {% endif %}
-                        </strong>
+                    <div class="d-flex align-items-center gap-2 mb-3">
                     </div>
 
-                    {% if promocion.compra_mayores > 0 %}
-                    <div class="small mt-1">
-                        <span class="text-muted">
-                            Compras mayores a
-                        </span>
+                    <div class="promo-fecha-label">
+                        Descuento especial hasta el
+                    </div>
 
-                        <strong class="d-block">
+                    <div class="promo-fecha-valor mb-2">
+                        {{ promocion.fecha_fin|date:"l d \d\e F \d\e Y" }}
+                    </div>
+
+                    {% if promocion.dias_restantes >= 0 %}
+                    <span class="promo-dias">
+                        <i class="bi bi-clock" aria-hidden="true"></i>
+                        {% if promocion.dias_restantes == 0 %}
+                            ¡Último día!
+                        {% elif promocion.dias_restantes == 1 %}
+                            ¡Queda 1 día!
+                        {% else %}
+                            Quedan {{ promocion.dias_restantes }} días
+                        {% endif %}
+                    </span>
+                    {% endif %}
+
+                    {% if promocion.compra_mayores > 0 %}
+                    <div class="promo-compra">
+                        <div class="promo-fecha-label mb-1">
+                            Compra mínima para el descuento
+                        </div>
+
+                        <div class="promo-compra-valor">
                             {{ promocion.compra_mayores }}
-                            {{ company.moneda }}
-                        </strong>
+                            <span class="fs-6">{{ company.moneda }}</span>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="promo-compra">
+                        <div class="promo-fecha-label mb-1">
+                            Compra mínima para el desc.
+                        </div>
+
+                        <div class="promo-compra-valor">
+                            <span class="fs-6">Aplica para todas las compras</span>
+                        </div>
                     </div>
                     {% endif %}
 
                 </div>
-
             </div>
 
         </div>
-
     </div>
-
 </section>
 {% endif %}

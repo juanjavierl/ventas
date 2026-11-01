@@ -267,6 +267,86 @@
     </div>
 
   </div>
+  {% if fidelidad %}
+  <style>
+    #modalFidelidad .modal-content { border: 0; border-radius: 1.25rem; overflow: hidden; box-shadow: 0 1.5rem 4rem rgba(13, 54, 35, .22); }
+    #modalFidelidad .fidelidad-hero { background: linear-gradient(135deg, #146c43, #198754); color: #fff; }
+    #modalFidelidad .fidelidad-icon { width: 4rem; height: 4rem; display: grid; place-items: center; border-radius: 1rem; color: #f3ca66; background: rgba(255,255,255,.14); font-size: 2rem; }
+    #modalFidelidad .fidelidad-gold { color: #795d12; background: #fff7df; border: 1px solid #f2dfa7; border-radius: .9rem; }
+    #modalFidelidad .fidelidad-detail { color: #52645a; }
+    #modalFidelidad .fidelidad-cta { background: #198754; border-color: #198754; border-radius: 50rem; padding-inline: 1.5rem; }
+    @media (max-width: 575.98px) { #modalFidelidad .modal-dialog { margin: .75rem; } #modalFidelidad .modal-body { padding: 1.25rem !important; } }
+  </style>
+  <div class="modal fade" id="modalFidelidad" tabindex="-1" aria-labelledby="modalFidelidadLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"><div class="modal-content">
+      <div class="modal-header fidelidad-hero border-0 px-4 pt-4 pb-3">
+        <div class="d-flex align-items-center gap-3"><div class="fidelidad-icon" aria-hidden="true"><i class="bi bi-gift-fill"></i></div><div><span class="badge rounded-pill text-bg-light text-success mb-2"><i class="bi bi-stars me-1"></i>Promoción activa</span><h2 class="modal-title h4 mb-0" id="modalFidelidadLabel">{{ fidelidad.nombre }}</h2></div></div>
+        <button type="button" class="btn-close btn-close-white ms-2" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body p-4"><p class="text-secondary mb-4 fst-italic">{{ fidelidad.descripcion|urlize_mode:"ver_mas,br"}}</p>
+        <div class="row g-3 mb-4"><div class="col-12"><div class="fidelidad-detail small"><i class="bi bi-calendar-check text-success me-1"></i>Promoción válida hasta el </div></div><div class="col-12"><div class="fidelidad-detail small text-center"> <strong class="text-dark">{{ fidelidad.fecha_fin|date:"l d \d\e F \d\e Y" }}</strong></div></div></div>
+        <div class="fidelidad-gold p-3 mb-3"><div class="fw-semibold"><i class="bi bi-bag-check-fill me-2"></i>Monto mínimo para sumar puntos</div><div class="mt-1">{% if fidelidad.compra_mayores > 0 %}Compras desde <strong>{{ company.moneda|default:"Bs" }} {{ fidelidad.compra_mayores }}</strong>.{% else %}Sumas puntos con todas las compras válidas, sin monto mínimo.{% endif %}</div></div>
+        <div class="rounded-4 bg-light p-3"><div class="fw-semibold text-success mb-1"><i class="bi bi-coin me-2"></i>¿Cómo acumulas puntos?</div>{% if fidelidad.compra_mayores > 0 %}<p class="mb-0 small">Por cada {{ company.moneda|default:"Bs" }} {{ fidelidad.compra_mayores }} de compra válida acumulas 1 punto. Los montos se contabilizan por cada {{ company.moneda|default:"Bs" }} {{ fidelidad.compra_mayores }} completos.</p>{% else %}<p class="mb-0 small">Todas las compras válidas acumulan 1 punto.</p>{% endif %}</div>
+      </div><div class="modal-footer border-0 px-4 pb-4 pt-0"><button type="button" class="btn btn-success fidelidad-cta w-100" data-bs-dismiss="modal">¡Aprovecha ahora! <i class="bi bi-arrow-right ms-1"></i></button></div>
+    </div></div>
+  </div>
+  {% endif %}
+  
+  {% if promocion  %}
+    <style>
+    #modalPromocion .modal-content { border: 0; border-radius: 1.25rem; overflow: hidden; box-shadow: 0 1.5rem 4rem rgba(13, 54, 35, .22); }
+    #modalPromocion .fidelidad-hero { background: linear-gradient(135deg, #4c146c, #7645b6); color: #fff; }
+    #modalPromocion .fidelidad-icon { width: 4rem; height: 4rem; display: grid; place-items: center; border-radius: 1rem; color: #f3ca66; background: rgba(255,255,255,.14); font-size: 2rem; }
+    #modalPromocion .fidelidad-gold { color: #795d12; background: #fff7df; border: 1px solid #f2dfa7; border-radius: .9rem; }
+    #modalPromocion .fidelidad-detail { color: #52645a; }
+    #modalPromocion .fidelidad-cta {
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: #fff;
+      font-weight: 600;
+      border-radius: 12px;
+      border: none;
+      box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);
+      transition: all 0.2s ease;
+    }
+    .fidelidad-cta:hover {
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(79, 70, 229, 0.6);
+      background: linear-gradient(135deg, #4f46e5, #4338ca);
+    }
+    .fidelidad-cta:active {
+      transform: translateY(1px);
+    }
+    .fidelidad-cta:hover i {
+      transform: translateX(4px);
+    }
+    .fidelidad-cta i {
+      transition: transform 0.2s ease;
+      display: inline-block;
+    }
+
+    @media (max-width: 575.98px) { #modalPromocion .modal-dialog { margin: .75rem; } #modalPromocion .modal-body { padding: 1.25rem !important; } }
+  </style>
+  <div class="modal fade" id="modalPromocion" tabindex="-1" aria-labelledby="modalPromocionLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"><div class="modal-content">
+      <div class="modal-header fidelidad-hero border-0 px-4 pt-4 pb-3">
+        <div class="d-flex align-items-center gap-3"><div class="fidelidad-icon" aria-hidden="true"><i class="bi bi-gift-fill"></i></div><div><span class="badge rounded-pill text-bg-light text-success mb-2"><i class="bi bi-stars me-1"></i>Descuento especial</span><h2 class="modal-title h4 mb-0" id="modalPromocionLabel">{{ promocion.titulo }}</h2></div></div>
+        <button type="button" class="btn-close btn-close-white ms-2" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body p-4"><p class="text-secondary mb-4 fst-italic">{{ promocion.descripcion|urlize_mode:"ver_mas,br"}}</p>
+        <div class="row g-3 mb-4"><div class="col-12"><div class="fidelidad-detail small"><i class="bi bi-calendar-check text-success me-1"></i>Descuento especial válido hasta el </div></div><div class="col-12"><div class="fidelidad-detail small text-center"><strong class="text-dark">{{ promocion.fecha_fin|date:"l d \d\e F \d\e Y" }}</strong></div></div></div>
+        <div class="rounded-4 bg-light p-3"><div class="fw-semibold text-success mb-1"><i class="bi bi-coin me-2"></i>Monto mínimo </div>{% if promocion.compra_mayores > 0 %}<p class="mb-0 small">Por cada {{ company.moneda|default:"Bs" }} {{ promocion.compra_mayores }} de compra válida obtienes un descuento especial del {{promocion.descuento}}% </p>{% else %}<p class="mb-0 small">¡Aplica para todas las compras validas!</p>{% endif %}</div>
+      </div>
+      <div class="modal-footer border-0 px-4 pb-4 pt-0">
+        <button type="button" class="btn btn-lg w-100 fidelidad-cta" data-bs-dismiss="modal">
+          ¡Aprovecha ahora! <i class="bi bi-arrow-right ms-2"></i>
+        </button>
+      </div>
+    </div></div>
+  </div>
+  {% endif %}
+    
+
 </section><!-- End Portfolio Details Section -->
 <script>
 
@@ -467,6 +547,30 @@
           }
         });
       }
+
+  document.addEventListener('DOMContentLoaded', function () {
+      const clave = 'modalFidelidadMostrado';
+      const modalElemento = document.getElementById('modalFidelidad');
+      if (!modalElemento || sessionStorage.getItem(clave)) return;
+
+      const modal = new bootstrap.Modal(modalElemento);
+      modalElemento.addEventListener('shown.bs.modal', function () {
+          sessionStorage.setItem(clave, 'true');
+      }, { once: true });
+      modal.show();
+  });
+  document.addEventListener('DOMContentLoaded', function () {
+      const clave = 'modalFidelidadMostrado';
+      const modalElemento = document.getElementById('modalPromocion');
+      if (!modalElemento || sessionStorage.getItem(clave)) return;
+
+      const modal = new bootstrap.Modal(modalElemento);
+      modalElemento.addEventListener('shown.bs.modal', function () {
+          sessionStorage.setItem(clave, 'true');
+      }, { once: true });
+      modal.show();
+  });
+
 </script>
 {% endblock contenido %}
 

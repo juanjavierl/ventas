@@ -1,14 +1,19 @@
 #encoding:utf-8
-from django.urls import reverse
-from django.utils.text import slugify
-from app.catalog.images import procesar_imagen_portada, procesar_imagen_logo
-from datetime import datetime, date
+# 1. Biblioteca estándar de Python
+from datetime import date, datetime
 from random import randint
-from django.forms import model_to_dict
-from django.db import models
+
+# 2. Librerías de terceros (Django y paquetes externos)
 from django.contrib.auth.forms import User
-from .choices import MONEY
+from django.db import models
+from django.forms import model_to_dict
+from django.utils.text import slugify
+from app.tiendas.utils import obtener_numero_nacional
 from meta.models import ModelMeta
+
+# 3. Aplicaciones locales de tu proyecto
+from .choices import MONEY
+from app.catalog.images import procesar_imagen_logo, procesar_imagen_portada
 from ventas import settings
 
 class Tipo_company(models.Model):
@@ -25,7 +30,7 @@ class Tipo_company(models.Model):
         ordering = ['name']
         verbose_name = 'Tipo_company'
         verbose_name_plural = 'Tipo_companys'
-    
+
     def __str__(self):
         """Unicode representation of Categoria ."""
         return self.name
@@ -216,6 +221,10 @@ class Company(models.Model, ModelMeta):
         item['image'] = self.get_image()
         item['logo'] = self.get_logo()
         return item
+
+    @property
+    def numero_nacional(self):#utiliza el metodo obtener_numero_nacional desde utils.py para obtener el numero nacional del cliente
+        return obtener_numero_nacional(self.mobile)
 
     class Meta:
         verbose_name = 'Negocio'
@@ -434,8 +443,8 @@ class Dominio(models.Model):
 
 class Promocion(models.Model):
     company = models.OneToOneField(Company, on_delete=models.CASCADE, verbose_name='Negocio')
-    titulo = models.CharField(max_length=100, verbose_name='Titulo de la promoción', help_text="Ejem. promoción de fin de año.")
-    descripcion = models.TextField(verbose_name='Descripción de la promoción', max_length=255)
+    titulo = models.CharField(max_length=100, verbose_name='Titulo de la promoción', default="promoción de fin de año.")
+    descripcion = models.TextField(verbose_name='Descripción de la promoción', default="Aprovecha nuestra promoción especial de fin de año y obtén descuentos increíbles en nuestros productos y servicios. ¡No te lo pierdas!")
     fecha_inicio = models.DateField(verbose_name='Fecha de inicio de la promoción')
     fecha_fin = models.DateField(verbose_name='Fecha de fin de la promoción')
     descuento = models.IntegerField(verbose_name='Porcentaje de descuento', help_text="Ingrese el porcentaje del descuento %")
@@ -483,3 +492,71 @@ class Promocion(models.Model):
         item['descuento'] = self.descuento
         item['dias_restantes'] = self.dias_restantes
         return item
+
+class Fidelidad(models.Model):
+    company = models.OneToOneField(Company, on_delete=models.CASCADE, verbose_name='Negocio')
+    nombre = models.CharField(max_length=150,default='¡Premiamos tu fidelidad!', verbose_name='Nombre del programa de fidelización')
+    descripcion = models.TextField(verbose_name='Descripción del programa de fidelización', default="Llegó la promoción del año mientras más compras realices más puntos sumas. ejem. una compra de -valor compra-  suma 1 punto, una compra de -valor compra-. sumas 2 puntos, y así sucesivamente. Premios directos a los puntajes más altos. ¡No te quedes fuera y empieza a acumular hoy mismo! Siguenos en nuestras redes sociales para que no te pierdas de nada y puedas ver los resultados de los clientes semanalmente que más puntos han acumulado.")
+    fecha_inicio = models.DateField(verbose_name='Fecha de inicio de la promoción')
+    fecha_fin = models.DateField(verbose_name='Fecha de expiración de la promoción')
+    compra_mayores = models.IntegerField(verbose_name="Por la compra mayor a", help_text="Ingresa 0 para todas las compras")
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    activo = models.BooleanField(default=True)
+    class Meta:
+        verbose_name = 'Promoción de fidelización'
+        verbose_name_plural = 'Promociones de fidelización'
+        ordering = ['-fecha_creacion']
+
+    def __str__(self):
+        return f"{self.nombre} - {self.company.name}"
+
+    @property
+    def vigente(self):
+        hoy = date.today()
+        return (
+            self.activo
+            and self.fecha_inicio <= hoy <= self.fecha_fin
+        )
+
+    def aplica(self, monto_compra):
+            return (
+                self.vigente and
+                monto_compra >= self.compra_mayores
+            )
+
+    @property
+    def dias_faltantes(self):
+        if self.vigente:
+            hoy = date.today()
+            dias = (self.fecha_fin - hoy).days
+            return max(0, dias)
+        return 0
+
+    def toJSON(self):
+            item = model_to_dict(self)
+            item['company'] = self.company.name
+            item['nombre'] = self.nombre
+            item['fecha_inicio'] = self.fecha_inicio.strftime('%Y-%m-%d')
+            item['fecha_fin'] = self.fecha_fin.strftime('%Y-%m-%d')
+            item['status'] = self.status
+            item['dias_faltantes'] = self.dias_faltantes
+            return item
+
+from app.catalog.models import Client
+class CuentaPuntos(models.Model):
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, null=True, blank=True, related_name='cuentas_puntos')
+    cliente = models.ForeignKey(Client,on_delete=models.CASCADE,related_name='cuentas_puntos')
+    puntos = models.PositiveIntegerField(default=0)
+    cantidad_compras = models.PositiveIntegerField(default=0)
+    fecha_actualizacion = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Cuenta de puntos'
+        verbose_name_plural = 'Cuentas de puntos'
+        ordering = ['-fecha_actualizacion']
+        constraints = [
+            models.UniqueConstraint(fields=('company', 'cliente'), name='unique_cuenta_puntos_company_cliente'),
+        ]
+
+    def __str__(self):
+        return f'{self.cliente} - {self.puntos} puntos en {self.company.name}'

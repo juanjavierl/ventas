@@ -1,7 +1,7 @@
 {% extends 'index.html' %}
 
 {% block titulo %}
-    {{company.name|title|truncatechars:26}} | Tienda online | tiendas de {{company.category.name|title}} | tienda de la ciudad de {{company.cuidad|title}}
+    {{company.name|title|truncatechars:26}} | Tienda online | tienda de {{company.category.name|title}} | tienda en la ciudad de {{company.cuidad|title}}
 {% endblock titulo %}
   
 {% block tecnica_seo %}
@@ -70,7 +70,7 @@
       <div class="container text-center text-md-left" data-aos="fade-up">
         <h1>{{company.name|title}}</h1><br><br>
         
-        <a href="#team_productos" class="btn-get-started scrollto">{{promocion.titulo|default:"Ver Ultimas Novedades"}}</a>
+        <a href="#team_productos" class="btn-get-started scrollto"> {% if promocion and promocion.promocion_vigente %} {{promocion.titulo}} {% else %} Ver Ultimas Novedades {% endif %} </a>
         <h2>
           <br>
           <div class="testimonials-slider swiper" data-aos="fade-left" data-aos-delay="100">

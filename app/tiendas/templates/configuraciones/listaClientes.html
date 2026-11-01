@@ -14,7 +14,7 @@
                     <tr>
                         <th>Nombre completo</th>
                         <th>CI</th>
-                        <th>Celular</th>
+                        <th>Celular <i class="bi bi-whatsapp"></i></th>
                         <th>Email</th>
                         <th>Direccion</th>
                         <th>Fecha de Registro</th>
@@ -29,7 +29,7 @@
                             <tr>
                                 <td>{{c.names|title}}</td>
                                 <td>{{c.dni|default:" - - -"}}</td>
-                                <td><a href="https://wa.me/{{c.mobile}}" target="_blank" title="Enviar mensaje"><i class="bi bi-whatsapp"></i> {{c.mobile}}</a></td>
+                                <td><a href="https://wa.me/{{c.mobile}}" target="_blank" title="Enviar mensaje"> {{c.numero_nacional}}</a></td>
                                 <td>{{c.email|default:" - - -"}}</td>
                                 <td>{{c.address|default:" - - -"}}</td>
                                 <td>{{c.date_joined}}</td>

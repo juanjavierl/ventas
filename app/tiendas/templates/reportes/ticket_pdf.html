@@ -108,13 +108,13 @@
         <div class="head-details text-center">
             Sucursal Principal: {{ sucursal.sucursal|title }}<br>
             {% if company.ruc %}NIT: {{ company.ruc }}<br>{% endif %}
-            Teléfono/Celular: {{ company.mobile }}<br>
+            Teléfono/Celular: {{ company.numero_nacional }}<br>
             Ciudad:{{ company.cuidad|title }}
         </div>
 
         <div class="head-data">
             <b>Ticket N°</b> {{ orden.id }}<br>
-            <b>Fecha de pedido:</b> {{ orden.creation_date|date:"d/m/Y H:i A" }}<br>
+            <b>Fecha de pedido:</b> {{ orden.creation_date|date:"d/m/Y H:i" }}<br>
             <b>Cliente:</b> {{ orden.client|title }}<br>
             {% if orden.client.dni %}
             <b>Nit/C.I:</b> {{ orden.client.dni }}<br>

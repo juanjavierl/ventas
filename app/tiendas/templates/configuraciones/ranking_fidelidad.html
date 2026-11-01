@@ -1,0 +1,154 @@
+<div class="modal-header  thead-light" style="background-color: #58bba9;">
+  <h5 class="modal-title text-white" id="exampleModalLabel">
+    Fidepuntos hasta la fecha de hoy {% now 'd/m/Y' %} 
+  </h5>
+  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body table-responsive">
+    {% if fidelidad and fidelidad.vigente %}
+  <p class="text-muted mb-0">Promoción válida desde : {{ fidelidad.fecha_inicio|date:"d/m/Y" }} - {{ fidelidad.fecha_fin|date:"d/m/Y" }}</p>
+    {% else %}
+    <p class="mb-0 text-success text-center">Terminó la promoción hace {{ fidelidad.fecha_fin|timesince }} <br> Estos son los resultados</p>
+    {% endif %}
+  {% if cuentas %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped table-hover align-middle">
+            <thead>
+                <tr>
+                    <th scope="col">Posición</th>
+                    <th scope="col">Cliente</th>
+                    <th scope="col">Celular</th>
+                    <th scope="col">Puntos</th>
+                    <th scope="col">Compras</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cuenta in cuentas %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ cuenta.cliente.names|title }}</td>
+                    <td>{{ cuenta.cliente.numero_nacional }}</td>
+                    <td>{{ cuenta.puntos }}</td>
+                    <td>{{ cuenta.cantidad_compras }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <p class="mb-0 text-center">{{ company.name }} · {{ fidelidad.nombre }} <br><br>
+    <button type="button" class="btn btn-outline-success btn_sortear"> ¡Iniciar Sorteo! </button>
+    </p>
+    {% else %}
+    <div class="alert alert-info text-center" role="status">
+        Todavía no hay clientes con puntos acumulados en este programa.
+    </div>
+    {% endif %}
+</div>
+<div id="resultadoSorteo" class="mt-4" style="display:none;">
+    <div class="card border-0 shadow-sm text-center rounded-4">
+        <div class="mb-2 text-warning">
+            <i class="bi bi-trophy-fill fs-1"></i>
+        </div>
+
+        <h5 class="text-secondary">¡Cliente elegido!</h5>
+
+        <div id="nombreGanador" class="fs-3 fw-bold text-success my-3">
+        </div>
+
+        <div id="puntosGanador" class="text-muted"></div>
+    </div>
+</div>
+<script>
+    $(".btn_sortear").on("click", function () {
+
+    const boton = $(this);
+
+    if (boton.prop("disabled")) return;
+
+    boton.prop("disabled", true);
+
+    $("#resultadoSorteo").show();
+
+    $("#nombreGanador")
+        .removeClass("text-success")
+        .addClass("text-secondary")
+        .text("¡Que comience el sorteo!");
+
+    $("#puntosGanador").empty();
+
+    $.ajax({
+        url: "{% url 'elegir_ganador' id_company=company.id %}",
+        type: "POST",
+        headers: {
+            "X-CSRFToken": "{{ csrf_token }}"
+        },
+
+        success: function (response) {
+
+            if (!response.success) {
+                $("#nombreGanador").text(response.mensaje);
+                boton.prop("disabled", false);
+                return;
+            }
+
+            const participantes = response.participantes;
+            const ganador = response.ganador;
+
+            const duracion = 6000;
+            const inicio = Date.now();
+
+            function animar() {
+
+                const transcurrido = Date.now() - inicio;
+
+                if (transcurrido >= duracion) {
+
+                    $("#nombreGanador")
+                    .hide()
+                    .removeClass("text-secondary")
+                    .addClass("text-success")
+                    .html(`
+                        <div class="fs-3 fw-bold">
+                            ${response.ganador.nombre}
+                        </div>
+                        <div class="fs-5 text-secondary mt-2">
+                            <i class="bi bi-telephone-fill me-1"></i>
+                            ${response.ganador.celular}
+                        </div>
+                    `)
+                    .fadeIn(1000);
+                    $("#puntosGanador").text(
+                        "🏆 " + response.puntos + " puntos acumulados"
+                    );
+
+                    boton.prop("disabled", false);
+                    return;
+                }
+
+                const nombre = participantes[
+                    Math.floor(Math.random() * participantes.length)
+                ];
+
+                $("#nombreGanador").text(nombre);
+
+                const progreso = transcurrido / duracion;
+                const velocidad = 50 + Math.pow(progreso, 3) * 500;
+
+                setTimeout(animar, velocidad);
+            }
+
+            animar();
+        },
+
+        error: function (xhr) {
+
+            $("#nombreGanador").text(
+                "Ocurrió un error al realizar el sorteo."
+            );
+
+            boton.prop("disabled", false);
+        }
+    });
+
+});
+</script>

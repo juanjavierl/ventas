@@ -14,6 +14,7 @@ from app.catalog.choices import GENDER
 
 from django.db import models
 from app.tiendas.models import *
+from app.tiendas.utils import obtener_numero_nacional
 
 class Category(models.Model):
     name = models.CharField(max_length=50, unique=True, verbose_name='Nombre')
@@ -161,7 +162,7 @@ class Client(models.Model):
     mobile = models.CharField(max_length=15, verbose_name='Celular (WhatsApp)')
     email = models.EmailField(max_length=100, unique=True, verbose_name='Correo Electrónico')
     date_joined = models.DateField(default=datetime.now, verbose_name='Fecha de registro')
-    address = models.CharField(max_length=500, null=True, blank=True, verbose_name='Dirección o referencia exacta*', help_text="Ingrese:Zona,Calle,Nro")
+    address = models.CharField(max_length=500, null=True, blank=True, verbose_name='Dirección o referencia exacta*', help_text="Ingrese:Nro de casa, calle, barrio, zona")
 
     def __str__(self):
         return self.get_full_name()
@@ -180,6 +181,10 @@ class Client(models.Model):
         item['id'] = int(self.id)
         item['mobile'] = self.mobile
         return item
+
+    @property
+    def numero_nacional(self):#utiliza el metodo obtener_numero_nacional desde utils.py para obtener el numero nacional del cliente
+        return obtener_numero_nacional(self.mobile)
 
     class Meta:
         verbose_name = 'Cliente'

@@ -54,4 +54,10 @@ urlpatterns = [
     path('add_promocion/<int:id_company>', views.add_promocion, name='add_promocion'),
     path('get_promocion/<int:id_company>', views.get_promocion, name='get_promocion'),
     path('delete_promocion/<int:id_promocion>', views.delete_promocion, name='delete_promocion'),
+
+    path('add_fidelidad/<int:id_company>', views.add_fidelidad, name='add_fidelidad'),
+    path('get_fidelidad/<int:id_company>', views.get_fidelidad, name='get_fidelidad'),
+    path('delete_fidelidad/<int:id_fidelidad>', views.delete_fidelidad, name='delete_fidelidad'),
+    path('<int:id_company>/ranking_fidelidad/', views.ranking_fidelidad, name='ranking_fidelidad'),
+    path('elegir-ganador/<int:id_company>/',views.elegir_ganador,name='elegir_ganador'),
 ]

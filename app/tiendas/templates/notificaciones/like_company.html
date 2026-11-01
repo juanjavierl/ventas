@@ -19,13 +19,13 @@
           <div class="alert-success">
             <h5 class="card-title fst-italic text-primary">{{company.name|title}} te dice</h5>
             <p class="card-text text-start fst-italic">{{like}}<br>
-              <a href="/{{company.id}}/catalogo">Ir al Catálogo</a>
+              <a href="https://{{ request.get_host }}{{ company.get_meta_url }}">Ir al Catálogo</a>
             </p>
           </div>
           {% else %}
-          <h5 class="card-title fst-italic text-success">{{company.name|title}} te dice ¡Muchas Gracias Por Confiar en Nosotros!</h5>
+          <h5 class="card-title fst-italic text-success">{{company.name|title}} te dice ¡Muchas Gracias Por Confiar en Nosotros su pedido esta siendo procesado!</h5>
           <p class="card-text text-start fst-italic">Elige una opción para evaluar nuestro sistema, asi podremos llegar a
-            más personas, hasta pronto!.</p>
+            más personas, gracias!.</p>
           <form action="/{{company.id}}/{{id_orden}}/{{id_cliente}}/like" method="post" id="form_like">
             {% csrf_token %}
             <div class="input-group">

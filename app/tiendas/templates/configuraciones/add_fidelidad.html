@@ -1,0 +1,23 @@
+{% load crispy_forms_tags %}
+<div id="collapseNine" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+    <div class="accordion-body row d-flex justify-content-center">
+        <div class="forn-envio col-lg-5 align-items-stretch">
+            <div class="input-group">
+                <form action="/add_fidelidad/{{company.id}}" method="post" id="add_fidelidad_forms">
+                    {% csrf_token %}
+                    {{forms_fidelidad|crispy}}
+                    {% if fidelidad_actual and fidelidad_actual.fecha_fin < today %}
+                    <input type="hidden" name="activar_nueva" value="1">
+                    <p class="text-warning small">La promoción venció. Configura las fechas y los demás datos antes de confirmar.</p>
+                    <button type="submit" class="btn btn-warning btn-sm">Activar nueva promoción y reiniciar puntos anteriores</button>
+                    {% else %}
+                    <button type="submit" class="btn btn-primary btn-sm" id="btn_prom">{% if fidelidad_actual %}Guardar cambios{% else %}Registrar{% endif %}</button>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+        <div class="info_fidelidad col-lg-5 d-flex align-items-stretch" id="info_fidelidad">
+            {% include 'notificaciones/get_fidelidad.html' %}
+        </div>
+    </div>
+</div>

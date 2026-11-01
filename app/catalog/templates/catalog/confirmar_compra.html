@@ -89,13 +89,13 @@
       <form action="/{{company.id}}/confirmar_compra/" method="post" class="" id="form_pedido" style="width: 100%;">
         {% csrf_token %}
         {{ form|crispy }}
-        <label for="">Método de envio* </label>
+        <label for="">¿Como quieres recibir tu pedido?* </label>
         <select class="form-select" id="tipo_envio" name="tipo_envio" aria-label="Small select example">
-          <option value="tienda">Contra entrega</option>
-          <option value="domicilio">Envio domicilio</option>
+          <option value="tienda" title="{{company.sucursal.sucursal}}">Recojo en tienda</option>
+          <option value="domicilio" title="Te lo llevamos a tu dirección">Envio a domicilio</option>
           
           {% if not company.is_service %}
-          <option value="ciudad">Envio a otra Ciudad</option>
+          <option value="ciudad" title="Te enviamos a tu ciudad">Envio a otra Ciudad</option>
           {% endif %}
         </select>
         <small class="text-muted menj_valor_envio"></small>
@@ -115,7 +115,7 @@
         <div id="div_id_fecha">
           <label for="">Fecha y Hora a Recoger</label>
           <input type="datetime-local" id="date_time" name="date_time"
-            title="{{ company.sucursal.address }}"
+            title="{{ company.sucursal.sucursal }}"
             value="{{ ahora }}"
             min="{{ ahora }}"
             max="{{ limite }}"
@@ -160,6 +160,13 @@
                     <div class="fw-semibold text-success mb-1">
                         <i class="bi bi-stars text-warning"></i>
                         Esta compra aplica un descuento del <span class="text-danger">{{ company.promocion.descuento }}%</span>
+                    </div>
+                    {% endif %}
+
+                    {% if company.fidelidad and company.fidelidad.vigente and t_pago >= company.fidelidad.compra_mayores %}
+                    <div class="fw-semibold text-success mb-1">
+                        <i class="bi bi-stars text-warning"></i>
+                        Genial por esta compra sumas <span class="text-primary">{{ puntos }} {% if puntos == 1 %} Punto{% else %} Puntos{% endif %}.</span>
                     </div>
                     {% endif %}
 
@@ -223,7 +230,7 @@
     $("#div_id_fecha").css("margin-bottom", "20px");
     $("#div_id_fecha").css("margin-top", "20px");
 
-    $(".menj_valor_envio").html('Una vez confirmado puede pasar a recoger.');
+    $(".menj_valor_envio").html('Una vez confirmado puede pasar a recoger en nuestra tienda.');
     $('.img_pagoQr').hide();
     $("#date_time").value = "{% now 'd-m-Y H:i:s' %}";
     $('#date_time').attr('required', 'true');
@@ -271,7 +278,7 @@
 
                           if (opcion === "tienda") {
                               $(".menj_valor_envio")
-                                  .text("Una vez confirmado puede pasar a recoger.")
+                                  .text("Una vez confirmado puede pasar a recoger en nuestra tienda.")
                                   .show();
                           } else {
                               $(".menj_valor_envio")
@@ -328,7 +335,7 @@
       $('#date_time, #id_address, #destino').removeAttr('required');
 
       if (opcion === "tienda") {
-          $(".menj_valor_envio").text('Una vez confirmado puede pasar a recoger.').show();
+          $(".menj_valor_envio").text('Una vez confirmado puede pasar a recoger en nuestra tienda.').show();
           $("#div_id_fecha").fadeIn(1000).find("input").focus();
 
           $('#date_time').attr('required', true);
@@ -449,6 +456,9 @@
         if (!isNaN(descuento_val) && descuento_val > 0) {
           textoWhatsapp += "🎁 *Descuento aplicado:*" + resp.company_object.moneda + descuento_val.toFixed(2) + "%0A";
         }
+        if (resp.puntos && resp.puntos > 0) {
+          textoWhatsapp += "🎉 *Tus fidepuntos por esta compra es:* " + resp.puntos + " puntos %0A";
+        }
 
         // 📦 Costo de envío y tipo
         const tipoEntrega = resp.lugar?.tipo || "";
@@ -502,6 +512,11 @@
           url: "/" + resp.company_object.id + "/" + resp.orden.id + "/" + resp.cliente_object.id + "/like",
           success: function (response) {
             $("#team_productos").html(response);
+            window.scrollTo({
+              top: 0,
+              behavior: 'smooth' // Hace que el movimiento sea suave. Si prefieres que sea instantáneo, cámbialo a 'auto'
+            });
+
           }
         });
       },

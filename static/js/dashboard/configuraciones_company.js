@@ -470,8 +470,8 @@ $(document).ready(function () {
     console.log("Fecha inicio:", $('#id_fecha_inicio').val());
     console.log("Fecha fin:", $('#id_fecha_fin').val());
 
-    if ($('#id_fecha_inicio').length) {
-        $('#id_fecha_inicio').daterangepicker({
+    if ($('.dateinput').length) {
+        $('.dateinput').daterangepicker({
             singleDatePicker: true,
             autoApply: true,
             autoUpdateInput: true,
@@ -490,25 +490,7 @@ $(document).ready(function () {
             }
         });
     }
-    if ($('#id_fecha_fin').length) {
-        $('#id_fecha_fin').daterangepicker({
-            singleDatePicker: true,
-            autoApply: true,
-            minDate: moment(),
-            locale: {
-                format: 'DD/MM/YYYY',
-                applyLabel: 'Aceptar',
-                cancelLabel: 'Cancelar',
-                daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
-                monthNames: [
-                    'Enero', 'Febrero', 'Marzo', 'Abril',
-                    'Mayo', 'Junio', 'Julio', 'Agosto',
-                    'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-                ],
-                firstDay: 1
-            }
-        });
-    }
+    
     $('#add_ofertas_forms').on('submit', function (e) {
         e.preventDefault();
         $.ajax({
@@ -535,6 +517,50 @@ $(document).ready(function () {
                     $('.toast-body').removeClass('alert-success').addClass('alert-danger').fadeIn(1000).html('<strong>' + resp.error + '</strong>');
                     mostrar_notificacion();
                 }
+            },
+        });
+    });
+
+    $('#add_fidelidad_forms').on('submit', function (e) {
+        e.preventDefault();
+        if ($(this).find('[name="activar_nueva"]').length &&
+            !window.confirm('¿Confirmas activar la nueva promoción y reiniciar los puntos de la anterior promoción?')) {
+            return;
+        }
+        $.ajax({
+            type: 'POST',
+            url: $(this).attr('action'),
+            data: $(this).serialize(),
+            success: function (resp) {
+                if (resp.success) {
+                    $('.toast-body').removeClass('alert-danger').addClass('alert-success').fadeIn(1000).html('<strong>' + resp.success + '</strong>');
+                    mostrar_notificacion();
+                    $('#add_fidelidad_forms .text-warning').text('La promoción esta activa nuevamente.').removeClass('text-warning').addClass('text-success');
+
+                    $('#add_fidelidad_forms .btn').text('Promoción activa').removeClass('btn-warning').addClass('btn-primary');
+                    $.ajax({
+                        type: 'GET',
+                        url: '/get_fidelidad/' + APP.companyId,
+                        success: function (data) {
+                            console.log(data);
+                            $('.info_fidelidad').html(data);
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            alert("Error: " + thrownError);
+                        }
+                    });
+                } else {
+                    $('.toast-body').removeClass('alert-success').addClass('alert-danger').fadeIn(1000).html('<strong>' + resp.error + '</strong>');
+                    mostrar_notificacion();
+                }
+            },
+            error: function (xhr) {
+                const resp = xhr.responseJSON || {};
+                const errores = resp.error && typeof resp.error === 'object'
+                    ? Object.values(resp.error).flat().map(error => error.message || error).join('<br>')
+                    : (resp.error || 'No se pudo guardar la promoción.');
+                $('.toast-body').removeClass('alert-success').addClass('alert-danger').fadeIn(1000).html(errores);
+                mostrar_notificacion();
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert("Error: " + thrownError);

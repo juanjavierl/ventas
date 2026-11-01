@@ -1,29 +1,37 @@
-
-from django.shortcuts import render, get_object_or_404,HttpResponse,redirect
-from django.contrib.auth.forms import User, UserCreationForm, AuthenticationForm
-from django.contrib.auth import authenticate,login, logout
-from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse, request,HttpResponse
-from django.template.loader import render_to_string, get_template
-from django.core.paginator import Paginator
-from django.db.models import Count, Sum, F
-from django.contrib import messages
-from ventas import settings
-from django.core.mail import EmailMultiAlternatives
-from weasyprint import HTML, CSS
-from weasyprint.text.fonts import FontConfiguration
-from datetime import datetime, date, timedelta
-import os
-import json
-import threading
+#encoding:utf-8
+# 1. Biblioteca estándar de Python
 import ast
-from app.tiendas.models import *
-from app.tiendas.forms import *
+from datetime import date, datetime, timedelta
+import json
+import os
+import threading
+
+# 2. Librerías de terceros (Django y WeasyPrint)
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import AuthenticationForm, User, UserCreationForm
+from django.core.mail import EmailMultiAlternatives
+from django.core.paginator import Paginator
+from django.db import transaction
+from django.db.models import Count, ExpressionWrapper, F, IntegerField, Sum
+from django.http import Http404, HttpResponse, JsonResponse, request
+from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import get_template, render_to_string
+from weasyprint import CSS, HTML
+from weasyprint.text.fonts import FontConfiguration
+import secrets
+from django.views.decorators.http import require_POST
+
+# 3. Aplicaciones locales de tu proyecto
 from app.catalog.forms import formProducto
-from app.catalog.models import Product, Orden, Pedido, Like
-from app.inicio.views import get_Dashboard
+from app.catalog.models import Like, Orden, Pedido, Product
 from app.catalog.views import *
-from django.db.models import F, ExpressionWrapper, IntegerField
+from app.inicio.views import get_Dashboard
+from app.tiendas.forms import *
+from app.tiendas.models import *
+from ventas import settings
+from app.tiendas.utils import calcular_puntos_fidelidad
 # Create your views here.
 def getTypes(request, id_type, slug):
     if request.user.is_authenticated:
@@ -42,7 +50,8 @@ def getTypes(request, id_type, slug):
         'count_productos':count_productos,
         'ciudades':Ciudad.objects.all().order_by('-id'),
         'type_company':Tipo_company.objects.all().order_by('-id'),
-        'count_comp':contar_companys()
+        'count_comp':contar_companys(),
+        'proyectos':Proyecto.objects.all().order_by('-id')
     }
     return render(request, 'card_companys.html', dic)
 
@@ -415,6 +424,9 @@ def configuraciones_company(request, id_company):
         'form_avisos':Form_avisos(instance=Aviso.objects.filter(company_id = int(id_company)).first()),
         'form_regla':Form_condiciones(instance=Condicion.objects.filter(company_id = int(id_company)).first()),
         'forms_promocion':FormPromocion(instance=Promocion.objects.filter(company_id = int(id_company)).first()),
+        'forms_fidelidad':FormFidelidad(instance=Fidelidad.objects.filter(company_id = int(id_company)).first()),
+        'fidelidad_actual':Fidelidad.objects.filter(company_id=int(id_company)).first(),
+        'today':date.today(),
         'categorias':categorys_from_productos(productos),
         'company':get_company(id_company, request.user),  # ya hace validación y 404
         'total_compra':sum(item['cantidad'] for item in request.session['compra']),
@@ -427,8 +439,8 @@ def configuraciones_company(request, id_company):
         'ordens':ped,
         'clientes':Client.objects.all().order_by('-id'),
         'address':get_address(id_company),
-        'promocion': Promocion.objects.filter(company_id=int(id_company))[:1]
-
+        'promocion': Promocion.objects.filter(company_id=int(id_company))[:1],
+        'fidelidad':Fidelidad.objects.filter(company_id=int(id_company))[:1]
     }
     return render(request,'configuraciones_company.html', dic)
 
@@ -706,12 +718,12 @@ def like_company(request, id_company, id_orden, id_cliente):
         lik.client_id = int(id_cliente)
         lik.orden_id = int(id_orden)
         lik.save()
-        ruta = "/"+str(id_company)+"/catalogo" 
+        ruta = request.build_absolute_uri(f'{get_company(id_company).get_meta_url()}/')
         print(ruta)
         return JsonResponse({'success':'Muchas gracias por su preserencia','ruta:':ruta})
     else:
         if Like.objects.filter(company_id=id_company, orden_id=id_orden, client_id=id_cliente).exists():
-            ruta = str(id_company)+"/catalogo"
+            ruta = request.build_absolute_uri(f'{get_company(id_company).get_meta_url()}/')
             dic = {
                 'categorias':categorys_from_productos(productosDeCatalogo(request, id_company)),
                 'total_compra':sum(item['cantidad'] for item in request.session['compra']),
@@ -872,30 +884,73 @@ def estadoCompany(request, id_company):
         initial_url = request.build_absolute_uri(f'/{company.id}/catalogo')
     return render(request, 'notificaciones/estadoCompany.html',{'company':company, 'initial_url':initial_url})
 
-def autorizar_orden(request, id_orden):
-    orden = get_object_or_404(Orden, id=id_orden)
 
-    # 🔒 Si ya está autorizada, no volver a procesar
-    if orden.status:
+def autorizar_orden(request, id_orden):
+    if request.method == 'POST':
+        autorizada_ahora = False
+        with transaction.atomic():
+            # El bloqueo hace que solicitudes concurrentes vuelvan a comprobar status
+            # después de que la primera termine.
+            orden = get_object_or_404(Orden.objects.select_for_update(), id=id_orden)
+
+            if not orden.status:
+                pedidos = list(Pedido.objects.filter(orden=orden).select_related('product'))
+
+                # Inventario, estado de autorización y fidelidad se confirman juntos.
+                for pedido in pedidos:
+                    if not pedido.product.is_service:
+                        Product.objects.filter(id=pedido.product_id).update(
+                            salida=F('salida') + pedido.cant
+                        )
+
+                # Obtener la promoción de fidelidad del negocio.
+                try:
+                    fidelidad = Fidelidad.objects.get(company_id=orden.company_id)
+                except Fidelidad.DoesNotExist:
+                    fidelidad = None
+
+                if fidelidad:
+                    puntos = calcular_puntos_fidelidad(
+                        orden.total,
+                        fidelidad
+                    )
+
+                    if puntos > 0:
+                        cuenta, _ = CuentaPuntos.objects.get_or_create(
+                            company_id=orden.company_id,
+                            cliente=orden.client,
+                        )
+
+                        cuenta = CuentaPuntos.objects.select_for_update().get(
+                            company_id=orden.company_id,
+                            cliente=orden.client,
+                        )
+
+                        cuenta.puntos = F('puntos') + puntos
+                        cuenta.cantidad_compras = F('cantidad_compras') + 1
+
+                        cuenta.save(
+                            update_fields=[
+                                'puntos',
+                                'cantidad_compras',
+                                'fecha_actualizacion'
+                            ]
+                        )
+
+                orden.status = True
+                orden.save(update_fields=['status'])
+                autorizada_ahora = True
+
+        if autorizada_ahora:
+            messages.success(request, "La orden fue autorizada exitosamente.")
         return render(
             request,
             'notificaciones/orden_autorizada.html',
             {'orden': orden}
         )
 
-    if request.method == 'POST':
-        # Marcar la orden como autorizada
-        orden.status = True
-        orden.save()
-
-        # Actualizar salidas de productos con F expressions
-        pedidos = Pedido.objects.filter(orden=orden).select_related('product')
-        for pedido in pedidos:
-            producto = pedido.product
-            if not producto.is_service:
-                Product.objects.filter(id=producto.id).update(salida=F('salida') + pedido.cant)
-
-        messages.success(request, "La orden fue autorizada exitosamente.")
+    orden = get_object_or_404(Orden, id=id_orden)
+    if orden.status:
         return render(
             request,
             'notificaciones/orden_autorizada.html',
@@ -947,3 +1002,166 @@ def delete_promocion(request, id_promocion):
         promocion.delete()
         return JsonResponse({'success':"Se Borro el registro. "})
     return render(request, 'notificaciones/delete_promocion.html', {'promocion':promocion})
+
+@login_required(login_url='/')
+def add_fidelidad(request, id_company):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Método no permitido.'}, status=405)
+
+    # La empresa se resuelve desde el propietario autenticado, nunca desde el POST.
+    company = get_company(id_company, request.user)
+    fidelidad_existente = Fidelidad.objects.filter(company=company).first()
+    iniciar_nueva = bool(fidelidad_existente and fidelidad_existente.fecha_fin < date.today())
+    es_activacion_nueva = request.POST.get('activar_nueva') == '1'
+
+    if iniciar_nueva and not es_activacion_nueva:
+        return JsonResponse({'error': 'Confirma la activación de una nueva promoción.'}, status=400)
+    if es_activacion_nueva and not iniciar_nueva:
+        return JsonResponse({'error': 'La promoción actual no ha vencido.'}, status=400)
+
+    if es_activacion_nueva:
+        form_fidelidad = FormFidelidad(request.POST, instance=fidelidad_existente)
+    elif fidelidad_existente:
+        form_fidelidad = FormFidelidad(request.POST, instance=fidelidad_existente)
+    else:
+        form_fidelidad = FormFidelidad(request.POST)
+
+    if not form_fidelidad.is_valid():
+        return JsonResponse({'error': form_fidelidad.errors.get_json_data()}, status=400)
+
+    if es_activacion_nueva and form_fidelidad.cleaned_data['fecha_inicio'] < date.today():
+        return JsonResponse({'error': {'fecha_inicio': [{'message': 'La nueva promoción debe iniciar hoy o en una fecha futura.'}]}}, status=400)
+
+    try:
+        with transaction.atomic():
+            if es_activacion_nueva:
+                fidelidad_existente = Fidelidad.objects.select_for_update().get(company=company)
+                # Revalidar bajo bloqueo para que dos solicitudes no activen/reseten a la vez.
+                if fidelidad_existente.fecha_fin >= date.today():
+                    return JsonResponse({'error': 'La promoción ya fue actualizada.'}, status=409)
+                form_fidelidad = FormFidelidad(request.POST, instance=fidelidad_existente)
+                if not form_fidelidad.is_valid() or form_fidelidad.cleaned_data['fecha_inicio'] < date.today():
+                    return JsonResponse({'error': form_fidelidad.errors.get_json_data()}, status=400)
+            fidelidad = form_fidelidad.save(commit=False)
+            fidelidad.company = company
+            if es_activacion_nueva:
+                fidelidad.activo = True
+            fidelidad.save()
+            if es_activacion_nueva:
+                CuentaPuntos.objects.filter(company_id=company.id).update(puntos=0, cantidad_compras=0)
+    except Exception:
+        return JsonResponse({'error': 'No se pudo guardar la promoción. No se reiniciaron los puntos.'}, status=500)
+
+    mensaje = 'Nueva promoción activada y puntos anteriores reiniciados.' if es_activacion_nueva else (
+        'Programa de fidelidad actualizado exitosamente.' if fidelidad_existente else 'Registro exitoso.'
+    )
+    messages.success(request, mensaje)
+    return JsonResponse({'success': mensaje})
+
+@login_required(login_url='/')
+def ranking_fidelidad(request, id_company):
+    company = get_company(id_company, request.user)
+    fidelidad = Fidelidad.objects.filter(company=company).first()
+
+    cuentas = (
+        CuentaPuntos.objects
+        .filter(company=company, puntos__gt=0)
+        .select_related('cliente')
+        .order_by('-puntos', 'cliente__names')
+    )
+    return render(request, 'configuraciones/ranking_fidelidad.html', {
+        'company': company,
+        'fidelidad': fidelidad,
+        'cuentas': cuentas,
+    })
+
+def get_fidelidad(request, id_company):
+    try:
+        fidelidad = Fidelidad.objects.filter(company_id = int(id_company))
+    except:
+        fidelidad = False
+    return render(request, 'notificaciones/get_fidelidad.html', {'fidelidad':fidelidad})
+
+@login_required(login_url='/')
+def delete_fidelidad(request, id_fidelidad):
+    fidelidad = get_object_or_404(Fidelidad, id=id_fidelidad)
+
+    if request.method == 'POST':
+        company = get_company(fidelidad.company_id, request.user)
+
+        try:
+            with transaction.atomic():
+                # Reiniciar los puntos y la cantidad de compras
+                # únicamente de esta empresa.
+                CuentaPuntos.objects.filter(
+                    company_id=company.id
+                ).update(
+                    puntos=0,
+                    cantidad_compras=0
+                )
+
+                # Eliminar la promoción.
+                fidelidad.delete()
+
+            return JsonResponse({
+                'success': 'Se eliminó la promoción y se reiniciaron los puntos anteriores.'
+            })
+
+        except Exception:
+            return JsonResponse({
+                'error': 'No se pudo eliminar la promoción ni reiniciar los puntos.'
+            }, status=500)
+
+    return render(
+        request,
+        'notificaciones/delete_fidelidad.html',
+        {'fidelidad': fidelidad}
+    )
+
+
+@login_required
+@require_POST
+def elegir_ganador(request, id_company):
+
+    ranking = list(
+        CuentaPuntos.objects.filter(
+            company_id=id_company,
+            puntos__gt=0
+        ).select_related('cliente')
+    )
+
+    if not ranking:
+        return JsonResponse({
+            'success': False,
+            'mensaje': 'No existen clientes con puntos para participar.'
+        })
+
+    # Calcular el total de puntos
+    total_puntos = sum(item.puntos for item in ranking)
+
+    # Número aleatorio entre 1 y el total de puntos
+    numero_ganador = secrets.randbelow(total_puntos) + 1
+
+    acumulado = 0
+    ganador = None
+
+    # Determinar el cliente ganador según sus puntos
+    for item in ranking:
+        acumulado += item.puntos
+
+        if numero_ganador <= acumulado:
+            ganador = item
+            break
+
+    return JsonResponse({
+        'success': True,
+        'ganador': {
+            'nombre': str(ganador.cliente),
+            'celular':  obtener_numero_nacional(ganador.cliente.mobile)
+        },
+        'puntos': ganador.puntos,
+        'total_puntos': total_puntos,
+        'participantes': [
+            str(item.cliente) for item in ranking
+        ]
+    })

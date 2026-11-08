@@ -1,4 +1,4 @@
-{% load static %}
+{% load static extras %}
 <!DOCTYPE html>
 <html lang="es">
 
@@ -9,7 +9,7 @@
     <link href="{% static 'lib/bootstrap-5.0.2/css/bootstrap.min.css' %}" rel="stylesheet">
     <style>
         @page {
-            width: 65mm;
+            width: 80mm;
             height: {{ height }}px;
             margin: 0;
         }
@@ -24,7 +24,7 @@
         }
 
         .content {
-            width: 65mm;
+            width: 75mm;
             padding: 8px;
         }
 
@@ -134,7 +134,7 @@
                 {% for p in pedidos %}
                 <tr>
                     <td>{{ p.cant }}</td>
-                    <td>{{ p.product.name }} {{ p.nota|default:""|title }}</td>
+                    <td>{{ p.product.name }} {{ p.nota|default:""|title }}{% pedido_atributos p %}</td>
                     <td>{{ p.price|floatformat:2 }}</td>
                     <td class="text-end">{{ p.total|floatformat:2 }}</td>
                 </tr>
@@ -162,7 +162,7 @@
                 <td class="text-end">{{ orden.precio_envio|floatformat:2 }}</td>
             </tr>
             <tr>
-                <td colspan="98" class="text-end fw-bold">Total a pagar</td>
+                <td colspan="98" class="text-end fw-bold">Total a pagar {{company.moneda}}</td>
                 <td class="text-end"><strong>{{ orden.total|floatformat:2 }}</strong></td>
             </tr>
         </table>

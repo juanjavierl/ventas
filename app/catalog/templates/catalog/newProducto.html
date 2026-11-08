@@ -25,17 +25,17 @@
             {{form.name}}
           </div>
           <div class="col-md-6 form-group">
-            <label for="{{ form.code.id_for_label }}">Código: (Opcional)</label>
+            <label for="{{ form.code.id_for_label }}"> {{form.code.label}}: (Opcional)</label>
             {{form.code}}
           </div>
         </div>
         <div class="form-group mt-3">
-          <label for="{{ form.description.id_for_label }}">Descripción: (Opcional)</label>
+          <label for="{{ form.description.id_for_label }}"> {{form.description.label}}: (Opcional)</label>
           {{form.description}}
         </div>
         <div class="row">
           <div class="col-md-6 form-group"><br>
-            <label for="{{ form.name.id_for_label }}">Categoria:*</label>
+            <label for="{{ form.name.id_for_label }}"> {{form.category.label}}: *</label>
             <div class="d-flex align-items-center gap-2" id="select_categorys">
               <select name="category" class="select form-select select-control flex-grow-1" required="" id="id_category"
                 tabindex="-1" aria-hidden="true">
@@ -52,7 +52,7 @@
           </div>
 
           <div class="col-md-6 form-group"><br>
-            <label for="{{ form.image.id_for_label }}">Imagen: (Opcional)</label>
+            <label for="{{ form.image.id_for_label }}"> {{form.image.label}}: (Opcional)</label>
             <span id="passwordHelpBlock" class="form-text">
               Formato cuadrado ó ancho 800 y alto 600
             </span>
@@ -70,11 +70,11 @@
             {{form.price}}
           </div>
           <div class="col-md-4 form-group"><br>
-            <label for="{{ form.price_before.id_for_label }}">Precio de Antes:(Opcional)</label>
+            <label for="{{ form.price_before.id_for_label }}"> {{form.price_before.label}}: (Opcional)</label>
             {{form.price_before}}
           </div>
           <div class="col-md-4 form-group"><br>
-            <label for="{{ form.stock.id_for_label }}">Stock:
+            <label for="{{ form.stock.id_for_label }}"> {{form.stock.label}}:
               <span id="passwordHelpBlock" class="form-text">
                 Por defecto 1
               </span>
@@ -86,7 +86,7 @@
         </div>
         <div class="row">
           <div class="form-group mt-3">
-            <label for="{{ form.video_url.id_for_label }}">Enlace del video: (Opcional)</label>
+            <label for="{{ form.video_url.id_for_label }}"> {{form.video_url.label}}</label>
             {{form.video_url}}
             <span id="passwordHelpBlock" class="form-text">
               Copia y pega un enlace de video de Facebook, Tiktok ó Youtube
@@ -96,16 +96,16 @@
         <div class="row">
           <div class="col-md-4 form-group">
             <input type="checkbox" name="is_service" class="checkboxinput form-check-input" id="id_is_service">
-            <label for="{{ form.is_service.id_for_label }}">Sin Stock:</label>
+            <label for="{{ form.is_service.id_for_label }}"> {{form.is_service.label}}:</label>
           </div>
           <div class="col-md-4 form-group">
             <input type="checkbox" name="is_new" class="checkboxinput form-check-input" id="id_is_new">
 
-            <label for="{{ form.is_new.id_for_label }}">¿Es Nuevo?:</label>
+            <label for="{{ form.is_new.id_for_label }}"> {{form.is_new.label}}:</label>
           </div>
           <div class="col-md-4 form-group">
             <input type="checkbox" name="is_promotion" class="checkboxinput form-check-input" id="id_is_promotion">
-            <label for="{{ form.is_promotion.id_for_label }}">¿Esta en Promoción?:</label>
+            <label for="{{ form.is_promotion.id_for_label }}"> {{form.is_promotion.label}}:</label>
           </div>
         </div>
         <hr>

@@ -3,13 +3,16 @@
 # 1. Biblioteca estándar de Python
 from datetime import date, datetime, timedelta
 from decimal import Decimal
+import json
 import threading
 
 # 2. Librerías de terceros (Django)
 from django.core.mail import EmailMultiAlternatives
+from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
 from django.db.models import ExpressionWrapper, F, IntegerField, Q
 from django.db.models.functions import Coalesce
+from django.db import transaction
 from django.http import Http404, JsonResponse, request
 from django.shortcuts import HttpResponse, get_object_or_404, redirect, render
 from django.template.loader import get_template
@@ -21,6 +24,7 @@ from app.inicio.models import Proyecto
 from app.inicio.views import get_Dashboard
 from app.tiendas.models import *
 from app.tiendas.utils import calcular_puntos_fidelidad
+from app.catalog.pricing import calculate_product_price, normalize_attribute_values
 # Create your views here.
 def CatalogView(request, id_company=None):
     template_name = "sitio.html"
@@ -75,6 +79,7 @@ def CatalogView(request, id_company=None):
 def productos_by_company(id_company):
     productos = Product.objects.filter(company_id=int(id_company)) \
                 .select_related('category') \
+                .prefetch_related('attributes') \
                 .order_by('category__name', '-id')
     return productos
 
@@ -146,6 +151,10 @@ def get_company(id_company, user=None):
 def optenerProducto(request, id_company, id_producto, slug):
     productos = Product.objects.filter(company_id = int(id_company))
     p = get_object_or_404(Product, id=id_producto, company_id=id_company)
+    atributos_producto = list(p.attributes.all())
+    for attribute in atributos_producto:
+        attribute.option_values = normalize_attribute_values(attribute.values)
+    atributos_informativos = [attribute for attribute in atributos_producto if not attribute.is_selectable]
     if request.method != 'POST' and slug != p.get_slug():
         return redirect(
             'detail_product',
@@ -161,16 +170,33 @@ def optenerProducto(request, id_company, id_producto, slug):
     except:
         data_cli = request.session.get('compra', [])
     if request.method == 'POST':
-        if not request.POST['cantidad'].isdigit():
+        if not request.POST.get('cantidad', '').isdigit() or int(request.POST.get('cantidad', '0')) < 1:
             return JsonResponse({'error': "La cantidad debe ser numerico."})
+        try:
+            seleccionados = json.loads(request.POST.get('atributos', '{}'))
+        except (TypeError, ValueError):
+            return JsonResponse({'error': 'Las opciones seleccionadas no son válidas.'}, status=400)
+        if not isinstance(seleccionados, dict):
+            return JsonResponse({'error': 'Las opciones seleccionadas no son válidas.'}, status=400)
+        requeridos = {a.name: a for a in atributos_producto if a.is_selectable}
+        faltantes = [name for name in requeridos if not seleccionados.get(name)]
+        if faltantes:
+            return JsonResponse({'error': 'Seleccione: ' + ', '.join(faltantes) + '.'}, status=400)
+        try:
+            precio_final, snapshot = calculate_product_price(p, seleccionados)
+        except ValidationError:
+            return JsonResponse({'error': 'Una o más opciones seleccionadas no pertenecen al producto.'}, status=400)
         #if int(request.POST['cantidad']) > p.stock:
         if p.stock_actual() <= 0:
             return JsonResponse({'error': 'Producto Agotado...!'})
         datos['id_producto'] = int(p.id)
         datos['name'] = p.name.title()
         datos['cantidad'] = int(request.POST['cantidad'])
-        datos['precio_uni'] = float(p.price)
-        datos['total'] = float(int(request.POST['cantidad']) * float(p.price))
+        datos['precio_base'] = str(p.price)
+        datos['precio_uni'] = str(precio_final)
+        datos['incrementos'] = snapshot
+        datos['total'] = str(int(request.POST['cantidad']) * precio_final)
+        datos['atributos'] = {name: option['value'] for name, option in snapshot.items()}
         datos['imagen'] = p.image.url if p.image else ''
         tiene_nota = request.POST.get('is_nota',False) == 'on'#verificamos si su pedido tiene una nota
         if tiene_nota:
@@ -185,8 +211,8 @@ def optenerProducto(request, id_company, id_producto, slug):
                 'total_compra':sum(item['cantidad'] for item in data_cli),
                 'cantidad':int(request.POST['cantidad']),
                 'producto':p.name.title(),
-                'precio_uni':float(p.price),
-                'total':float(int(request.POST['cantidad']) * float(p.price)),
+                'precio_uni':str(precio_final),
+                'total':str(int(request.POST['cantidad']) * precio_final),
                 'datos': request.session['compra'],
                 "t_pago":calcular_pago(request)
             }
@@ -194,9 +220,9 @@ def optenerProducto(request, id_company, id_producto, slug):
             return JsonResponse(dic)
         elif len(data_cli) > 0:#cuando el carrito ya tiene compras
             for indice in range(len(data_cli)):   
-                if data_cli[indice]['id_producto'] == datos['id_producto']:
+                if data_cli[indice]['id_producto'] == datos['id_producto'] and data_cli[indice].get('atributos', {}) == seleccionados:
                     data_cli[indice]['cantidad'] = int(data_cli[indice]['cantidad']) + int(request.POST['cantidad'])
-                    data_cli[indice]['total'] = float(int(data_cli[indice]['cantidad']) * float(p.price))
+                    data_cli[indice]['total'] = str(int(data_cli[indice]['cantidad']) * Decimal(data_cli[indice]['precio_uni']))
                     data_cli[indice] = data_cli[indice]
                     request.session['compra'] = data_cli
                     dic['total_compra'] = sum(item['cantidad'] for item in data_cli)
@@ -227,7 +253,9 @@ def optenerProducto(request, id_company, id_producto, slug):
                     'productos':productosMasVistos(id_company),
                     'address':get_address(id_company),
                     'code':get_code_meta(id_company),
-                    'images_product':Imagen.objects.filter(items_id = int(id_producto))
+                    'images_product':Imagen.objects.filter(items_id = int(id_producto)),
+                    'attributes_producto':atributos_producto,
+                    'atributos_informativos':atributos_informativos
                 }
     return render(request,'catalog/OptenerProducto.html',context)
 
@@ -256,15 +284,15 @@ def show_productos_carrito(request, id_company):
 
 
 def calcular_pago(request):
-    total_pago = 0
+    total_pago = Decimal('0')
     try:
         productos = request.session['compra']
         for producto in productos:
-            total_pago += float(producto['total'])
+            total_pago += Decimal(str(producto['total']))
 
-        return round(total_pago,2)
+        return total_pago.quantize(Decimal('0.01'))
     except:
-        return round(total_pago,2)
+        return total_pago.quantize(Decimal('0.01'))
     
 
 def vaciar_carrito(request):
@@ -287,7 +315,7 @@ def actualizarCantidad(request):
     indice = request.GET['indice']
     productos = request.session['compra']
     productos[int(indice)]['cantidad'] =  int(productos[int(indice)]['cantidad']) + int(cantidad)
-    productos[int(indice)]['total'] = int(productos[int(indice)]['precio_uni']) * int(productos[int(indice)]['cantidad'])
+    productos[int(indice)]['total'] = str(Decimal(str(productos[int(indice)]['precio_uni'])) * int(productos[int(indice)]['cantidad']))
     #print(productos[int(indice)]['precio_uni'], " X ", productos[int(indice)]['cantidad'])
     request.session['compra'] = productos
     data = {
@@ -304,7 +332,7 @@ def shear_product(request, id_company):
             Q(description__icontains=texto) |
             Q(category__name__icontains=texto)
         )
-        productos=Product.objects.filter(busqueda,stock__gt=0, company_id=int(id_company)).distinct()
+        productos=Product.objects.filter(busqueda,stock__gt=0, company_id=int(id_company)).prefetch_related('attributes').distinct()
         return render(request,'catalog/card_productos.html',{'productos':productos,'company':get_company(id_company)})
     else:
         texto=request.GET["search"]
@@ -313,13 +341,13 @@ def shear_product(request, id_company):
             Q(description__icontains=texto) |
             Q(category__name__icontains=texto)
         )
-        productos=Product.objects.filter(busqueda,stock__gt=0, company_id=int(id_company)).distinct()
+        productos=Product.objects.filter(busqueda,stock__gt=0, company_id=int(id_company)).prefetch_related('attributes').distinct()
         return render(request,'catalog/card_productos.html',{'productos':productos,'company':get_company(id_company)})
 
 def mostrar_por_categoria(request, id_company, id_categoria):
     if request.headers.get('x-requested-with') != 'XMLHttpRequest':
         return redirect(f'/{id_company}/catalogo')
-    productos = Product.objects.filter(stock__gt=0, category_id = id_categoria, company_id= id_company).order_by('-id')
+    productos = Product.objects.filter(stock__gt=0, category_id = id_categoria, company_id= id_company).prefetch_related('attributes').order_by('-id')
     return render(request, 'catalog/card_productos.html', {'productos':productos,'company':get_company(id_company)})
 
 def create_mail_confirmar_venta(email_propietario, subject, template_name, context):
@@ -349,8 +377,31 @@ def send_confirmar_venta_mail(email_propietario, orden, company):
 
 def confirmar_compra(request, id_company):
     company = get_object_or_404(Company, id=id_company)
-    t_pago = calcular_pago(request)
     compra = request.session.get('compra', [])
+    if request.method == 'POST':
+        # Reprice session lines from current DB data before totals or order creation.
+        for item in compra:
+            producto = Product.objects.filter(id=item.get('id_producto'), company_id=id_company).first()
+            if not producto:
+                return JsonResponse({'error': 'El carrito contiene un producto no disponible.'}, status=400)
+            try:
+                price, snapshot = calculate_product_price(producto, item.get('atributos', {}))
+            except ValidationError:
+                return JsonResponse({'error': 'El carrito contiene opciones inválidas. Vuelva al producto y seleccione sus opciones.'}, status=400)
+            try:
+                cantidad = int(item.get('cantidad', 0))
+            except (TypeError, ValueError):
+                cantidad = 0
+            if cantidad < 1:
+                return JsonResponse({'error': 'La cantidad del carrito no es válida.'}, status=400)
+            item.update({
+                'precio_base': str(producto.price), 'precio_uni': str(price),
+                'incrementos': snapshot,
+                'total': str(price * cantidad),
+                'atributos': {name: option['value'] for name, option in snapshot.items()},
+            })
+        request.session['compra'] = compra
+    t_pago = calcular_pago(request)
     total_compra = sum(item['cantidad'] for item in compra)
     fidelidad = getattr(company, 'fidelidad', None)# verificamos si la compañia tiene fidelidad activa para calcular los puntos que genera la compra
     if request.method == 'POST':
@@ -365,6 +416,16 @@ def confirmar_compra(request, id_company):
             return JsonResponse({'error': "Por favor ingrese su número de celular."})
         if not tipo_envio:
             return JsonResponse({'error': "Por favor seleccione el tipo de envío."})
+
+        for item in compra:
+            producto = Product.objects.filter(id=item.get('id_producto'), company_id=id_company).first()
+            if not producto:
+                return JsonResponse({'error': 'El carrito contiene un producto no disponible.'}, status=400)
+            seleccionados = item.get('atributos', {})
+            try:
+                calculate_product_price(producto, seleccionados)
+            except ValidationError:
+                return JsonResponse({'error': 'El carrito contiene opciones inválidas. Vuelva al producto y seleccione sus opciones.'}, status=400)
 
         forms = ClientFormOrder(request.POST)
 
@@ -417,24 +478,19 @@ def confirmar_compra(request, id_company):
    
         # ✅ Si YA existe → NO validamos, NO registramos, solo seguimos con la orden
 
-        # --- Crear orden ---
-        orden = crear_orden(request, cliente.id, id_company, ref)
-
-        # --- Registrar pedidos ---
-        for item in compra:
-            producto_id = int(item['id_producto'])
-            cantidad = int(item['cantidad'])
-            precio = float(item['precio_uni'])
-            total = cantidad * precio
-
-            Pedido.objects.create(
-                orden=orden,
-                product_id=producto_id,
-                cant=cantidad,
-                price=precio,
-                total=total,
-                nota=item.get('nota', '')
-            )
+        # --- Crear orden y líneas como una sola operación ---
+        with transaction.atomic():
+            orden = crear_orden(request, cliente.id, id_company, ref)
+            for item in compra:
+                producto = Product.objects.get(id=int(item['id_producto']), company_id=id_company)
+                seleccionados = item.get('atributos', {})
+                cantidad = int(item['cantidad'])
+                precio, snapshot = calculate_product_price(producto, seleccionados)
+                Pedido.objects.create(
+                    orden=orden, product=producto, cant=cantidad, price=precio,
+                    total=precio * cantidad, nota=item.get('nota', ''),
+                    atributos_seleccionados=snapshot,
+                )
 
         # --- Vaciar carrito ---
         lista_product = compra.copy()
@@ -494,7 +550,7 @@ def productosMasVistos(id_company):
         stock_real__gt=0,
         company_id=id_company,
         is_promotion=True
-    )
+    ).prefetch_related('attributes')
     return productos
 
 def determinarPrecioEnvio(id_company):
@@ -670,7 +726,9 @@ def newCategory(request):
     return render(request, 'catalog/newCategory.html',{'form':form})
 
 def updateProduct(request, id_product):
-    product = Product.objects.get(id=id_product)
+    product = get_object_or_404(Product, id=id_product)
+    if not request.user.is_authenticated or product.company.user_id != request.user.id:
+        raise Http404
     if request.method=='POST':
         form=formUpdateProducto(request.POST, request.FILES,instance=product)
         if form.is_valid():
@@ -681,6 +739,45 @@ def updateProduct(request, id_product):
     else:
         form=formUpdateProducto(instance=product)
         return render(request, 'catalog/updateProduct.html',{'form':form,'product':product})
+
+
+def manage_product_attribute(request, id_product):
+    product = get_object_or_404(Product, id=id_product)
+    if not request.user.is_authenticated or product.company.user_id != request.user.id:
+        raise Http404
+    if request.method == 'GET':
+        attributes = list(product.attributes.all())
+        for attribute in attributes:
+            attribute.options_json = json.dumps(normalize_attribute_values(attribute.values), ensure_ascii=False)
+        return render(request, 'catalog/product_attributes.html', {
+            'product': product,
+            'attributes': attributes,
+        })
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Método no permitido.'}, status=405)
+    attribute_id = request.POST.get('attribute_id')
+    if request.POST.get('delete') == '1':
+        get_object_or_404(ProductAttribute, id=attribute_id, product=product).delete()
+        return JsonResponse({'success': 'Característica eliminada.'})
+    name = request.POST.get('name', '').strip()
+    selectable = request.POST.get('is_selectable') == 'on'
+    option_names = request.POST.getlist('option_value[]')
+    option_prices = request.POST.getlist('option_price[]')
+    try:
+        values = [{'value': name.strip(), 'price_extra': price.strip() or '0'}
+                  for name, price in zip(option_names, option_prices) if name.strip()]
+        if not option_names:  # compatibility with callers of the former textarea form
+            values = [value.strip() for value in request.POST.get('values', '').splitlines() if value.strip()]
+        values = normalize_attribute_values(values)
+    except ValidationError as error:
+        return JsonResponse({'error': {'values': error.messages}}, status=400)
+    attribute = get_object_or_404(ProductAttribute, id=attribute_id, product=product) if attribute_id else ProductAttribute(product=product)
+    attribute.name, attribute.values, attribute.is_selectable = name, values, selectable
+    try:
+        attribute.save()
+    except ValidationError as error:
+        return JsonResponse({'error': error.message_dict}, status=400)
+    return JsonResponse({'success': 'Característica guardada.'})
 
 def deleteProduct(request, id_product):
     product = get_object_or_404(Product, id=int(id_product))

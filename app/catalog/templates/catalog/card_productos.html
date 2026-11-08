@@ -87,16 +87,18 @@
       </div>
       <div class="cta-section">
         <div>
-          <p style="margin-bottom: 0px;">{{company.moneda}}. {{p.price|default:" 0 "}}</p>
+          <p style="margin-bottom: 0px;">{{company.moneda}}. {{p.price|floatformat:1|default:" 0 "}}</p>
           {% if p.price_before %}
           <p class="text-decoration-line-through text-danger" style="font-size: 14px; margin-bottom: 0px;">Antes:
-            {{p.price_before}}</p>
-          <p><span class="badge text-bg-warning text-white desc">Desc. {{p.porcentage}}%</span></p>
+            {{p.price_before|floatformat:0}}</p>
+          <p><small class="badge text-bg-warning text-white desc">Desc. {{p.porcentage}}%</small></p>
           {% endif %}
 
           <div class="dropdown">
             
-            {% if p.stock_actual > 0 %}
+            {% if p.stock_actual > 0 and p.has_selectable_attributes %}
+            <a class="btn btn-primary btn-sm" href="{% url 'detail_product' company.id p.id p.get_slug %}">Elegir</a>
+            {% elif p.stock_actual > 0 %}
             <button type="submit" id="id_{{p.id}}"
               onclick="add_item('{% url 'detail_product' company.id p.id p.get_slug %}','{{p.id}}')"
               class="btn btn-primary btn-sm">Agregar</button>
@@ -112,6 +114,8 @@
             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
               <a class="dropdown-item" href="#actualizar" onclick="updateProduct('/{{p.id}}/updateProduct/')"
                 data-bs-toggle="modal" data-bs-target="#exampleModal">Actualizar datos</a>
+              <a class="dropdown-item" href="#caracteristicas" onclick="manageProductAttributes('/{{p.id}}/product-attributes/')"
+                data-bs-toggle="modal" data-bs-target="#exampleModal">Agregar más características</a>
               <a class="dropdown-item" href="#" onclick="add_imagen('/{{p.id}}/imgs_products/')"
                 data-bs-toggle="modal" data-bs-target="#exampleModal">Agregar más imagenes</a>
 
@@ -189,6 +193,12 @@
     });
   }
   function updateProduct(urls) {
+    loadProductModal(urls);
+  }
+  function manageProductAttributes(urls) {
+    loadProductModal(urls);
+  }
+  function loadProductModal(urls) {
     $.ajax({
       type: 'GET',
       url: urls,

@@ -1,3 +1,4 @@
+{% load extras %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -120,7 +121,7 @@
         <tbody>
           {% for pedido in orden.pedido_set.all %}
           <tr>
-            <td>{{ pedido.product.name }}</td>
+            <td>{{ pedido.product.name }}{% pedido_atributos pedido %}</td>
             <td>{{ pedido.cant }}</td>
             <td>Bs {{ pedido.product.price|floatformat:2 }}</td>
             <td>Bs {{ pedido.total|floatformat:2 }}</td>

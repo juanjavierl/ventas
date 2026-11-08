@@ -1,3 +1,4 @@
+{% load extras %}
 <!DOCTYPE html>
 <html lang="es">
 
@@ -110,7 +111,7 @@
             {% for p in pedidos %}
             <tr>
                 <td>{{ forloop.counter }}</td>
-                <td>{{ p.product.name }} {{ p.nota|default:""|title }}</td>
+                    <td>{{ p.product.name }} {{ p.nota|default:""|title }}{% pedido_atributos p %}</td>
                 <td>{{ p.cant }}</td>
                 <td>{{ p.price|floatformat:2 }}</td>
                 <td>{{ p.total|floatformat:2 }}</td>
@@ -137,7 +138,7 @@
                 <td>{{ orden.precio_envio|floatformat:2 }}</td>
             </tr>
             <tr>
-                <td colspan="4" class="text-end fw-bold">Total a pagar</td>
+                <td colspan="4" class="text-end fw-bold">Total a pagar {{company.moneda}}</td>
                 <td>{{ orden.total|floatformat:2 }}</td>
             </tr>
         </tfoot>

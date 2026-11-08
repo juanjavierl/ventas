@@ -80,6 +80,25 @@
       width: 60px;
       text-align: center;
     }
+    .color-option-label {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      min-height: 2.5rem;
+    }
+    .color-swatch {
+      display: inline-block;
+      width: 1.15rem;
+      height: 1.15rem;
+      flex: 0 0 1.15rem;
+      border: 1px solid rgba(0, 0, 0, .25);
+      border-radius: 50%;
+      background-color: #ced4da;
+    }
+    .btn-check:checked + .color-option-label {
+      border-width: 2px;
+      box-shadow: 0 0 0 .15rem rgba(13, 110, 253, .18);
+    }
     .sale-tag {
       border-radius: 2px;
       font-size: 12px;
@@ -156,19 +175,20 @@
           <ul>
             <li><strong>Categoria</strong>: {{p.category|capfirst}}</li>
             {% if p.code %}
-              <li><strong>Código</strong>: {{p.code|default:" - - -"}}</li>
+              <li><small><strong>Cód - Marca</strong>: {{p.code|default:" - - -"}}</small></li>
             {% endif %}      
-            <li><strong>Precio</strong>: {{p.price|default:" 0 "}} {{company.moneda}}.
+            <li><strong>Precio</strong>: <span id="precio-final" data-base="{{p.price}}">{{p.price|floatformat:1|default:" 0 "}}</span> {{company.moneda}}.
               {% if p.price_before %}
-              <span class="text-decoration-line-through text-danger" style="font-size: 14px; padding-left: 30px;">Antes:
-                {{p.price_before}} {{company.moneda}}..</span>
+              <small class="text-decoration-line-through text-danger" style="padding-left: 30px;">Antes:
+                {{p.price_before|floatformat:0}} {{company.moneda}}.</small>
               {% endif %}
             </li>
             
-            <li><strong>Disponibles:</strong>:
+            <li><strong>Disponibles </strong>:
               {% if p.stock_actual > 0 %}
               <span id="passwordHelpBlock" class="form-text text-success fw-bold">
-                 {{p.stock_actual}} uds. <i class="bi bi-check-lg"></i>
+                 {{p.stock_actual}} uds.
+                 <small style="padding-left: 15px;">Reseñas</small>
                 <i class="bi bi-star-fill" style="color: gold;"></i>
                 <i class="bi bi-star-fill" style="color: gold;"></i>
                 <i class="bi bi-star-fill" style="color: gold;"></i>
@@ -179,17 +199,20 @@
               </span>
               {% endif %}
             </li>
+            <li>
+              <small class="text-primary"><strong>{{p.cuantos_compraron}}</strong> Personas compraron este producto este mes</small>
+            </li>
             <li class="">
                 {% if p.price_before %}
                 <span class="badge bg-warning text-dark">Descuento {{p.porcentage}}%</span>
                 {% endif %}
                 {% if p.stock_actual > 0 %}
-                  <span class="badge bg-primary text-white">Disponible</span>
+                  <span class="badge bg-primary text-white">Disponible <i class="bi bi-check-lg"></i></span>
                   {% else %}
                   <span class="badge bg-danger text-white">Agotado</span>
                 {% endif %}
                 {% if p.is_service %}
-                <span class="badge text-bg-info text-white" style="font-size: 14px;">Servicio</span>
+                <span class="badge text-bg-info text-white">Servicio</span>
                 {% endif %}
             </li>
             <br>
@@ -207,16 +230,46 @@
                     <button class="btn btn-sm btn-outline-primary mas" type="button" onclick="cambiarValor(1, '{{forloop.counter0}}')">+</button>
                 </div>
                 </div>
-                <div class="form-check" style="margin-bottom: 10px;">
-                  <input class="form-check-input" type="checkbox" name="is_nota" id="defaultCheck1">
-                  <label class="form-check-label" for="defaultCheck1">
-                    Ingrese una Nota (si corresponde)
-                  </label>
-                </div>
-                <div class="mb-3 caracteristica_producto">
-                  <textarea name="nota" class="form-control" id="exampleFormControlTextarea1" rows="3"
-                    placeholder="Ejem: Color, tamaño etc."></textarea>
-                </div>
+                {% for atributo in attributes_producto %}
+                  {% if atributo.is_selectable %}
+                  {% with nombre_atributo=atributo.name|lower %}
+                  <fieldset class="mb-3 border-0 p-0">
+                    <legend class="form-label fw-semibold fs-6 mb-2">Seleccionar {{atributo.name}}</legend>
+                    {% if atributo.values|length > 8 %}
+                      <select class="form-select atributo-seleccion" id="atributo_{{forloop.counter}}" data-atributo="{{atributo.name}}" required>
+                        <option value="">Seleccione {{atributo.name}}</option>
+                        {% for valor in atributo.option_values %}<option value="{{valor.value}}" data-extra="{{valor.price_extra}}">{{valor.value}}{% if valor.price_extra != '0.00' %} ({{valor.price_extra}} {{company.moneda}}){% endif %}</option>{% endfor %}
+                      </select>
+                    {% elif 'color' in nombre_atributo %}
+                      <div class="d-flex flex-wrap gap-2" role="radiogroup" aria-label="{{atributo.name}}">
+                        {% for valor in atributo.option_values %}
+                        <div class="color-option">
+                          <input class="btn-check atributo-seleccion" type="radio" name="atributo_{{forloop.parentloop.counter}}" id="atributo_{{forloop.parentloop.counter}}_{{forloop.counter}}" value="{{valor.value}}" data-extra="{{valor.price_extra}}" data-atributo="{{atributo.name}}" autocomplete="off" required>
+                          <label class="btn btn-outline-secondary color-option-label btn-sm" for="atributo_{{forloop.parentloop.counter}}_{{forloop.counter}}">
+                            <span class="color-swatch" data-color="{{valor.value|lower}}" aria-hidden="true"></span>{{valor.value}}{% if valor.price_extra != '0.00' %} ({{valor.price_extra}}){% endif %}
+                          </label>
+                        </div>
+                        {% endfor %}
+                      </div>
+                    {% elif 'talla' in nombre_atributo or 'size' in nombre_atributo or 'capacidad' in nombre_atributo or nombre_atributo == 'ram' or 'ram ' in nombre_atributo or 'almacenamiento' in nombre_atributo or 'memoria' in nombre_atributo or 'storage' in nombre_atributo or 'disco' in nombre_atributo or 'peso' in nombre_atributo or 'tamaño' in nombre_atributo %}
+                      <div class="d-flex flex-wrap gap-2" role="radiogroup" aria-label="{{atributo.name}}">
+                        {% for valor in atributo.option_values %}
+                        <div>
+                          <input class="btn-check atributo-seleccion" type="radio" name="atributo_{{forloop.parentloop.counter}}" id="atributo_{{forloop.parentloop.counter}}_{{forloop.counter}}" value="{{valor.value}}" data-extra="{{valor.price_extra}}" data-atributo="{{atributo.name}}" autocomplete="off" required>
+                          <label class="btn btn-outline-primary btn-sm" for="atributo_{{forloop.parentloop.counter}}_{{forloop.counter}}">{{valor.value}}{% if valor.price_extra != '0.00' %} (+{{valor.price_extra}}){% endif %}</label>
+                        </div>
+                        {% endfor %}
+                      </div>
+                    {% else %}
+                      <select class="form-select atributo-seleccion" id="atributo_{{forloop.counter}}" data-atributo="{{atributo.name}}" required>
+                        <option value="">Seleccione {{atributo.name}}</option>
+                        {% for valor in atributo.option_values %}<option value="{{valor.value}}" data-extra="{{valor.price_extra}}">{{valor.value}}{% if valor.price_extra != '0.00' %} ({{valor.price_extra}} {{company.moneda}}){% endif %}</option>{% endfor %}
+                      </select>
+                    {% endif %}
+                  </fieldset>
+                  {% endwith %}
+                  {% endif %}
+                {% endfor %}
                 <div class="row btn_add align-items-center" style="height: 30px;">
                   <button type="col submit" class="btn btn-success btn-sm tb_text efecto_button">
                     <i class="bi bi-cart-fill"></i>
@@ -246,6 +299,16 @@
           </ul>
         </div>
         <div class="portfolio-description">
+          {% if atributos_informativos %}
+          <section class="mb-4">
+            <h3 class="h5">Características</h3>
+            <dl class="row mb-0">
+              {% for atributo in atributos_informativos %}
+              <dt class="col-5">{{atributo.name}}</dt><dd class="col-7">{% for option in atributo.option_values %}{{option.value}}{% if not forloop.last %}, {% endif %}{% endfor %}</dd>
+              {% endfor %}
+            </dl>
+          </section>
+          {% endif %}
           <h2>
             Información
             {% if p.video_url %}
@@ -461,13 +524,65 @@
 
   });
 
+  function numeroMonetario(valor) {
+    if (valor === null || valor === undefined || valor === '') return 0;
+    let texto = String(valor).trim().replace(/\s/g, '').replace(/[^\d.,+-]/g, '');
+    if (!texto || !/[\d]/.test(texto)) return 0;
+    const coma = texto.lastIndexOf(',');
+    const punto = texto.lastIndexOf('.');
+    if (coma >= 0 && punto >= 0) {
+      const decimal = coma > punto ? ',' : '.';
+      texto = texto.replace(decimal === ',' ? /\./g : /,/g, '').replace(decimal, '.');
+    } else if (coma >= 0) {
+      texto = /,\d{3}$/.test(texto) ? texto.replace(/,/g, '') : texto.replace(/\./g, '').replace(',', '.');
+    } else if (punto >= 0 && /\.\d{3}$/.test(texto)) {
+      texto = texto.replace(/\./g, '');
+    }
+    const numero = Number(texto);
+    return Number.isFinite(numero) ? numero : 0;
+  }
+  const formatoPrecio = new Intl.NumberFormat('es-BO', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  function actualizarPrecioAtributos() {
+    let centavos = Math.round(numeroMonetario($('#precio-final').attr('data-base')) * 100);
+    $('.atributo-seleccion:checked').each(function(){ centavos += Math.round(numeroMonetario(this.getAttribute('data-extra')) * 100); });
+    $('.atributo-seleccion').filter('select').each(function(){
+      const extra = $(this).find(':selected').attr('data-extra');
+      centavos += Math.round(numeroMonetario(extra) * 100);
+    });
+    $('#precio-final').text(formatoPrecio.format(centavos / 100));
+  }
+  actualizarPrecioAtributos();
+  $(document).on('change', '.atributo-seleccion', actualizarPrecioAtributos);
   $('#form_pedido').submit(function (e) {
     e.preventDefault();
+    const opciones = {};
+    let faltante = '';
+    const radiosProcesados = new Set();
+    $('.atributo-seleccion').each(function () {
+      if (this.type === 'radio') {
+        if (radiosProcesados.has(this.name)) return;
+        radiosProcesados.add(this.name);
+        const nombreGrupo = this.name;
+        const grupo = $('.atributo-seleccion').filter(function(){ return this.type === 'radio' && this.name === nombreGrupo; });
+        const seleccionado = grupo.filter(':checked').val();
+        if (!seleccionado && !faltante) faltante = $(this).data('atributo');
+        if (seleccionado) opciones[$(this).data('atributo')] = seleccionado;
+        return;
+      }
+      if (!this.value && !faltante) faltante = $(this).data('atributo');
+      if (this.value) opciones[$(this).data('atributo')] = this.value;
+    });
+    if (faltante) {
+      $('.toast-body').removeClass('alert-success').addClass('alert-danger').text('Seleccione ' + faltante + '.');
+      mostrar_notificacion();
+      return;
+    }
+    const datosPedido = $(this).serialize() + '&atributos=' + encodeURIComponent(JSON.stringify(opciones));
     //if(Number.isInteger($('#cantidad_id').val()) || parseInt($('#cantidad_id').val())){
     $.ajax({
       type: 'POST',
       url: $(this).attr("action"),
-      data: $(this).serialize(),
+      data: datosPedido,
       success: function (resp) {
         if (resp.error) {
           $('.toast-body').removeClass('alert-success').addClass('alert-danger');
@@ -486,13 +601,32 @@
       },
       error: function (xhr, ajaxOptions, thrownError) {
         $('.toast-body').removeClass('alert-success').addClass('alert-danger');
-        $('.toast-body').fadeIn(1000).html(thrownError);
+        const mensaje = xhr.responseJSON?.error || thrownError || 'No se pudo agregar el producto.';
+        $('.toast-body').fadeIn(1000).text(mensaje);
         mostrar_notificacion();
       }
     });
   });
   $(function () {
     $('.caracteristica_producto').hide();
+
+    const coloresMuestra = {
+      'negro': '#212529', 'black': '#212529', 'blanco': '#ffffff', 'white': '#ffffff',
+      'rojo': '#dc3545', 'red': '#dc3545', 'azul': '#0d6efd', 'blue': '#0d6efd',
+      'celeste': '#0dcaf0', 'light blue': '#0dcaf0', 'verde': '#198754', 'green': '#198754',
+      'amarillo': '#ffc107', 'yellow': '#ffc107', 'naranja': '#fd7e14', 'orange': '#fd7e14',
+      'morado': '#6f42c1', 'violeta': '#6f42c1', 'purple': '#6f42c1', 'rosa': '#d63384', 'pink': '#d63384',
+      'gris': '#6c757d', 'gray': '#6c757d', 'grey': '#6c757d', 'marrón': '#795548', 'marron': '#795548', 'brown': '#795548',
+      'beige': '#d8c3a5'
+    };
+    $('.color-swatch').each(function () {
+      const valor = (this.dataset.color || '').trim();
+      const hexadecimal = /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(valor);
+      const clave = Object.keys(coloresMuestra).find(function(color){ return valor === color || valor.indexOf(color + ' ') === 0; });
+      if (hexadecimal) this.style.backgroundColor = valor;
+      else if (clave) this.style.backgroundColor = coloresMuestra[clave];
+      else if (window.CSS && CSS.supports('color', valor)) this.style.backgroundColor = valor;
+    });
 
     $('#defaultCheck1').change(function () {
       if (this.checked) {

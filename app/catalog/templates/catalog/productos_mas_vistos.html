@@ -27,13 +27,13 @@
                         <div class="text-section">
                             <h5 class="card-title text-wrap text-primary fw-bolder">{{p.name|capfirst}}</h5>
                             
-                            <small class="">{{company.moneda}} {{p.price}} </small>
+                            <small class="">{{company.moneda}} {{p.price|floatformat:0}} </small>
                             <small class="text-decoration-line-through text-danger">
                                 {% if p.price_before %}
-                                Antes: {{p.price_before}}
+                                Antes: {{p.price_before|floatformat:0}}
                                 {% endif %}
                             </small>
-                            <small class="">
+                            <small class="bg-warning text-white desc rounded-pill px-1">
                                 {% if p.price_before %}
                                 Desc. {{p.porcentage}}%
                                 {% endif %}
@@ -43,9 +43,13 @@
                                     hace {{p.num_aleatorio}} dias</small>
 
                             </p>
+                            {% if p.has_selectable_attributes %}
+                            <a href="{% url 'detail_product' p.company.id p.id p.get_slug %}" class="btn btn-primary btn-sm">Elegir opciones</a>
+                            {% else %}
                             <button type="submit" id="id_{{p.id}}"
                                 onclick="add_item('{% url 'detail_product' p.company.id p.id p.get_slug %}','{{p.id}}')"
-                                class="btn btn-primary btn-sm">Agregar</button>
+                                class="btn btn-primary btn-sm">Agregar <i class="bi bi-cart-check-fill"></i></button>
+                            {% endif %}
                             <button type="submit" onclick="detailView('{% url 'detail_product' p.company.id p.id p.get_slug %}')"
                                 class="btn btn-warning btn-sm text-white">Ver datalles</button>
 

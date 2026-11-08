@@ -1,71 +1,41 @@
 {% load crispy_forms_tags %}
-<div class="modal-header  thead-light" style="background-color: #58bba9;">
-    <h5 class="modal-title text-white" id="exampleModalLabel">Actualizar: {{product.name|title}}</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="modal-header" style="background-color: #58bba9;">
+  <h5 class="modal-title text-white">Actualizar producto: {{product.name|title}}</h5>
+  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
 </div>
-  <div class="modal-body table-responsive">
-    <form action="/{{product.id}}/updateProduct/" method="post" id="product_forms_update" enctype="multipart/form-data">
-     {% csrf_token %}
-       {{form|crispy}}
-       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="bi bi-arrow-left-circle"></i> Cancelar</button>
-        <button type="submit" class="btn btn-success btn-sm"><i class="bi bi-shop-window"></i> Confirmar</button>
-      </div>
-    </form>
-    <p class="invalid text-danger"></p>
- </div>
- <script>
-  $("#product_forms_update").on('submit',function(e){
+<div class="modal-body table-responsive">
+  <form action="/{{product.id}}/updateProduct/" method="post" id="product_forms_update" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{form|crispy}}
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="bi bi-arrow-left-circle"></i> Cancelar</button>
+      <button type="submit" class="btn btn-success btn-sm"><i class="bi bi-shop-window"></i> Confirmar</button>
+    </div>
+  </form>
+  <p class="invalid text-danger"></p>
+</div>
+<script>
+  $('#product_forms_update').on('submit', function(e) {
     e.preventDefault();
-    let datos = new FormData(this);
     $.ajax({
-            type:'POST',
-            url:$(this).attr('action'),
-            data:datos,
-            contentType: false,
-            processData: false,
-            success:function(resp){
-              $('.toast-body').removeClass('alert-danger').addClass('alert-success');
-              $('.toast-body').fadeIn(1000).html(resp.success);
-              mostrar_notificacion();
-    
-              setTimeout(function () {
-                $(".btn-close").click();
-              }, 1000);
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-              if (xhr.status === 400) {
-
-                  const errores = xhr.responseJSON.errors;
-          
-                  // Quitar errores anteriores
-                  $(".is-invalid").removeClass("is-invalid");
-          
-                  $(".invalid-feedback").remove();
-          
-                  // Recorrer los campos con errores
-                  for (let campo in errores) {
-          
-                      const input = $("#id_" + campo);
-          
-                      // Poner borde rojo
-                      input.addClass("is-invalid");
-          
-                      // Obtener mensajes
-                      errores[campo].forEach(function(error) {
-          
-                          input.after(
-                              $('<div>', {
-                                  class: 'invalid-feedback',
-                                  text: error.message
-                              })
-                          );
-          
-                      });
-                  }
-              }
-           }
+      type: 'POST', url: $(this).attr('action'), data: new FormData(this),
+      contentType: false, processData: false,
+      success: function(resp) {
+        $('.toast-body').removeClass('alert-danger').addClass('alert-success').text(resp.success);
+        mostrar_notificacion();
+        setTimeout(function() { $('.modal .btn-close').first().click(); }, 1000);
+      },
+      error: function(xhr) {
+        const errores = xhr.responseJSON?.errors || {};
+        $('.is-invalid').removeClass('is-invalid');
+        $('.invalid-feedback').remove();
+        Object.keys(errores).forEach(function(campo) {
+          const input = $('#id_' + campo).addClass('is-invalid');
+          errores[campo].forEach(function(error) {
+            input.after($('<div>', {class: 'invalid-feedback', text: error.message}));
+          });
         });
+      }
+    });
   });
-      
- </script>
+</script>

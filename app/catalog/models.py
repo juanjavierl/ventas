@@ -13,6 +13,7 @@ from ventas import settings
 from app.catalog.choices import GENDER
 
 from django.db import models
+from django.core.exceptions import ValidationError
 from app.tiendas.models import *
 from app.tiendas.utils import obtener_numero_nacional
 
@@ -37,7 +38,7 @@ class Category(models.Model):
 
 class Product(models.Model):
     name = models.CharField(max_length=100, verbose_name='Nombre')
-    code = models.CharField(max_length=20, blank=True,null=True, verbose_name='Código')
+    code = models.CharField(max_length=100, blank=True,null=True, verbose_name='Código/Marca')
     description = models.TextField(null=True, blank=True, verbose_name='Descripción')
     category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name='Categoría')
     company = models.ForeignKey(Company, on_delete=models.CASCADE, verbose_name='Compania')
@@ -127,17 +128,56 @@ class Product(models.Model):
         total = (self.price_before - self.price)/self.price * 100
         return int(total)
 
-    def num_aleatorio(self):
-        num = randint(1,11)
+    def num_aleatorio(self):#indica hace dias compraron
+        num = randint(1,10)
         return num
+
+    @property
+    def cuantos_compraron(self):#indica cuantos compraron
+            num = randint(11,26)
+            return num
     
     def stock_actual(self):
         en_stock = int(self.stock) - int(abs(self.salida))
         return en_stock
 
+    @property
+    def has_selectable_attributes(self):
+        return any(attribute.is_selectable for attribute in self.attributes.all())
+
     class Meta:
         verbose_name = 'Producto'
         verbose_name_plural = 'Productos'
+
+
+class ProductAttribute(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='attributes')
+    name = models.CharField(max_length=100)
+    values = models.JSONField(default=list, blank=True)
+    is_selectable = models.BooleanField(default=False)
+
+    def clean(self):
+        super().clean()
+        from app.catalog.pricing import normalize_attribute_values
+        try:
+            normalized = normalize_attribute_values(self.values)
+        except ValidationError as error:
+            raise ValidationError({'values': error.messages})
+        if not self.is_selectable:
+            normalized = [{'value': item['value'], 'price_extra': '0.00'} for item in normalized]
+        self.values = normalized
+        if self.is_selectable and not self.values:
+            raise ValidationError({'values': 'Las características seleccionables requieren al menos una opción.'})
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f'{self.name} ({self.product.name})'
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=('product', 'name'), name='unique_product_attribute_name')]
 
 class Imagen(models.Model):
     img = models.ImageField(upload_to='img_products', default="default.png", verbose_name='Imagen', help_text="Puede registrar hasta 2 imagenes como maximo")
@@ -228,7 +268,7 @@ class Orden(models.Model):
         """
         Retorna el precio de envío según el tipo de venta.
 
-        - Sin registro -> 0
+        - Sin registro -> 0 = envio gratis
         - Tienda -> 0
         - Por pagar -> "Por pagar"
         - Domicilio -> precio o 0
@@ -262,6 +302,7 @@ class Pedido(models.Model):
     subtotal = models.DecimalField(max_digits=9, decimal_places=2, default=0.00)
     total = models.DecimalField(max_digits=9, decimal_places=2, default=0.00)
     nota = models.TextField(max_length=255, null=True, blank=True)
+    atributos_seleccionados = models.JSONField(default=dict, blank=True)
 
     class Meta:
         """Meta definition for Pedido."""

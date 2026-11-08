@@ -201,10 +201,10 @@
               <img src="{{ i.imagen }}" alt="{{ i.name }}" style="width: 60px; height: 60px;border-radius:5px;">
             {% endif %}
               </td>
-            <td>{{i.name}} {{i.nota}}</td>
-            <td>{{i.precio_uni}}</td>
+            <td>{{i.name}} {{i.nota}}{% for nombre, valor in i.atributos.items %}<div class="small text-muted">{{nombre}}: {{valor}}</div>{% endfor %}</td>
+            <td>{{i.precio_uni|floatformat:1}} {{company.moneda}}</td>
             <td>{{i.cantidad}}</td>
-            <td>{{i.total}}</td>
+            <td>{{i.total|floatformat:1}} {{company.moneda}}</td>
             <!--  <td><button onclick="eliminarProducto('/eliminarProducto/{{forloop.counter0}}')" data-bs-toggle="tooltip" title="Eliminar" class="btn btn-danger btn-sm"><i class="bi bi-trash3"></i></button></td> -->
           </tr>
           {% empty %}
@@ -216,7 +216,7 @@
           {% endfor %}
           {% if datos %}
           <tr>
-            <td colspan="5" style="text-align: center;"><strong id="t_p">Importe estimado: {{company.moneda}}. {{t_pago}}</strong></td>
+            <td colspan="5" style="text-align: center;"><strong id="t_p">Importe estimado: {{company.moneda}}. {{t_pago|floatformat:1}}</strong></td>
           </tr>
           {% endif %}
         </tbody>
@@ -440,7 +440,8 @@
             const cantidad = parseInt(item['cantidad'] || 0);
             const precio = parseFloat(item['price'] ?? item['precio_uni'] ?? 0);
             const total = parseFloat(item['total'] ?? (cantidad * precio));
-            const nota = item['nota']?.trim() ? " (" + item['nota'] + ")" : "";
+            const opciones = Object.entries(item['atributos'] || {}).map(([nombre, valor]) => `${nombre}: ${valor}`).join(', ');
+            const nota = [opciones ? `[${opciones}]` : '', item['nota']?.trim() || ''].filter(Boolean).join(' · ');
 
             textoWhatsapp += `• ${nombre}${nota} → ${cantidad} x ${precio} {{company.moneda}} = *${total} {{company.moneda}}*%0A`;
             total_items += cantidad;

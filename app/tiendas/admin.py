@@ -197,7 +197,7 @@ class SuscripcionAdmin(ImportExportModelAdmin):
             if not companies_data:
                 continue  # nada que enviar para este suscriptor
 
-            subject = "🎉 Mira las promociones y novedades"
+            subject = "🎉 Llegaron nuevas descuentos para ti"
             from_email = settings.EMAIL_HOST_USER
             to = [email]
 

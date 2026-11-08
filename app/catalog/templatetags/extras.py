@@ -1,4 +1,5 @@
 import re
+from decimal import Decimal, InvalidOperation
 from django import template
 from django.utils.html import urlize
 from django.utils.safestring import mark_safe
@@ -60,3 +61,33 @@ def boolean_si_no(value):
     elif value is False or str(value).lower() == "false":
         return "No"
     return value  # si no es boolean, devuelve tal cual
+
+
+@register.inclusion_tag('reportes/_pedido_atributos.html')
+def pedido_atributos(pedido):
+    atributos = pedido.atributos_seleccionados or {}
+    items = []
+    if isinstance(atributos, dict):
+        for nombre, dato in atributos.items():
+            if isinstance(dato, dict):
+                valor = dato.get('value', '')
+                extra_raw = dato.get('price_extra', '0')
+            else:  # pedidos anteriores guardaban directamente el texto
+                valor, extra_raw = dato, '0'
+            try:
+                extra = Decimal(str(extra_raw or '0'))
+                if not extra.is_finite():
+                    extra = Decimal('0')
+            except (InvalidOperation, TypeError, ValueError):
+                extra = Decimal('0')
+            # es-BO presentation: 1.234,50
+            amount = format(abs(extra), ',.2f').replace(',', '\0').replace('.', ',').replace('\0', '.')
+            items.append({
+                'name': nombre,
+                'value': valor,
+                'has_extra': extra != 0,
+                'is_discount': extra < 0,
+                'extra_display': amount,
+                'currency': getattr(pedido.product.company, 'moneda', 'Bs') or 'Bs',
+            })
+    return {'atributos': items}

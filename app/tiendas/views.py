@@ -485,7 +485,7 @@ def buscar_orden(request, id_company):
         cod = int(request.POST['codigo_orden'])
         if Orden.objects.filter(id=cod, company_id=int(id_company)).exists():
             orden = Orden.objects.get(id=cod)
-            pedidos = Pedido.objects.filter(orden_id = orden.id)
+            pedidos = Pedido.objects.filter(orden_id=orden.id).select_related('product')
         else:
             orden, precio_envio = None, None
         return render(request, 'reportes/buscar_orden.html', {'orden':orden, 'pedidos':pedidos})
@@ -685,7 +685,7 @@ def print_orden(request, id_company, id_orden):
     except Orden.DoesNotExist:
         raise Http404("Orden no encontrada")
 
-    pedidos = Pedido.objects.filter(orden=orden)
+    pedidos = Pedido.objects.filter(orden=orden).select_related('product')
     sucursal = get_address(id_company)
 
     precio_envio = orden.total - orden.subtotal

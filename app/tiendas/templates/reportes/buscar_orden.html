@@ -1,4 +1,5 @@
 
+{% load extras %}
 {% if orden != None %}
 <table class="table table-borderless mt-4 invoice-summary">
     <tbody>
@@ -46,7 +47,7 @@
         <tr>
             <td>{{forloop.counter}}</td>
             <td><img src="/media/{{p.product.image}}" alt="{{p.product.name}}" style="width: 60px; height: 60px;"></td>
-            <td>{{p.product.name}} {{p.nota|default:""|title}}</td>
+            <td>{{p.product.name}} {{p.nota|default:""|title}}{% pedido_atributos p %}</td>
             <td>{{p.cant}}</td>
             <td>{{p.price}}</td>
             <td>{{p.total}}</td>
@@ -76,7 +77,7 @@
             </td>
         </tr>
         <tr>
-            <td colspan="5" class="text-end fw-bold">Total a Pagar</td>
+            <td colspan="5" class="text-end fw-bold">Total a Pagar {{company.moneda}}</td>
             <td>{{ orden.total|default:"0.00" }}</td>
         </tr>
         <tr>
@@ -117,4 +118,3 @@
     window.open(url, '_blank');
 }
 </script>
-    

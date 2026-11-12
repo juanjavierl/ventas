@@ -1,69 +1,71 @@
-<div class="row" data-aos="fade-up">
+<section id="productos_mas_vistos" class="productos_mas_vistos">
+    <div class="row" data-aos="fade-up">
     <div class="col-12">
         <div class="section-title">
             {% if productos %}
                 {% if company.is_service %}
                     <h2>Servicios más solicitados del mes</h2>
                     {% else %}
-                    <h2>Productos más vendidos del mes</h2>
-                {% endif %}
-            {% endif %}   
+                        <h2>Productos en oferta del mes 🏷️</h2>
+                    {% endif %}
+                {% endif %}   
+            </div>
         </div>
     </div>
-</div>
 
-<div class="testimonials-slider swiper" data-aos="fade-left" data-aos-delay="100">
-    <div class="swiper-wrapper">
-        {% for p in productos %}
-        {% if p.image %}
-        <div class="swiper-slide">
-            <div class="testimonial-item">
-                <p>
+    <div class="testimonials-slider swiper" data-aos="fade-left" data-aos-delay="100">
+        <div class="swiper-wrapper">
+            {% for p in productos %}
+            {% if p.image %}
+            <div class="swiper-slide">
+                <div class="testimonial-item">
+                    <p>
 
-                <div class="card dark card_c single-product">
-                    <img src="/media/{{p.image}}" class="card-img-top" loading="lazy" alt="{{p.name}}">
+                    <div class="card dark card_c single-product">
+                        <img src="/media/{{p.image}}" class="card-img-top" loading="lazy" alt="{{p.name}}">
 
-                    <div class="card-body" style="padding: 10px;">
-                        <div class="text-section">
-                            <h5 class="card-title text-wrap text-primary fw-bolder">{{p.name|capfirst}}</h5>
-                            
-                            <small class="">{{company.moneda}} {{p.price|floatformat:0}} </small>
-                            <small class="text-decoration-line-through text-danger">
-                                {% if p.price_before %}
-                                Antes: {{p.price_before|floatformat:0}}
+                        <div class="card-body" style="padding: 10px;">
+                            <div class="text-section">
+                                <h5 class="card-title text-wrap text-primary fw-bolder">{{p.name|capfirst}}</h5>
+                                
+                                <small class="">{{company.moneda}} {{p.price|floatformat:0}} </small>
+                                <small class="text-decoration-line-through text-danger">
+                                    {% if p.price_before %}
+                                    Antes: {{p.price_before|floatformat:0}}
+                                    {% endif %}
+                                </small>
+                                <small class="bg-warning text-white desc rounded-pill px-1">
+                                    {% if p.price_before %}
+                                    Desc. {{p.porcentage}}%
+                                    {% endif %}
+                                </small>
+                                <p class="card-text">
+                                    <small class="text-success text-muted" style="font-size: 11px;">Última venta
+                                        hace {{p.num_aleatorio}} dias</small>
+
+                                </p>
+                                {% if p.has_selectable_attributes %}
+                                <a href="{% url 'detail_product' p.company.id p.id p.get_slug %}" class="btn btn-primary btn-sm">Elegir opciones</a>
+                                {% else %}
+                                <button type="submit" id="id_{{p.id}}"
+                                    onclick="add_item('{% url 'detail_product' p.company.id p.id p.get_slug %}','{{p.id}}')"
+                                    class="btn btn-primary btn-sm">Agregar <i class="bi bi-cart-check-fill"></i></button>
                                 {% endif %}
-                            </small>
-                            <small class="bg-warning text-white desc rounded-pill px-1">
-                                {% if p.price_before %}
-                                Desc. {{p.porcentage}}%
-                                {% endif %}
-                            </small>
-                            <p class="card-text">
-                                <small class="text-success text-muted" style="font-size: 11px;">Última venta
-                                    hace {{p.num_aleatorio}} dias</small>
+                                <button type="submit" onclick="detailView('{% url 'detail_product' p.company.id p.id p.get_slug %}')"
+                                    class="btn btn-warning btn-sm text-white">Ver datalles</button>
 
-                            </p>
-                            {% if p.has_selectable_attributes %}
-                            <a href="{% url 'detail_product' p.company.id p.id p.get_slug %}" class="btn btn-primary btn-sm">Elegir opciones</a>
-                            {% else %}
-                            <button type="submit" id="id_{{p.id}}"
-                                onclick="add_item('{% url 'detail_product' p.company.id p.id p.get_slug %}','{{p.id}}')"
-                                class="btn btn-primary btn-sm">Agregar <i class="bi bi-cart-check-fill"></i></button>
-                            {% endif %}
-                            <button type="submit" onclick="detailView('{% url 'detail_product' p.company.id p.id p.get_slug %}')"
-                                class="btn btn-warning btn-sm text-white">Ver datalles</button>
-
+                            </div>
                         </div>
                     </div>
+                    </p>
                 </div>
-                </p>
-            </div>
-        </div><!-- End testimonial item -->
-        {% endif %}
-        {% endfor %}
-    </div><br>
-    <div class="swiper-pagination"></div>
-</div>
+            </div><!-- End testimonial item -->
+            {% endif %}
+            {% endfor %}
+        </div><br>
+        <div class="swiper-pagination"></div>
+    </div>
+</section>
 
 <script>
     function add_item(urls, id_producto) {

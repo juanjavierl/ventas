@@ -44,7 +44,7 @@ def CatalogView(request, id_company=None):
         page = request.GET.get('page',1)
         try:
             categorys = categorys_from_productos(productos)
-            paginator = Paginator(productos, 10)
+            paginator = Paginator(productos, 20)
             productos = paginator.page(page)
         except:
             raise Http404
@@ -497,12 +497,12 @@ def confirmar_compra(request, id_company):
         request.session['compra'] = []
 
         # --- Enviar correo al propietario ---
-        """ email_propietario = company.user.email
+        email_propietario = company.user.email
         if email_propietario:
             threading.Thread(
                 target=send_confirmar_venta_mail,
                 args=(email_propietario, orden, company)
-            ).start() """
+            ).start()
 
         return JsonResponse({
             'success': "Tu pedido fue registrado con éxito.",

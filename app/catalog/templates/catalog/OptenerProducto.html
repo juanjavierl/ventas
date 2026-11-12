@@ -256,7 +256,16 @@
                         {% for valor in atributo.option_values %}
                         <div>
                           <input class="btn-check atributo-seleccion" type="radio" name="atributo_{{forloop.parentloop.counter}}" id="atributo_{{forloop.parentloop.counter}}_{{forloop.counter}}" value="{{valor.value}}" data-extra="{{valor.price_extra}}" data-atributo="{{atributo.name}}" autocomplete="off" required>
-                          <label class="btn btn-outline-primary btn-sm" for="atributo_{{forloop.parentloop.counter}}_{{forloop.counter}}">{{valor.value}}{% if valor.price_extra != '0.00' %} (+{{valor.price_extra}}){% endif %}</label>
+                          <label class="btn btn-outline-primary btn-sm" for="atributo_{{forloop.parentloop.counter}}_{{forloop.counter}}">{{valor.value}}{% if valor.price_extra != '0.00' %} (+{{valor.price_extra|floatformat:1}}){% endif %}</label>
+                        </div>
+                        {% endfor %}
+                      </div>
+                    {% elif 'mayor' in nombre_atributo or 'caja' in nombre_atributo or 'paquete' in nombre_atributo %}
+                      <div class="d-flex flex-wrap gap-2" role="radiogroup" aria-label="{{atributo.name}}">
+                        {% for valor in atributo.option_values %}
+                        <div>
+                          <input class="btn-check atributo-seleccion" type="radio" name="atributo_{{forloop.parentloop.counter}}" id="atributo_{{forloop.parentloop.counter}}_{{forloop.counter}}" value="{{valor.value}}" data-extra="{{valor.price_extra}}" data-atributo="{{atributo.name}}" autocomplete="off" required>
+                          <label class="btn btn-outline-primary btn-sm" for="atributo_{{forloop.parentloop.counter}}_{{forloop.counter}}">{{valor.value}}{% if valor.price_extra != '0.00' %} {% endif %}</label>
                         </div>
                         {% endfor %}
                       </div>
@@ -271,10 +280,10 @@
                   {% endif %}
                 {% endfor %}
                 <div class="row btn_add align-items-center" style="height: 30px;">
-                  <button type="col submit" class="btn btn-success btn-sm tb_text efecto_button">
+                  <button type="col submit" class="btn btn-success btn-sm tb_text efecto_button mb-1">
                     <i class="bi bi-cart-fill"></i>
                     Agregar al Carrito
-                  </button><br><br>
+                  </button>
 
                   <div class="btn-group" role="group" aria-label="Basic example">
                     <a href="{% if request.company %}/{% else %}{{ company.get_meta_url }}{% endif %}" class="col btn btn-secondary btn-sm tb_text"

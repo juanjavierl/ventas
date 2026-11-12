@@ -51,7 +51,7 @@ class Product(models.Model):
     stock = models.IntegerField(default=1)
     salida = models.IntegerField(default=0 ,blank=True,null=True)
     is_new = models.BooleanField(default=False, verbose_name='¿Es novedad?', help_text='marque solo si corresponde')
-    is_promotion = models.BooleanField(default=False, verbose_name='¿Esta en promocion?',help_text='marque solo si corresponde')
+    is_promotion = models.BooleanField(default=False, verbose_name='¿Esta en oferta?',help_text='marque solo si corresponde')
     video_url = models.URLField(blank=True, null=True, verbose_name="Video del producto (Opcional)",help_text="Ingrese el enlace de YouTube, TikTok, o Facebook")
     date_joined = models.DateField(default=datetime.now, verbose_name='Fecha de registro')
     date_update = models.DateTimeField(auto_now=True)
